@@ -17,9 +17,9 @@ Parcel Drafter is a web-app builder template designed to create and edit parcels
 ![][Thumbnail]
 
 ## Features
-* Preset view of unadopted assests
-* Password less authentication through emails
-* Email based editing
+* Coordinate Geometry (COGO)
+* Recorded document tracking/routing
+* Focused editing workflow
 
 ## Requirements
 
