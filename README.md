@@ -1,6 +1,3 @@
-# Parcel-Drafter
-
-
 [Thumbnail]: adopta.png "Parcel Drafter"
 
 [supported browsers]: http://doc.arcgis.com/en/arcgis-online/reference/browsers.htm
