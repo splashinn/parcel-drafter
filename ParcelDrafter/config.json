@@ -1,0 +1,77 @@
+{
+	"pointSymbol": {
+		"color": [
+			240,
+			18,
+			69,
+			255
+		],
+		"size": 15,
+		"angle": 0,
+		"xoffset": 0,
+		"yoffset": 0,
+		"type": "esriSMS",
+		"style": "esriSMSSquare",
+		"outline": {
+			"color": [
+				29,
+				29,
+				53,
+				255
+			],
+			"width": 0.75,
+			"type": "esriSLS",
+			"style": "esriSLSSolid"
+		}
+	},
+	"lineTypes": [{
+		"type": "ConnectionLine",
+		"label": "Connection Line",
+		"symbol": {
+			"color": [
+				255,
+				0,
+				0,
+				255
+			],
+			"width": 2,
+			"type": "esriSLS",
+			"style": "esriSLSDash"
+		}
+	}, {
+		"name": "BoundaryLine",
+		"label": "Boundary Line",
+		"symbol": {
+			"color": [
+				29,
+				32,
+				23,
+				255
+			],
+			"width": 2,
+			"type": "esriSLS",
+			"style": "esriSLSSolid"
+		}
+	}],
+	"polygonSymbol": {
+		"color": [
+			255,
+			189,
+			1,
+			0
+		],
+		"outline": {
+			"color": [
+				255,
+				189,
+				1,
+				255
+			],
+			"width": 2.25,
+			"type": "esriSLS",
+			"style": "esriSLSSolid"
+		},
+		"type": "esriSFS",
+		"style": "esriSFSSolid"
+	}
+}
