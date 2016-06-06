@@ -2,10 +2,12 @@ define({
   root: ({
     _widgetLabel: "Parcel Drafter",
     "newTraverseButtonLabel": "Start New Traverse", //Shown as label to Start New Traverse button onLoad
+    "geometryServiceURLNotFoundMSG": "Unable to get Geometry Service URL", //Shown as error msg in widget panel if geometry service url is not found in WAB app config
     "editTraverseButtonLabel": "Edit Traverse", //Shown as label to Edit Traverse button onLoad
     "mapTooltipForStartNewTraverse": "Please select a point on map to begin", //Shown as tooltip when mouse move over the map once start new traverse is selceted
     "mapTooltipForEditNewTraverse": "Please select a parcel to edit", //Shown as tooltip when mouse move over the map once edit new traverse is selceted
     "mapTooltipForUpdateStartpoint": "Click to update start point", // Shown as tooltip when mouse move over the map once traverse grid page is shown
+    "mapTooltipForScreenDigitization": "Click to add parcel point",// Shown as tooltip when mouse move over the map once screen digitization tool is activated
     "backButtonTooltip": "Back", //Shown as tooltip on back buttons
     "newTraverseTitle": "New Traverse", //Shown as title for new traverse page
     "planSettings": {
@@ -20,7 +22,7 @@ define({
       "quadrantBearing": "Quadrant Bearing", //Shown as label for Quadrant Bearing in direction or angle type dropdown
       "decimalDegree": { "label": "Decimal Degree", "abbreviation": "dd" }, //Shown as label for Decimal Degree in direction or angle unit dropdown
       "degreeMinuteSeconds": { "label": "Degree Minute Seconds", "abbreviation": "dms" }, //Shown as label for Degree Minute Seconds in direction or angle unit dropdown
-      "uSSurveyFeet": { "label": "US Survey Feet", "abbreviation": "usft" }, //Shown as label for US Survey Feet in direction or angle unit dropdown
+      "uSSurveyFeet": { "label": "US Survey Feet", "abbreviation": "ftUS" }, //Shown as label for US Survey Feet in direction or angle unit dropdown
       "meters": { "label": "Meters", "abbreviation": "m" }, //Shown as label for Meters in direction or angle unit dropdown
       "squareFeet": { "label": "Square Feet", "abbreviation": "sqft" }, //Shown as label for Square Feet in distance and length units dropdown
       "acres": { "label": "Acres", "abbreviation": "ac" }, //Shown as label for Acres in distance and length units  dropdown
@@ -39,10 +41,13 @@ define({
       "noMiscloseCalculated" : "Misclose  not calculated",
       "traverseMiscloseBearing": "Misclose  Bearing",
       "traverseAccuracy": "Accuracy",
+      "accuracyHigh": "High",
       "traverseDistance": "Distance",
       "traverseMiscloseRatio": "Misclose  Ratio",
       "traverseStatedArea": "Stated Area",
-      "traverseCalculatedArea": "Calculated Area"
+      "traverseCalculatedArea": "Calculated Area",
+      "addButtonTitle":"add",
+      "deleteButtonTitle":"remove"
     },
     "parcelTools": {
       "rotationToolLabel": "Angle", //Shown as label to Rotate of selected parcel

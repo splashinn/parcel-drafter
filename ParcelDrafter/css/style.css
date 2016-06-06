@@ -12,9 +12,9 @@
     padding: 15px 0 0 0 !important;
 }
 
-.jimu-widget-Adopta .esriCTWidgetErrorNode
+.jimu-widget-ParcelDrafter .esriCTWidgetErrorNode
 {
-    padding: 0px 14px;
+    padding: 0px 20px;
 }
 
 .jimu-widget-ParcelDrafter .esriCTFullHeight
@@ -42,11 +42,6 @@
 .jimu-widget-ParcelDrafter .esriCTCursorDefault
 {
     cursor: pointer;
-}
-
-.jimu-widget-ParcelDrafter .esriCTHidden
-{
-    display: none;
 }
 
 .jimu-widget-ParcelDrafter .esriCTAlignCenter
@@ -79,13 +74,24 @@
     background: url("../images/new-traverse.png") no-repeat;
 }
 
+.jimu-widget-ParcelDrafter .esriCTNewTraverseActive
+{
+    background: url("../images/new-traverse-selected.png") no-repeat;
+    background-color: #8e8e8e;
+}
+
+.jimu-widget-ParcelDrafter .esriCTEditTraverseActive
+{
+    background: url("../images/edit-traverse-selected.png") no-repeat;
+    background-color: #8e8e8e;
+}
+
 .jimu-widget-ParcelDrafter .esriCTButtonIcon
 {
     height: 45px;
     width: 45px;
     float: right;
-    background-size: 45px 45px;
-    border: 1px solid #8e8e8e;
+    background-size: 45px;
 }
 
 .jimu-widget-ParcelDrafter .esriCTParcelToolButtonIcon
@@ -99,11 +105,6 @@
 .esriRtl .jimu-widget-ParcelDrafter .esriCTButtonIcon
 {
     float: left;
-}
-
-.jimu-widget-ParcelDrafter .esriCTButtonIconActive
-{
-    border: 1px solid #000000;
 }
 
 .jimu-widget-ParcelDrafter .esriCTTraverseTool
@@ -130,9 +131,9 @@
 
 .jimu-widget-ParcelDrafter .esriCTTraverseToolIcons
 {
-    height: 20px;
-    width: 20px;
-    background-size: 20px;
+    height: 24px;
+    width: 24px;
+    background-size: 24px;
     float: left;
     background-repeat: no-repeat;
     margin: 5px 0px 5px 20px;
@@ -146,22 +147,31 @@
 
 .jimu-widget-ParcelDrafter .ecriCTLocationIcon
 {
-    background-image: url('../images/location.png');
+    background-image: url('../images/digitization.png');
+}
+
+.jimu-widget-ParcelDrafter .esriCTEnableButton
+{
+    background-image: url('../images/digitizatio-selected.png');
+    background-color: #8e8e8e;
 }
 
 .jimu-widget-ParcelDrafter .ecriCTZoomToIcon
 {
     background-image: url('../images/zoom.png');
+    background-color: #6e6e6e;
 }
 
 .jimu-widget-ParcelDrafter .esriCTCollapse
 {
     background-image: url('../images/collapse.png');
+    background-color: #6e6e6e;
 }
 
 .jimu-widget-ParcelDrafter .esriCTExpand
 {
     background-image: url('../images/expand.png');
+    background-color: #6e6e6e;
 }
 /*------------------------- Styles for Main Page End-----------------------*/
 
@@ -274,7 +284,14 @@
 .jimu-widget-ParcelDrafter .esriCTTraverseGrid
 {
     width: 100%;
-    float: left;
+    display: table;
+    border-collapse: collapse;
+}
+
+
+.jimu-widget-ParcelDrafter .esriCTHidden
+{
+    display: none;
 }
 /*------------------------- Styles for Traverse Page End-----------------------*/
 
@@ -427,7 +444,7 @@
 
 .jimu-widget-ParcelDrafter .esriCTRow {
     clear: both;
-    float: left;
+    display: table-row;
     width: 100%;
 }
 
@@ -439,6 +456,7 @@
     text-align: center;
     margin: 10px 0px;
 }
+
 .jimu-widget-ParcelDrafter .dijitTextBox .dijitPlaceHolder{
     font-size: 12px;
 }
@@ -447,17 +465,24 @@
 {
     margin: 0;
     width: 70px;
-    float: left;
+    display: table-cell;
+}
+
+.jimu-widget-ParcelDrafter .esriCTRow .dijitTextBoxHover
+{
+    border-color: #d9dde0;
+}
+
+.jimu-widget-ParcelDrafter .esriCTRow .dijitTextBoxFocused
+{
+    border-color: #d9dde0 !important;
+    box-shadow: none;
+    outline: none;
 }
 
 .jimu-widget-ParcelDrafter .esriCTBearingRow
 {
     width: calc(100% - 210px) !important;
-}
-
-.esriRtl .jimu-widget-ParcelDrafter .esriCTRow .dijitTextBox
-{
-   float: right;
 }
 
 .jimu-widget-ParcelDrafter .dojoDndItem, .jimu-widget-demo .dojoDndItemAnchor, .jimu-widget-demo .dojoDndItemSelected, .dojoDndContainerOver, .dojoDndItemOver
@@ -471,27 +496,32 @@
 .jimu-widget-ParcelDrafter .esriCTDeleteRow, .jimu-widget-ParcelDrafter .esriCTAddRow
 {
     color: #CCC;
-    float: left;
+    display: table-cell;
     vertical-align: middle;
     font-size: 18px;
+    width: 15px;
+}
+
+.jimu-widget-ParcelDrafter .esriCTDeleteIcon, .jimu-widget-ParcelDrafter .esriCTAddIcon
+{
     cursor: pointer;
     height: 30px;
     width: 15px;
     margin-left: 5px;
 }
 
-.esriRtl .jimu-widget-ParcelDrafter .esriCTDeleteRow,.esriRtl  .jimu-widget-ParcelDrafter .esriCTAddRow
+.esriRtl .jimu-widget-ParcelDrafter .esriCTDeleteIcon,.esriRtl  .jimu-widget-ParcelDrafter .esriCTAddIcon
 {
     margin-right: 5px;
     margin-left: 0;
-    float: right;
 }
 
-.jimu-widget-ParcelDrafter .esriCTDeleteRow
+.jimu-widget-ParcelDrafter .esriCTDeleteIcon
 {
     background: url('../images/delete.png') no-repeat center center;
 }
-.jimu-widget-ParcelDrafter .esriCTAddRow
+
+.jimu-widget-ParcelDrafter .esriCTAddIcon
 {
     background: url('../images/add.png') no-repeat center center;
 }
@@ -505,7 +535,8 @@
 .jimu-widget-ParcelDrafter .esriCTEntrtyNodeContent
 {
     width: 100%;
-    float: left;
+    display: table;
+    border-collapse: collapse;
 }
 /*------------------------- Styles for symbol selector panel -----------------------*/
 
@@ -516,12 +547,7 @@
     height: 30px;
     padding: 0px 5px;
     vertical-align: middle;
-    float: left;
-}
-
-.esriRtl .esriCTSymbolContainer
-{
-    float: right;
+    display: table-cell;
 }
 
 .esriCTSymbolPopup .dijitTooltipContainer
