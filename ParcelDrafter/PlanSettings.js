@@ -54,6 +54,10 @@
       domClass.add(this.domNode, "esriCTPlanSettingsContainer esriCTFullWidth");
     },
 
+    /**
+    * Add options to passed dropdown
+    * @memberOf widgets/ParcelDrafter/PlanSettings
+    **/
     _loadOptionsForDropDown: function (dropDown, dropDownOptions) {
       var options = [], option;
       //Add options for selected dropdown
@@ -68,6 +72,10 @@
       dropDown.addOption(options);
     },
 
+    /**
+    * Return's flag based on plan settings are changed or not
+    * @memberOf widgets/ParcelDrafter/PlanSettings
+    **/
     _isSettingsChanged: function() {
       var isDataChanged = false;
       //check if directionOrAngleType is changed
@@ -94,12 +102,20 @@
       return isDataChanged;
     },
 
+    /**
+    * Update's PlanSettings on close of the widget
+    * @memberOf widgets/ParcelDrafter/PlanSettings
+    **/
     onClose: function () {
       if (this._isSettingsChanged()) {
         this.onPlansettingsChanged();
       }
     },
 
+    /**
+    * Set's the selectedPlanSettings on any value change
+    * @memberOf widgets/ParcelDrafter/PlanSettings
+    **/
     onPlansettingsChanged: function () {
       this.selectedPlanSettings = {
         "directionOrAngleType": this.directionOrAngleType.get('value'),

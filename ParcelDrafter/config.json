@@ -1,4 +1,6 @@
 {
+	"documentTypeField":"Document_type",
+	"BoundaryLineType":0,
 	"pointSymbol": {
 		"color": [
 			240,
@@ -25,7 +27,7 @@
 		}
 	},
 	"lineTypes": [{
-		"type": "ConnectionLine",
+		"type": 3,
 		"label": "Connection Line",
 		"symbol": {
 			"color": [
@@ -39,7 +41,7 @@
 			"style": "esriSLSDash"
 		}
 	}, {
-		"name": "BoundaryLine",
+		"type": 0,
 		"label": "Boundary Line",
 		"symbol": {
 			"color": [
@@ -73,5 +75,9 @@
 		},
 		"type": "esriSFS",
 		"style": "esriSFSSolid"
+	},
+	"polygonLayer": {
+		"layerId": "ParcelDrafter_7027",
+		"layerURL": "http://services1.arcgis.com/DlnuvLGpDczjeSgG/arcgis/rest/services/ParcelDrafter/FeatureServer/1"
 	}
 }

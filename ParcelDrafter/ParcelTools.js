@@ -29,10 +29,8 @@
     postCreate: function () {
       this.inherited(arguments);
       domClass.add(this.domNode, "esriCTFullWidth");
-
       //set constraints on the number textboxes
       this.rotationTxt.constraints = { min: -180, max: 180, places: 3};
-
       //set constraints on the number textboxes
       this.scaleTxt.constraints = { places: 3 };
 
@@ -48,6 +46,18 @@
       on(this.scaleTxt, "blur", lang.hitch(this, function () {
         this.scaleTxt.set("value", Number(this.scaleTxt.displayedValue));
       }));
+    },
+
+    /**
+    * Based on the flag set's the visibility of the widget node
+    * @memberOf widgets/ParcelDrafter/ParcelTools
+    **/
+    showHideTools: function (show) {
+      if (show) {
+        domClass.remove(this.domNode, "esriCTHidden");
+      } else {
+        domClass.add(this.domNode, "esriCTHidden");
+      }
     }
   });
 });

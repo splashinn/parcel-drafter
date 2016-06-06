@@ -2,37 +2,34 @@
     <div class="esriCTTraverseResultContainer" data-dojo-attach-point="noMiscloseCalculated">
         ${nls.traverseSettings.noMiscloseCalculated}
     </div>
-    <div class="esriCTFullWidth esriCTHidden" data-dojo-attach-point="traverseResultContainer">
+    <div class="esriCTFullWidth esriCTHidden" data-dojo-attach-point="miscloseDetailsContainer">
         <div class="esriCTTraverseResultContainer" data-dojo-attach-point="traverseMiscloseBearingNode">
             <div class="esriCTTraverseResultsDiv esriCTEllipsis" title="${nls.traverseSettings.traverseMiscloseBearing}">
                 ${nls.traverseSettings.traverseMiscloseBearing}:
             </div>
-            <div class="esriCTTraverseResultsDiv  esriCTEllipsis esriCTTraversedValueDiv">
-                S90.00E
+            <div class="esriCTTraverseResultsDiv  esriCTEllipsis esriCTTraversedValueDiv" data-dojo-attach-point="miscloseBearingNode">
             </div>
         </div>
         <div class="esriCTTraverseResultContainer" data-dojo-attach-point="traverseAccuracyNode">
             <div class="esriCTTraverseResultsDiv esriCTEllipsis" title="${nls.traverseSettings.traverseAccuracy}">
                 ${nls.traverseSettings.traverseAccuracy}:
             </div>
-            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv">
-                100%
+            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv" data-dojo-attach-point="accuracyNode">
+                 ${nls.traverseSettings.accuracyHigh}
             </div>
         </div>
         <div class="esriCTTraverseResultContainer" data-dojo-attach-point="traverseDistanceNode">
             <div class="esriCTTraverseResultsDiv esriCTEllipsis" title="${nls.traverseSettings.traverseDistance}">
                 ${nls.traverseSettings.traverseDistance}:
             </div>
-            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv">
-                380.2 USFeet
+            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv" data-dojo-attach-point="miscloseDistanceNode">
             </div>
         </div>
         <div class="esriCTTraverseResultContainer" data-dojo-attach-point="traverseMiscloseRatioNode">
             <div class="esriCTTraverseResultsDiv esriCTEllipsis" title="${nls.traverseSettings.traverseMiscloseRatio}">
                 ${nls.traverseSettings.traverseMiscloseRatio}:
             </div>
-            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv">
-                1: 100
+            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv" data-dojo-attach-point="miscloseRatioNode">
             </div>
         </div>
         <div class="esriCTTraverseResultContainer" data-dojo-attach-point="traverseStatedAreaNode">
@@ -49,8 +46,8 @@
             <div class="esriCTTraverseResultsDiv" title="${nls.traverseSettings.traverseCalculatedArea}">
                 ${nls.traverseSettings.traverseCalculatedArea}:
             </div>
-            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv">
-                Invalid
+            <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv" data-dojo-attach-point="calculatedAreaNode">
+
             </div>
         </div>
     </div>
