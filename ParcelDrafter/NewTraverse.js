@@ -1146,7 +1146,7 @@ define([
 
       _getFixedValue: function (value) {
         //return fixed value
-        if (isNaN(parseFloat(value))) {
+        if (!isNaN(parseFloat(value))) {
           value = value.toFixed(3);
         }
         return value;
