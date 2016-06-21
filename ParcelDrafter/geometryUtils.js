@@ -38,13 +38,13 @@ define([
 
     mo.getDestinationPoint = function (startPoint, bearing, distance) {
       var startX, startY, angle, endX, endY;
-      if (startPoint === null){
+      if (startPoint === null) {
         return null;
       }
       startX = startPoint.x;
       startY = startPoint.y;
       //if distance is 0 it means return same point as start point
-      if(distance === 0){
+      if (distance === 0) {
         return new Point(startX, startY, startPoint.spatialReference);
       }
       angle = Math.PI / 2 - (bearing * Math.PI / 180);
@@ -114,7 +114,10 @@ define([
 
     mo.getDistanceBetweeenPoints = function (startPoint, endPoint) {
       var distance = geometryEngine.distance(startPoint, endPoint, 9001);
-      return distance;
+      //as thier could be very small distance betwwen points,
+      //geometryEngine will return values in negative exponent which means
+      // it is equivalent to zero so removeNegativeExponents from values
+      return mo.removeNegativeExponents(distance);
     };
 
     mo.getLengthOfGeometry = function (geometry) {
@@ -125,11 +128,21 @@ define([
     };
 
     mo.getAreaOfGeometry = function (geometry) {
-      var areaMeters, areaUSSFoot, simplifiedGeometry;
+      var simplifiedGeometry, areaConversions;
       simplifiedGeometry = geometryEngine.simplify(geometry);
-      areaMeters = geometryEngine.planarArea(simplifiedGeometry, 109404);
-      areaUSSFoot = geometryEngine.planarArea(simplifiedGeometry, 109406);
-      return {"meters": areaMeters, "uSSurveyFeet": areaUSSFoot};
+      areaConversions = {};
+      if (simplifiedGeometry) {
+        areaConversions.acres = geometryEngine.planarArea(simplifiedGeometry, 109402);
+        areaConversions.squareMeters = geometryEngine.planarArea(simplifiedGeometry, 109404);
+        areaConversions.squareFeet = geometryEngine.planarArea(simplifiedGeometry, 109405);
+        areaConversions.squareUsFeet = geometryEngine.planarArea(simplifiedGeometry, 109406);
+      } else {
+        areaConversions.acres = 0;
+        areaConversions.squareMeters = 0;
+        areaConversions.squareFeet = 0;
+        areaConversions.squareUsFeet = 0;
+      }
+      return areaConversions;
     };
 
     mo.getPolyLineFromPaths = function (pathsArray) {
@@ -142,7 +155,7 @@ define([
       return polyline;
     };
 
-    mo.getPolygonFromPolyLines = function (pathsArray) {
+    mo.getPolygonFromPolyLines = function (pathsArray, addLastPoint, updateLastPoint) {
       var ring, polygon, i, j;
       ring = [];
       //create polygon in 102100 spatial reference
@@ -152,16 +165,25 @@ define([
           ring.push(pathsArray[i][j]);
         }
       }
-      //to close the polygon add its first point as last point
-      ring.push(lang.clone(ring[0]));
+      if (addLastPoint) {
+        ring.push(lang.clone(ring[0]));
+      } else if (updateLastPoint) {
+        ring[ring.length - 1][0] = ring[0][0];
+        ring[ring.length - 1][1] = ring[0][1];
+      }
       polygon.addRing(ring);
-      return polygon;
+      return geometryEngine.simplify(polygon);
     };
 
     mo.getPointsForArc = function (startAngle, endAngle, centerPoint, radius) {
       var i, pointArray = [], angleOfArc, segments, unitAngle, bearingForEachPoint, point;
       angleOfArc = endAngle - startAngle;
       segments = parseInt(angleOfArc, 10);
+      //in case if angle is in between 0 to 1, segments parseInt value will be 0,
+      //but we would require atleast 1 segment to draw arc
+      if (segments <= 0) {
+        segments = 1;
+      }
       unitAngle = Math.abs(angleOfArc) / Math.abs(segments);
       for (i = 0; i < Math.abs(segments) + 1; i++) {
         bearingForEachPoint = startAngle + (unitAngle * i);
@@ -180,44 +202,55 @@ define([
         if (param.radius > 0) { // right side of chord
           returnValue.bearing = param.initBearing + 90;
           returnValue.centerPoint = mo.getDestinationPoint(param.chordMidPoint, returnValue.bearing,
-           param.centerAndChordDistance);
+            param.centerAndChordDistance);
           returnValue.startAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordEndPoint);
+            param.chordEndPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordStartPoint);
+            param.chordStartPoint);
 
         } else { // left side of chord
           returnValue.bearing = param.initBearing - 90;
           returnValue.centerPoint = mo.getDestinationPoint(param.chordMidPoint, returnValue.bearing,
-           param.centerAndChordDistance);
+            param.centerAndChordDistance);
           returnValue.startAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordStartPoint);
+            param.chordStartPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordEndPoint);
+            param.chordEndPoint);
 
         }
       } else { //minor arc
         if (param.radius > 0) { // right side of chord
           returnValue.bearing = param.initBearing + 90;
           returnValue.centerPoint = mo.getDestinationPoint(param.chordMidPoint, returnValue.bearing,
-           param.centerAndChordDistance);
+            param.centerAndChordDistance);
           returnValue.startAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordStartPoint);
+            param.chordStartPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordEndPoint);
+            param.chordEndPoint);
 
         } else { // left side of chord
           returnValue.bearing = param.initBearing - 90;
           returnValue.centerPoint = mo.getDestinationPoint(param.chordMidPoint,
-          returnValue.bearing, param.centerAndChordDistance);
+            returnValue.bearing, param.centerAndChordDistance);
           returnValue.startAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordEndPoint);
+            param.chordEndPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
-          param.chordStartPoint);
+            param.chordStartPoint);
 
         }
       }
       return returnValue;
     };
+
+    mo.removeNegativeExponents = function (num) {
+      var returnValue;
+      if (num.toString().toLowerCase().split('e-').length > 1) {
+        returnValue = 0;
+      } else {
+        returnValue = num;
+      }
+      return returnValue;
+    };
+
     return mo;
   });

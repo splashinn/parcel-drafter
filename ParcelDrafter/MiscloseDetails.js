@@ -20,6 +20,7 @@
   return declare([BaseWidget, _WidgetsInTemplateMixin, Evented], {
     baseClass: 'jimu-widget-ParcelDrafter-MisclosedDetails',
     templateString: MiscloseDetailsTemplate,
+    details: null,
 
     constructor: function (options) {
       lang.mixin(this, options);
@@ -31,10 +32,29 @@
     },
 
     /**
+    * Returns the misclose info
+    * @memberOf widgets/ParcelDrafter/MiscloseDetails
+    **/
+    getMiscloseDetails: function(){
+      return this.details;
+    },
+
+    /**
+    * Set's the misclose info in respcetive node accordingly
+    * @memberOf widgets/ParcelDrafter/MiscloseDetails
+    **/
+    updateAccordingToPlanSettings: function (miscloseDetailsInfo) {
+      domAttr.set(this.miscloseBearingNode, "innerHTML", miscloseDetailsInfo.miscloseBearing);
+      domAttr.set(this.miscloseDistanceNode, "innerHTML", miscloseDetailsInfo.miscloseDistance);
+      domAttr.set(this.calculatedAreaNode, "innerHTML", miscloseDetailsInfo.calculatedArea);
+    },
+
+    /**
     * Set's the misclose info in respcetive node and also set's its visibility accordingly
     * @memberOf widgets/ParcelDrafter/MiscloseDetails
     **/
     setMiscloseDetails: function (details) {
+      this.details = details;
       if (details) {
         domAttr.set(this.miscloseBearingNode, "innerHTML", details.miscloseBearing);
         domAttr.set(this.miscloseDistanceNode, "innerHTML", details.miscloseDistance);

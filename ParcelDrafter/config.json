@@ -1,6 +1,6 @@
 {
-	"documentTypeField":"Document_type",
-	"BoundaryLineType":0,
+	"documentTypeField": "Document_type",
+	"BoundaryLineType": 0,
 	"pointSymbol": {
 		"color": [
 			240,
@@ -26,35 +26,38 @@
 			"style": "esriSLSSolid"
 		}
 	},
-	"lineTypes": [{
-		"type": 3,
-		"label": "Connection Line",
-		"symbol": {
-			"color": [
-				255,
-				0,
-				0,
-				255
-			],
-			"width": 2,
-			"type": "esriSLS",
-			"style": "esriSLSDash"
+	"lineTypes": [
+		{
+			"type": 3,
+			"label": "Connection Line",
+			"symbol": {
+				"color": [
+					255,
+					0,
+					0,
+					255
+				],
+				"width": 2,
+				"type": "esriSLS",
+				"style": "esriSLSDash"
+			}
+		},
+		{
+			"type": 0,
+			"label": "Boundary Line",
+			"symbol": {
+				"color": [
+					29,
+					32,
+					23,
+					255
+				],
+				"width": 2,
+				"type": "esriSLS",
+				"style": "esriSLSSolid"
+			}
 		}
-	}, {
-		"type": 0,
-		"label": "Boundary Line",
-		"symbol": {
-			"color": [
-				29,
-				32,
-				23,
-				255
-			],
-			"width": 2,
-			"type": "esriSLS",
-			"style": "esriSLSSolid"
-		}
-	}],
+	],
 	"polygonSymbol": {
 		"color": [
 			255,
@@ -78,6 +81,31 @@
 	},
 	"polygonLayer": {
 		"layerId": "ParcelDrafter_7027",
-		"layerURL": "http://services1.arcgis.com/DlnuvLGpDczjeSgG/arcgis/rest/services/ParcelDrafter/FeatureServer/1"
-	}
+		"layerURL": "http://services1.arcgis.com/DlnuvLGpDczjeSgG/arcgis/rest/services/ParcelDrafter/FeatureServer/1",
+		"parcelName": "Parcel_Name",
+		"statedArea": "Stated_Area",
+		"rotation": "Rotation",
+		"scale": "Scale",
+		"miscloseRatio": "Misclose_ratio",
+		"miscloseDistance": "Misclose_distance",
+		"planName": "Plan_name",
+		"documentType": "Document_type",
+		"accuracy": "Accuracy",
+		"relatedGUID": "GlobalID"
+	},
+	"polylineLayer": {
+		"layerId": "ParcelDrafter_6688",
+		"layerURL": "http://services1.arcgis.com/DlnuvLGpDczjeSgG/arcgis/rest/services/ParcelDrafter/FeatureServer/0",
+		"bearing": "Bearing",
+		"distance": "Distance",
+		"lineType": "Linetype",
+		"radius": "Radius",
+		"arcLength": "ArcLength",
+		"chordLength": "ChordLength",
+		"sequenceId": "SequenceID",
+		"relatedGUID": "guid_id"
+	},
+	"snappingTolerance":15,
+	"miscloseSnapDistance": 6,
+	"miscloseRatioSnap": 5000
 }
