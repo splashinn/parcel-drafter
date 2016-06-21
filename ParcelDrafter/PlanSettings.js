@@ -26,7 +26,7 @@
       "directionOrAngleType": ["northAzimuth", "southAzimuth", "quadrantBearing"],
       "directionOrAngleUnits": ["decimalDegree", "degreeMinuteSeconds"],
       "distanceAndLengthUnits": ["uSSurveyFeet", "meters"],
-      "areaUnits": ["squareFeet", "acres", "squareMeters"],
+      "areaUnits": ["squareUsFeet", "acres", "squareMeters"],
       "circularCurveParameters": ["radiusAndChordLength", "radiusAndArcLength"]
     },
 

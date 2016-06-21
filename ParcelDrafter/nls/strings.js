@@ -10,6 +10,11 @@ define({
     "mapTooltipForScreenDigitization": "Click to add parcel point",// Shown as tooltip when mouse move over the map once screen digitization tool is activated
     "backButtonTooltip": "Back", //Shown as tooltip on back buttons
     "newTraverseTitle": "New Traverse", //Shown as title for new traverse page
+    "clearingDataConfirmationMessage": "All the enterd data will be cleared, Do you want to proceed.",
+    "confirmationBoxYESButtonLabel": "Yes",
+    "confirmationBoxNOButtonLabel": "No",
+    "unableToFetchParcelMessage": "Unable to fetch parcel.",
+    "unableToFetchParcelLinesMessage": "Unable to fetch parcel lines.",
     "planSettings": {
       "planSettingsTitle": "Plan Settings", //Shown as Title for Plan Settings page
       "directionOrAngleTypeLabel": "Direction or Angle Type", //Shown as label to set Direction or Angle Type
@@ -24,7 +29,7 @@ define({
       "degreeMinuteSeconds": { "label": "Degree Minute Seconds", "abbreviation": "dms" }, //Shown as label for Degree Minute Seconds in direction or angle unit dropdown
       "uSSurveyFeet": { "label": "US Survey Feet", "abbreviation": "ftUS" }, //Shown as label for US Survey Feet in direction or angle unit dropdown
       "meters": { "label": "Meters", "abbreviation": "m" }, //Shown as label for Meters in direction or angle unit dropdown
-      "squareFeet": { "label": "Square Feet", "abbreviation": "sqft" }, //Shown as label for Square Feet in distance and length units dropdown
+      "squareUsFeet": { "label": "Square Feet US", "abbreviation": "sqftUS" }, //Shown as label for Square Feet in distance and length units dropdown
       "acres": { "label": "Acres", "abbreviation": "ac" }, //Shown as label for Acres in distance and length units  dropdown
       "squareMeters": { "label": "Square Meters", "abbreviation": "sqm" }, //Shown as label for Square Meters in distance and length units  dropdown
       "radiusAndChordLength": "Radius and Chord Length", //Shown as label for Radius And Chord Length in circular curve parameters dropdown
@@ -32,33 +37,53 @@ define({
       "expandGridTooltipText": "Expand grid", // Show on hover of the expand grid button
       "collapseGridTooltipText": "Collapse grid", // Show on hover of the collapse grid button
       "zoomToLocationTooltipText": "Zoom to location", // Show on hover of the zoomToLocation button
-      "onScreenDigitizationTooltipText": "Digitization", // Show on hover of the zoomToLocation button
+      "onScreenDigitizationTooltipText": "Digitization" // Show on hover of the zoomToLocation button
     },
     "traverseSettings": {
       "bearingLabel": "Bearing", //Shown as label for bearing column in traverse grid
       "lengthLabel": "Length", //Shown as label for length column in traverse grid
       "radiusLabel": "Radius", //Shown as label for radius column in traverse grid
-      "noMiscloseCalculated" : "Misclose  not calculated",
-      "traverseMiscloseBearing": "Misclose  Bearing",
+      "noMiscloseCalculated": "Misclose not calculated",
+      "traverseMiscloseBearing": "Misclose Bearing",
       "traverseAccuracy": "Accuracy",
       "accuracyHigh": "High",
-      "traverseDistance": "Distance",
-      "traverseMiscloseRatio": "Misclose  Ratio",
+      "traverseDistance": "Misclose Distance",
+      "traverseMiscloseRatio": "Misclose Ratio",
       "traverseStatedArea": "Stated Area",
       "traverseCalculatedArea": "Calculated Area",
-      "addButtonTitle":"add",
-      "deleteButtonTitle":"remove"
+      "addButtonTitle": "Add",
+      "deleteButtonTitle": "Remove"
     },
     "parcelTools": {
       "rotationToolLabel": "Angle", //Shown as label to Rotate of selected parcel
       "scaleToolLabel": "Scale" //Shown as label to scale of selected parcel
     },
-    "parcelInfos":{
+    "parcelInfos": {
       "parcelNamePlaceholderText": "Parcel name (required)", //Shown as Place Holder for Parcel name
       "parcelDocumentTypeText": "Document type (optional)", //Shown as Place Holder for Document type
       "planNamePlaceholderText": "Plan name (optional)",  //Shown as Place Holder for Plan name
-      "cancelButtonLabel" : "Cancel", //Shown as label of cancel button
-      "saveButtonLabel" : "Save" //Shown as label of Save button
+      "cancelButtonLabel": "Cancel", //Shown as label of cancel button
+      "saveButtonLabel": "Save" //Shown as label of Save button
+    },
+    "newTraverse": {
+      "invalidBearingMessage": "Invalid Bearing.",
+      "invalidLengthMessage": "Invalid Length.",
+      "invalidRadiusMessage": "Invalid Radius.",
+      "enterValidValuesMessage": "Please enter valid values.",
+      "enterValidParcelInfoMessage": "Please enter some valid parcel info to save.",
+      "unableToDrawLineMessage": "Unable to draw line.",
+      "invalidEndPointMessage": "Invalid End-Point, unable to draw line."
+    },
+    "planInfo": {
+      "saveNonClosedParcelConfirmationMessage": "The enterd parcel is not closed, do you still want to proceed and save only parcel lines?",
+      "confirmationBoxYESButtonLabel": "Yes", // Confirmation box's YES button label
+      "confirmationBoxNOButtonLabel": "No", // Confirmation box's NO button label
+      "unableToCratePolygonParcel": "Unable to create parcel polygon.",
+      "unableToSavePolygonParcel": "Unable to save parcel polygon.",
+      "unableToSaveParcelLines": "Unable to save parcel lines.",
+      "unableToUpdateParcelLines": "Unable to update parcel lines.",
+      "parcelSavedSuccessMessage": "Parcel saved successfully.",
+      "enterValidParcelNameMessage": "Please enter valid parcel name."
     }
   }),
   "fr": 1
