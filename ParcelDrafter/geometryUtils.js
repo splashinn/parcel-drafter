@@ -171,8 +171,12 @@ define([
         ring[ring.length - 1][0] = ring[0][0];
         ring[ring.length - 1][1] = ring[0][1];
       }
+      //if ring is not in clockwise direction reverse the ring
+      if (!polygon.isClockwise(ring)) {
+        ring.reverse();
+      }
       polygon.addRing(ring);
-      return geometryEngine.simplify(polygon);
+      return polygon;
     };
 
     mo.getPointsForArc = function (startAngle, endAngle, centerPoint, radius) {
@@ -185,11 +189,14 @@ define([
         segments = 1;
       }
       unitAngle = Math.abs(angleOfArc) / Math.abs(segments);
-      for (i = 0; i < Math.abs(segments) + 1; i++) {
-        bearingForEachPoint = startAngle + (unitAngle * i);
-        point = mo.getDestinationPoint(centerPoint, bearingForEachPoint, Math.abs(radius));
-        if (point) {
-          pointArray.push(point);
+      //unit angle is zero then we cannot calculate points of arc
+      if (unitAngle > 0) {
+        for (i = 0; i < Math.abs(segments) + 1; i++) {
+          bearingForEachPoint = startAngle + (unitAngle * i);
+          point = mo.getDestinationPoint(centerPoint, bearingForEachPoint, Math.abs(radius));
+          if (point) {
+            pointArray.push(point);
+          }
         }
       }
       return pointArray;
@@ -250,6 +257,33 @@ define([
         returnValue = num;
       }
       return returnValue;
+    };
+
+    mo.getChordLenghtFormArcLength = function (arcLength, radius) {
+      var chordLength, arcLengthOfSemiCircle, theta;
+      arcLength = Math.abs(arcLength);
+      // using formula 'Math.PI * radius' for calculating circumference of a semi-circle.
+      arcLengthOfSemiCircle = Math.PI * Math.abs(radius);
+      // calculating angle for half of the triangle
+      theta = Math.abs(arcLength) / Math.abs(radius);
+      // calculate chordLength(perpendicular in our case) using formula
+      //sin(theta) = perpendicular / hypotenuse,
+      //so, perpendicular = hypotenuse * sin(theta)
+      chordLength = Math.abs(radius) * Math.sin(theta / 2);
+      if (arcLength <= arcLengthOfSemiCircle) {
+        chordLength = chordLength * 2;
+      } else {
+        chordLength = chordLength * (-2);
+      }
+      return chordLength;
+    };
+
+    mo.getArcLenghtFormChordLength = function (chordLength, radius) {
+      var arcLength;
+      chordLength = Math.abs(chordLength);
+      radius = Math.abs(radius);
+      arcLength = (2 * Math.asin(chordLength / (2 * radius)) * radius);
+      return arcLength;
     };
 
     return mo;

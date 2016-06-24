@@ -8,6 +8,8 @@ define({
     "mapTooltipForEditNewTraverse": "Please select a parcel to edit", //Shown as tooltip when mouse move over the map once edit new traverse is selceted
     "mapTooltipForUpdateStartpoint": "Click to update start point", // Shown as tooltip when mouse move over the map once traverse grid page is shown
     "mapTooltipForScreenDigitization": "Click to add parcel point",// Shown as tooltip when mouse move over the map once screen digitization tool is activated
+    "mapTooltipForRotate": "Drag to rotate", //Shown as tooltip when mouse drag over the map once rotation tool is activated
+    "mapTooltipForScale": "Drag to scale", //Shown as tooltip when mouse drag over the map once scaling tool is activated
     "backButtonTooltip": "Back", //Shown as tooltip on back buttons
     "newTraverseTitle": "New Traverse", //Shown as title for new traverse page
     "clearingDataConfirmationMessage": "All the enterd data will be cleared, Do you want to proceed.",
@@ -83,7 +85,8 @@ define({
       "unableToSaveParcelLines": "Unable to save parcel lines.",
       "unableToUpdateParcelLines": "Unable to update parcel lines.",
       "parcelSavedSuccessMessage": "Parcel saved successfully.",
-      "enterValidParcelNameMessage": "Please enter valid parcel name."
+      "enterValidParcelNameMessage": "Please enter valid parcel name.",
+      "enterValidDocumentTyeMessage": "Please select valid document type."
     }
   }),
   "fr": 1

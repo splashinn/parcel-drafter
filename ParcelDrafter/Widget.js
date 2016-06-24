@@ -43,8 +43,7 @@ define([
       geometryService: null, //Holds an instance of geometryService
       _lineLayerSpatialReference: null, // to store spatial reference of line layer
       _polygonLayerSpatialReference: null, //to store spatial reference of polygon layer
-
-
+      _isUpdateStartPoint: null,
       postCreate: function () {
         this.inherited(arguments);
         //create instance of geometryService
@@ -93,6 +92,7 @@ define([
         //if current open panel is not mainPage  connect tooltip to update start point
         if (this._mapTooltipHandler && this._prevOpenPanel !== "mainPage") {
           this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForUpdateStartpoint);
+          this._toggleSnapping(true);
         }
       },
 
@@ -125,6 +125,7 @@ define([
             "esriCTEditTraverseActive");
           this.newTraverseSelectMessageNode.innerHTML = "";
           this._newTraverseInstance.deActivateDigitizationTool();
+          this._newTraverseInstance.deactivateParcelTools();
         }
       },
 
@@ -191,6 +192,30 @@ define([
       },
 
       /**
+      * Set snapping layers
+      * @memberOf widgets/ParcelDrafter/Widget
+      **/
+      _setSnappingLayers: function () {
+        var layerInfos = [], snappingLayer, i;
+        //allow snapping with configured layers
+        if (this.config.snappingLayers && this.config.snappingLayers.length) {
+          for (i = 0; i < this.config.snappingLayers.length; i++) {
+            snappingLayer = this.map.getLayer(this.config.snappingLayers[i]);
+            if (snappingLayer) {
+              layerInfos.push({ layer: snappingLayer });
+            }
+          }
+        }
+        if (!this._isUpdateStartPoint) {
+          //allow snapping with point grphics layer
+          if (this._newTraverseInstance.parcelPointsGraphicsLayer) {
+            layerInfos.push({ layer: this._newTraverseInstance.parcelPointsGraphicsLayer });
+          }
+        }
+        this.map.snappingManager.setLayerInfos(layerInfos);
+      },
+
+      /**
       * Toggle snapping on map
       * @memberOf widgets/ParcelDrafter/Widget
       **/
@@ -204,6 +229,7 @@ define([
             snapToVertex: true,
             alwaysSnap: true
           });
+          this._setSnappingLayers();
           this.map.snappingManager._setUpSnapping();
         } else {
           if (this.map.snappingManager) {
@@ -290,6 +316,12 @@ define([
             }
             this._startPoint = mapPoint;
             this._newTraverseInstance.setStartPoint(this._startPoint);
+          }
+        }));
+        this._mapTooltipHandler.on("dragging", lang.hitch(this, function (evt) {
+          if (this._startPoint) {
+            //set rotation angle for selected parcel
+            this._newTraverseInstance.setRotation(evt.mapPoint);
           }
         }));
         // once widget is created call its startup method
@@ -394,14 +426,17 @@ define([
           config: this.config,
           map: this.map,
           loading: this.loading,
-          geometryService: this.geometryService
+          geometryService: this.geometryService,
+          appConfig: this.appConfig
         }, this.traverseNode);
         this._newTraverseInstance.on("showMessage", lang.hitch(this, this._showMessage));
         this._newTraverseInstance.on("activateDigitizationTool", lang.hitch(this, function () {
           this._mapTooltipHandler.updateTooltip(this.nls.mapTooltipForScreenDigitization);
+          this._isUpdateStartPoint = true;
         }));
         this._newTraverseInstance.on("deActivateDigitizationTool", lang.hitch(this, function () {
           this._mapTooltipHandler.updateTooltip(this.nls.mapTooltipForUpdateStartpoint);
+          this._isUpdateStartPoint = false;
         }));
         //Handle click event of parcelInfo cancel button
         this._newTraverseInstance.on("cancelTraverse", lang.hitch(this, function () {
@@ -411,6 +446,37 @@ define([
         this._newTraverseInstance.on("displayMainPageAfterSave", lang.hitch(this, function () {
           this._resetOnBackToMainPage();
         }));
+        this._newTraverseInstance.on("toggleRotating", lang.hitch(this, function (isEnable) {
+          this._toggleRotating(isEnable);
+        }));
+      },
+
+      /**
+      * toggle rotating functionality
+      * @memberOf widgets/ParcelDrafter/Widget
+      **/
+      _toggleRotating: function (isEnable) {
+        if (isEnable) {
+          this._mapTooltipHandler.connectMouseDragHandler(this.nls.mapTooltipForRotate);
+        } else {
+          this._mapTooltipHandler.disconnectEventHandler();
+          this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForUpdateStartpoint);
+        }
+        this._toggleSnapping(!isEnable);
+      },
+
+      /**
+      * toggle scaling functionality
+      * @memberOf widgets/ParcelDrafter/Widget
+      **/
+      _toggleScaling: function (isEnable) {
+        if (isEnable) {
+          this._mapTooltipHandler.connectMouseDragHandler(this.nls.mapTooltipForScale);
+        } else {
+          this._mapTooltipHandler.disconnectEventHandler();
+          this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForUpdateStartpoint);
+        }
+        this._toggleSnapping(!isEnable);
       },
 
       /**
@@ -421,7 +487,8 @@ define([
         //Create PlanSettings Instance
         this._planSettingsInstance = new PlanSettings({
           nls: this.nls,
-          config: this.config
+          config: this.config,
+          appConfig: this.appConfig
         }, domConstruct.create("div", {}, this.planSettingsNode));
         this._planSettingsInstance.on("planSettingsChanged", lang.hitch(this,
           function (updatedSettings) {

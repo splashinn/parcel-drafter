@@ -159,19 +159,16 @@
 .jimu-widget-ParcelDrafter .ecriCTZoomToIcon
 {
     background-image: url('../images/zoom.png');
-    background-color: #6e6e6e;
 }
 
 .jimu-widget-ParcelDrafter .esriCTCollapse
 {
     background-image: url('../images/collapse.png');
-    background-color: #6e6e6e;
 }
 
 .jimu-widget-ParcelDrafter .esriCTExpand
 {
     background-image: url('../images/expand.png');
-    background-color: #6e6e6e;
 }
 /*------------------------- Styles for Main Page End-----------------------*/
 
@@ -201,6 +198,11 @@
     border-bottom: 1px solid #464646;
     margin-top: 20px;
     background-color: #E4E4ED;
+}
+
+.jimu-widget-ParcelDrafter .esriCTMiscloseHeaderDiv
+{
+    background-color: rgba(0,0,0,0.5);
 }
 
 .jimu-widget-ParcelDrafter .esriCTTraverseResultContainer
@@ -293,6 +295,12 @@
 {
     display: none;
 }
+
+::-ms-clear
+{
+    display: none;
+}
+
 /*------------------------- Styles for Traverse Page End-----------------------*/
 
 /*------------------------- Styles for Parcel Tools Page Starts-----------------------*/
@@ -383,7 +391,7 @@
 {
     float: left;
     height: 30px;
-    border-bottom: 1px solid;
+    border-bottom: 1px solid #464646;
     padding: 0px 10px;
 }
 
@@ -406,11 +414,10 @@
 {
     background-image: url('../images/left-arrow.png');
     float: left;
-    margin: 0px 10px 0px 0px;
-    width: 10px;
+    margin: 0px 5px 0px 0px;
+    width: 15px;
     height: 20px;
     background-repeat: no-repeat;
-    background-color: #3e3e3e;
     background-position: center center;
 }
 
@@ -421,11 +428,19 @@
     background-color: #fafafc;
 }
 
+.jimu-widget-ParcelDrafter .dijitSelect .dijitButtonContentsDartTheme {
+    background-color: inherit;
+}
+
 .jimu-widget-ParcelDrafter .dijitSelect .dijitArrowButton
 {
     background-color: #fafafc;
     background-image: none;
     border-color: #fafafc;
+}
+
+.jimu-widget-ParcelDrafter .dijitSelect .dijitArrowButtonDartTheme {
+    background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 .jimu-widget-ParcelDrafter .dijitMenuItem

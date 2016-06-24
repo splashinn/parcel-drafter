@@ -889,6 +889,9 @@ define([], function () {
       returnValue = null;
     } else {
       returnValue = mo.getLengthOfRequiredFormat(res, i, distanceAndLengthUnits);
+      if (returnValue && isNaN(returnValue.meters)) {
+        returnValue = null;
+      }
     }
     return returnValue;
   };

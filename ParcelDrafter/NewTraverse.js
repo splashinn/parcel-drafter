@@ -257,10 +257,22 @@ define([
       * and return the values object if all the values are valid else it will return null.
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
-      _getValidatedValues: function (updatedValues) {
+      _getValidatedValues: function (updatedValues, updatedCol) {
         var values = {}, bearingConversions, lengthConversions, radiusConversions;
         if (updatedValues) {
           values = updatedValues;
+          //Update Bearing/Length/Radius except the updatedcol according to plan settings
+          if (updatedCol) {
+            if (updatedCol !== "Bearing" && values.BearingConversions) {
+              values.Bearing = this._getBearingAccordingToPlanSettings(values.BearingConversions);
+            }
+            if (updatedCol !== "Length" && values.LengthConversions) {
+              values.Length = values.LengthConversions[this._planSettings.distanceAndLengthUnits];
+            }
+            if (updatedCol !== "Radius" && values.RadiusConversions) {
+              values.Radius = values.RadiusConversions[this._planSettings.distanceAndLengthUnits];
+            }
+          }
         } else {
           values.LineSymbol = this._symbolSelector.selectedSymbol;
           values.Bearing = this.bearingNode.get("value");
@@ -308,7 +320,6 @@ define([
             } else {
               //as radius is empty set radiusConversions to null
               values.RadiusConversions = null;
-              //TODO: check if it is required, added AS PER PRATIK'S COMMENT
               //if radius is not entered then length cannot be negative
               if (parseInt(values.LengthConversions.meters, 10) < 0) {
                 return null;
@@ -348,6 +359,20 @@ define([
       },
 
       /**
+       * Set angle for selected parcel graphic
+       * @memberOf widgets/ParcelDrafter/NewTraverse
+      **/
+      setRotation: function (endPoint) {
+        var angle;
+        //calculate angle value
+        angle = geometryUtils.getAngleBetweenPoints(this.startPoint, endPoint);
+        if (this._itemList.length > 0) {
+          angle -= this._itemList[0].BearingConversions.naDDRound;
+        }
+        this._parcelToolInstance.setRotation(angle);
+      },
+
+      /**
       * Add new row to the grid
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
@@ -364,10 +389,18 @@ define([
               values.BearingConversions = this._validateBearing(newBearing);
             }
           }
+          //If user is drawing arc create arcLength and chordLength data.
+          //Get chordLength & arcLength according to curent curve settings
+          radius = lang.trim(values.Radius.toString());
+          if (radius !== "" && radius !== 0) {
+            //get the entered values for radius
+            radius = values.RadiusConversions.meters;
+            //add the chordLength & arcLength in values object
+            values = this._createValuesForArc(values);
+          }
           this._itemList.push(values);
           this._createRow(values, this._itemList.length - 1);
           this._resetEntryRow();
-          radius = lang.trim(values.Radius.toString());
           //if radius is not set it means draw line else draw arc
           if (radius === "" || radius === 0) {
             //draw new line and set the extent to line layer
@@ -382,6 +415,34 @@ define([
         } else {
           this._showMessage(this.nls.newTraverse.enterValidValuesMessage);
         }
+      },
+
+      _createValuesForArc: function (values) {
+        //If user is drawing arc create arcLength and chordLength data.
+        //Get chordLength & arcLength according to curent curve settings
+        var radius;
+        if (values.RadiusConversions) {
+          radius = values.RadiusConversions.meters;
+          if (this._planSettings.circularCurveParameters === "radiusAndArcLength") {
+            values.ArcLength = values.LengthConversions.meters;
+            values.ArcLengthConversions = lang.clone(values.LengthConversions);
+            values.ChordLength = geometryUtils.getChordLenghtFormArcLength(
+              values.ArcLength, radius);
+            values.ChordLengthConversions = this._validateLength(values.ChordLength, "meters");
+          } else {
+            values.ChordLength = values.LengthConversions.meters;
+            values.ChordLengthConversions = lang.clone(values.LengthConversions);
+            values.ArcLength = geometryUtils.getChordLenghtFormArcLength(
+              values.ChordLength, radius);
+            values.ArcLengthConversions = this._validateLength(values.ArcLength, "meters");
+          }
+        } else {
+          values.ChordLength = 0;
+          values.ChordLengthConversions = null;
+          values.ArcLength = 0;
+          values.ArcLengthConversions = null;
+        }
+        return values;
       },
 
       /**
@@ -409,7 +470,8 @@ define([
         //Create PlanSettings Instance
         this._misCloseDetailsInstance = new MiscloseDetails({
           nls: this.nls,
-          config: this.config
+          config: this.config,
+          appConfig: this.appConfig
         }, domConstruct.create("div", {}, this.misCloseDetailsNode));
         //on load no misclose info
         this._misCloseDetailsInstance.setMiscloseDetails(null);
@@ -441,6 +503,12 @@ define([
               this.setStartPoint(this.startPoint);
             }
           }
+        }));
+        this._parcelToolInstance.on("toggleRotating", lang.hitch(this, function (isEnable) {
+          this.emit("toggleRotating", isEnable);
+        }));
+        this._parcelToolInstance.on("toggleScaling", lang.hitch(this, function (isEnable) {
+          this.emit("toggleScaling", isEnable);
         }));
       },
 
@@ -490,7 +558,6 @@ define([
               this._showMessage(parcelValidationDetails.message);
             }
           } else {
-            //TODO: wether to disable save button or show error if no traverse added
             this._showMessage(this.nls.newTraverse.enterValidParcelInfoMessage);
           }
         }));
@@ -550,22 +617,30 @@ define([
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       _createRow: function (values, i) {
-        var row, node, radius, radiusConversions;
+        var row, node, radius, length, radiusConversions;
         row = domConstruct.create("div", { "class": "dojoDndItem esriCTRow", "rowIndex": i });
         node = domConstruct.create("div", { "rowIndex": i }, row);
         this._createLineSelector(node, values.LineSymbol, i);
         this._createFieldInputs(row,
           this._getBearingAccordingToPlanSettings(values.BearingConversions), "esriCTBearingRow");
-        this._createFieldInputs(row,
-          values.LengthConversions[this._planSettings.distanceAndLengthUnits + "Round"],
-          "esriCTLengthRow");
-        //create radius entry box
+        //If user is drawing arcs, values will have valid radiusConversions
         radiusConversions = values.RadiusConversions;
         if (radiusConversions) {
+          //get radius according to plan settings
           radius = values.RadiusConversions[this._planSettings.distanceAndLengthUnits + "Round"];
+          //According to plan settings show arcLength/chordLength in length textbox
+          if (this._planSettings.circularCurveParameters === "radiusAndArcLength") {
+            length = values.ArcLengthConversions[
+              this._planSettings.distanceAndLengthUnits + "Round"];
+          } else {
+            length = values.ChordLengthConversions[
+              this._planSettings.distanceAndLengthUnits + "Round"];
+          }
         } else {
           radius = "";
+          length = values.LengthConversions[this._planSettings.distanceAndLengthUnits + "Round"];
         }
+        this._createFieldInputs(row, length, "esriCTLengthRow");
         this._createFieldInputs(row, radius, "esriCTRadiusRow");
         this._createDeleteButton(row, i);
         this._nodes.push(row);
@@ -732,7 +807,7 @@ define([
         //if value is updated then only redraw the parcel
         if (isUpdated) {
           //validate updated values to draw parcel
-          validatedValues = this._getValidatedValues(values);
+          validatedValues = this._getValidatedValues(values, updatedCol);
           if (validatedValues) {
             if (updatedCol === "Bearing") {
               updatedValueAsPerPlanSettings =
@@ -746,6 +821,10 @@ define([
                 values.LengthConversions[this._planSettings.distanceAndLengthUnits];
               //update the value in itemList
               values.Length = updatedValueAsPerPlanSettings;
+              //if length is updated & it is arc, update arc and chord length as well
+              if (values.RadiusConversions) {
+                values = this._createValuesForArc(values);
+              }
               //show the entered value in textbox according to planSettings
               inputTextBox.set('value', updatedValueAsPerPlanSettings);
             } else if (updatedCol === "Radius") {
@@ -757,6 +836,8 @@ define([
               }
               //update the value in itemList
               values.Radius = updatedValueAsPerPlanSettings;
+              //add the chordLength & arcLength in values object
+              values = this._createValuesForArc(values);
               //show the entered value in textbox according to planSettings
               inputTextBox.set('value', updatedValueAsPerPlanSettings);
             }
@@ -976,7 +1057,6 @@ define([
             this._startPointForNextLine = lang.clone(endpoint);
             //draw endPoint on map
             this._drawPoint(endpoint);
-            //TODO:store conversion data
           } else {
             this._showMessage(this.nls.newTraverse.unableToDrawLineMessage);
           }
@@ -1010,27 +1090,8 @@ define([
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       getArcInfo: function (chordStartPoint, initBearing, radius, distance) {
-        var arcLength, arcLengthOfSemiCircle,
-          theta, chordLength, chordEndPoint, midDistance,
+        var chordEndPoint, midDistance,
           chordMidPoint, centerAndChordDistance, arcGeometryPointsArray, param, arcParams;
-        // check whether the distance is of 'ArcLength' or 'ChordLength',
-        // if 'ArcLength' is given then find 'ChordLength' from it.
-        if (this._planSettings.circularCurveParameters === "radiusAndArcLength") {
-          arcLength = Math.abs(distance);
-          // using formula 'Math.PI * radius' for calculating circumference of a semi-circle.
-          arcLengthOfSemiCircle = Math.PI * Math.abs(radius);
-          // calculating angle for half of the triangle
-          theta = Math.abs(arcLength) / Math.abs(radius);
-          // calculate chordLength(perpendicular in our case) using formula
-          //sin(theta) = perpendicular / hypotenuse,
-          //so, perpendicular = hypotenuse * sin(theta)
-          chordLength = Math.abs(radius) * Math.sin(theta / 2);
-          if (arcLength <= arcLengthOfSemiCircle) {
-            distance = chordLength * 2;
-          } else {
-            distance = chordLength * (-2);
-          }
-        }
         //get the end point of the chord
         chordEndPoint = geometryUtils.getDestinationPoint(chordStartPoint, initBearing, distance);
         //get mid distance
@@ -1059,6 +1120,17 @@ define([
         //using startAngle, endAngle, centerPoint and radius get the points array for arc
         arcGeometryPointsArray = geometryUtils.getPointsForArc(arcParams.startAngle,
           arcParams.endAngle, arcParams.centerPoint, radius);
+        //if points arrya is empty it means user is trying to draw arc with very large radius value.
+        //in such case directly draw arc between chordStartPoint and chordEndPoint
+        if (arcGeometryPointsArray.length === 0) {
+          arcGeometryPointsArray.push(param.chordStartPoint);
+          arcGeometryPointsArray.push(param.chordEndPoint);
+        }
+        //if radius is negative paths are created in reverse direction,
+        //so reverse array to get proper direction
+        if (radius < 0) {
+          arcGeometryPointsArray.reverse();
+        }
         return { "endPoint": chordEndPoint, "arcGeometryPointsArray": arcGeometryPointsArray };
       },
 
@@ -1117,7 +1189,7 @@ define([
         initBearing = values.BearingConversions.naDD;
         //get the entered values for radius, distance, and bearing
         radius = values.RadiusConversions.meters;
-        distance = values.LengthConversions.meters;
+        distance = values.ChordLengthConversions.meters;
         //if misclose is adjusted then adjustPoints
         if (values.adjustedValues && this.adjustPoints) {
           initBearing = values.adjustedValues.adjustedBearing;
@@ -1140,7 +1212,7 @@ define([
         }
         //get arc info according to org values in grid i.e. without applying roation and scaling
         orgArcInfo = this.getArcInfo(this._orgStartPointForNextLine, values.BearingConversions.naDD,
-          values.RadiusConversions.meters, values.LengthConversions.meters);
+          values.RadiusConversions.meters, values.ChordLengthConversions.meters);
         values = this.setInfoForCalulatingMisclose(values, orgArcInfo.endPoint,
           orgArcInfo.arcGeometryPointsArray);
         //get arcinfo to draw with honouring the roation and scaling
@@ -1212,7 +1284,9 @@ define([
       pointAddedFromDigitization: function (mapPoint) {
         var angle, distance, quadrantAngle;
         angle = geometryUtils.getAngleBetweenPoints(this._startPointForNextLine, mapPoint);
+        angle = Math.round(angle);
         distance = geometryUtils.getDistanceBetweeenPoints(this._startPointForNextLine, mapPoint);
+        distance = Math.round(distance);
         //returned angle will always be in NA DD so convert it to quadrant format so that it will not get override in case of SA
         quadrantAngle = this.getAngleFromDDTOQB(angle);
         this.bearingNode.set("value", quadrantAngle);
@@ -1342,10 +1416,14 @@ define([
         returnVal.miscloseDistance = miscloseDistance + " " +
           this.nls.planSettings[this._planSettings.distanceAndLengthUnits].abbreviation;
         //get calculated area according to planSettings
-        calculatedArea = miscloseDetails.AreaConversions[this._planSettings.areaUnits];
-        //fix the value to be shown
-        if (!isNaN(parseFloat(calculatedArea))) {
-          calculatedArea = parseFloat(calculatedArea).toFixed(3);
+        if (miscloseDetails.AreaConversions) {
+          calculatedArea = miscloseDetails.AreaConversions[this._planSettings.areaUnits];
+          //fix the value to be shown
+          if (!isNaN(parseFloat(calculatedArea))) {
+            calculatedArea = parseFloat(calculatedArea).toFixed(3);
+          }
+        } else {
+          calculatedArea = 0;
         }
         calculatedArea = calculatedArea + " " +
           this.nls.planSettings[this._planSettings.areaUnits].abbreviation;
@@ -1450,7 +1528,11 @@ define([
         for (i = 0; i < this._itemList.length; i++) {
           values = this._itemList[i];
           if (values.LineSymbol.type === this.config.BoundaryLineType) {
-            length = values.LengthConversions.meters;
+            if (values.Radius === "" || values.Radius === 0) {
+              length = values.LengthConversions.meters;
+            } else if (values.ChordLengthConversions) {
+              length = values.ChordLengthConversions.meters;
+            }
             values.lat = length * Math.cos(values.BearingConversions.naDD * (Math.PI / 180));
             values.dep = length * Math.sin(values.BearingConversions.naDD * (Math.PI / 180));
             sumOfLat += values.lat;
@@ -1464,7 +1546,11 @@ define([
         //get adjusted bearing and length for each entry of boundary type
         for (i = 0; i < this._itemList.length; i++) {
           values = this._itemList[i];
-          length = values.LengthConversions.meters;
+          if (values.Radius === "" || values.Radius === 0) {
+            length = values.LengthConversions.meters;
+          } else if (values.ChordLengthConversions) {
+            length = values.ChordLengthConversions.meters;
+          }
           if (values.LineSymbol.type === this.config.BoundaryLineType) {
             //get and store the adjusted bearing and distance
             values.adjustedValues = this._adjustBearingAndDistance(
@@ -1495,7 +1581,6 @@ define([
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       _adjustBearingAndDistance: function (lat, dep, lineLength, info) {
-        //TODO: calculate sumOfLat & sumOfDep & sumOfAllLinesLength(total length)
         var adjustedValues, latCorrection, depCorrection, adjustedLat, adjustedDep, adjustedLength,
           adjustedBearing, conversions;
         adjustedValues = {};
@@ -1638,32 +1723,36 @@ define([
             obj.RadiusConversions = this._validateLength(obj.Radius, units);
             //update radius according to plansettings
             obj.Radius = obj.RadiusConversions[this._planSettings.distanceAndLengthUnits];
+            // check for arc length
+            obj.ArcLength = featureSet.features[i].attributes[this.config.polylineLayer.arcLength];
+            // consider arc length if there is value in it
+            if (obj.ArcLength !== null && obj.ArcLength !== "") {
+              obj.ArcLengthConversions = this._validateLength(obj.ArcLength, units);
+              //update arc length according to plansettings
+              obj.ArcLength = obj.ArcLengthConversions[this._planSettings.distanceAndLengthUnits];
+            }
+            // check for chord length
+            obj.ChordLength =
+              featureSet.features[i].attributes[this.config.polylineLayer.chordLength];
+            // consider chord length if there is value in it
+            if (obj.ChordLength !== null && obj.ChordLength !== "") {
+              obj.ChordLengthConversions = this._validateLength(obj.ChordLength, units);
+              //update chord length according to plansettings
+              obj.ChordLength =
+                obj.ChordLengthConversions[this._planSettings.distanceAndLengthUnits];
+            }
+            //keep the length values according to plansettings, so that length will be used for calculating arc and chord length, while updating values from grid
+            if (this._planSettings.circularCurveParameters === "radiusAndArcLength") {
+              obj.Length = obj.ArcLength;
+              obj.LengthConversions = lang.clone(obj.ArcLengthConversions);
+            } else {
+              obj.Length = obj.ChordLength;
+              obj.LengthConversions = lang.clone(obj.ChordLengthConversions);
+            }
             //in case of straight lines radius will not be stored so clear it
           } else {
             obj.Radius = "";
             obj.RadiusConversions = null;
-          }
-          // check for arclength
-          if (featureSet.features[i].attributes[this.config.polylineLayer.arcLength] !== null &&
-            featureSet.features[i].attributes[this.config.polylineLayer.arcLength] !== "") {
-            obj.Length = featureSet.features[i].attributes[this.config.polylineLayer.arcLength];
-            if (obj.Length !== null && obj.Length !== "") {
-              // consider arclength if there is value in it
-              obj.LengthConversions = this._validateLength(obj.Length, units);
-              //update length according to plansettings
-              obj.Length = obj.LengthConversions[this._planSettings.distanceAndLengthUnits];
-            }
-          }
-          // check for chordlength
-          if (featureSet.features[i].attributes[this.config.polylineLayer.chordLength] !== null &&
-            featureSet.features[i].attributes[this.config.polylineLayer.chordLength] !== "") {
-            obj.Length = featureSet.features[i].attributes[this.config.polylineLayer.chordLength];
-            if (obj.Length !== null && obj.Length !== "") {
-              // consider chordlength if there is value in it
-              obj.LengthConversions = this._validateLength(obj.Length, units);
-              //update length according to plansettings
-              obj.Length = obj.LengthConversions[this._planSettings.distanceAndLengthUnits];
-            }
           }
           editBearingDataArr.push(obj);
         }
@@ -1710,6 +1799,11 @@ define([
         return selectedLineSymbol;
       },
 
+      deactivateParcelTools: function () {
+        this._parcelToolInstance.disableRotating();
+        this._parcelToolInstance.disableScaling();
+      },
+
       /**
       * Clears all the traverse information and reset the objets
       * @memberOf widgets/ParcelDrafter/NewTraverse
@@ -1745,6 +1839,8 @@ define([
         domClass.remove(this.screenDigitizationNode, "esriCTEnableButton");
         //hide the parcel tools as everything is cleared we will not have closed polygon
         this._parcelToolInstance.showHideTools(false);
+        //deactivate parcel tools
+        this.deactivateParcelTools();
         //clear misclose info
         this._misCloseDetailsInstance.setMiscloseDetails(null);
         //reset boundary lines array

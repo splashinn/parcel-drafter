@@ -7,6 +7,7 @@
   'dojo/_base/lang',
   'dojo/Evented',
   'dojo/dom-class',
+  'dojo/query',
   'dijit/form/Select'
 ], function (
   declare,
@@ -16,7 +17,8 @@
   PlanSettingsTemplate,
   lang,
   Evented,
-  domClass
+  domClass,
+  query
 ) {
   return declare([BaseWidget, _WidgetsInTemplateMixin, Evented], {
     baseClass: 'jimu-widget-ParcelDrafter-PlanSettings',
@@ -52,6 +54,28 @@
     postCreate: function () {
       this.inherited(arguments);
       domClass.add(this.domNode, "esriCTPlanSettingsContainer esriCTFullWidth");
+      //TODO: try to remove the timeout
+      setTimeout(lang.hitch(this,this._setBackgroundColorForDartTheme), 500);
+    },
+
+    /**
+    * This function overrides dijit/select
+    * background color for dart theme
+    * @memberOf widgets/ParcelDrafter/PlanSettings
+    **/
+    _setBackgroundColorForDartTheme: function () {
+      var buttonContentsdiv, i, selectBoxArrowdiv;
+      // if applied Theme is for widget is dart Theme
+      if (this.appConfig.theme.name === "DartTheme") {
+        buttonContentsdiv = query(".dijitSelect .dijitButtonContents", this.planSettingsNode);
+        selectBoxArrowdiv = query(".dijitSelect .dijitArrowButton", this.planSettingsNode);
+        // loop for adding class for applying CSS on dijit/select div of
+        // div in dart theme
+        for (i = 0; i < buttonContentsdiv.length && i < selectBoxArrowdiv.length; i++) {
+          domClass.add(buttonContentsdiv[i], "dijitButtonContentsDartTheme");
+          domClass.add(selectBoxArrowdiv[i], "dijitArrowButtonDartTheme");
+        }
+      }
     },
 
     /**

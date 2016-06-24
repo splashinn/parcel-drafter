@@ -61,7 +61,7 @@
         this.parcelNameTextBox = this._createFieldInputs(
           this.parcelName,
           this.nls.parcelInfos.parcelNamePlaceholderText,
-          true);
+          false);
         this.planNameTextBox = this._createFieldInputs(this.planName,
           this.nls.parcelInfos.planNamePlaceholderText, false);
         //Handle click event of parcelInfo cancel button
@@ -73,6 +73,20 @@
         this.own(on(this.parcelInfoSaveButton, "click",
           lang.hitch(this, function () {
             this.emit("saveTraversedParcel");
+          })));
+        // to validate whether value searched by user in document type dropdown is valid or not.
+        this.own(on(this.documentTypeDropdown, "change",
+          lang.hitch(this, function (newValue) {
+            if (newValue !== "" && newValue !== null && newValue !== undefined) {
+              var foundValue;
+              foundValue = this.documentTypeDropdown.store.data.some(function (dataObject) {
+                return dataObject.name === newValue;
+              });
+              if (!foundValue) {
+                this.documentTypeDropdown.set("item", null);
+                this._showMessage(this.nls.planInfo.enterValidDocumentTyeMessage);
+              }
+            }
           })));
       },
 
@@ -182,7 +196,14 @@
             this._deletePolygonBeforeSaving(dataObj);
           }
         } else {
-          this._createPolylineData(null);
+          // Suppose, If user has edited closed parcel & then modified it to open parcel & then
+          // tried to save it. In this, 1st delete that closed parcel & then just save the lines
+          // of open parcel.
+          if (dataObj.polygonDeleteArr.length > 0) {
+            this._deletePolygonBeforeSaving(dataObj);
+          } else {
+            this._createPolylineData(null);
+          }
         }
       },
 
@@ -224,35 +245,40 @@
       **/
       _createPolygonData: function (dataObj) {
         var addsFeatureArr, attributes, polygon, selectedDocumentType, polygonGraphic;
-        this.loading.show();
-        addsFeatureArr = [];
-        attributes = {};
-        //get selected document type from dropdown
-        if (this.documentTypeDropdown.hasOwnProperty("item") &&
-          this.documentTypeDropdown.item && this.documentTypeDropdown.item.hasOwnProperty("id")) {
-          selectedDocumentType = this.documentTypeDropdown.item.id;
+        if (dataObj.miscloseDetails &&
+          (dataObj.miscloseDetails.LengthConversions.meters === 0 || dataObj.appliedCompassRule)) {
+          this.loading.show();
+          addsFeatureArr = [];
+          attributes = {};
+          //get selected document type from dropdown
+          if (this.documentTypeDropdown.hasOwnProperty("item") &&
+            this.documentTypeDropdown.item && this.documentTypeDropdown.item.hasOwnProperty("id")) {
+            selectedDocumentType = this.documentTypeDropdown.item.id;
+          } else {
+            selectedDocumentType = null;
+          }
+          //get the parcel polygon form boundray lines
+          polygon = this._createParcelPolygon();
+          if (polygon) {
+            //Add all the attributes for parcel polygon
+            attributes[this.config.polygonLayer.parcelName] = this.parcelNameTextBox.get("value");
+            attributes[this.config.polygonLayer.statedArea] = dataObj.statedArea;
+            attributes[this.config.polygonLayer.rotation] = dataObj.rotation;
+            attributes[this.config.polygonLayer.scale] = dataObj.scale;
+            attributes[this.config.polygonLayer.miscloseRatio] =
+              dataObj.miscloseDetails.miscloseRatio;
+            attributes[this.config.polygonLayer.miscloseDistance] =
+              dataObj.miscloseDetails.miscloseDistance;
+            attributes[this.config.polygonLayer.planName] = this.planNameTextBox.get("value");
+            attributes[this.config.polygonLayer.documentType] = selectedDocumentType;
+            polygonGraphic = new Graphic(polygon, null, attributes);
+            addsFeatureArr.push(polygonGraphic);
+            this._saveParcelPolygon(addsFeatureArr);
+          } else {
+            this._showMessage(this.nls.planInfo.unableToCratePolygonParcel);
+          }
         } else {
-          selectedDocumentType = null;
-        }
-        //get the parcel polygon form boundray lines
-        polygon = this._createParcelPolygon();
-        if (polygon) {
-          //Add all the attributes for parcel polygon
-          attributes[this.config.polygonLayer.parcelName] = this.parcelNameTextBox.get("value");
-          attributes[this.config.polygonLayer.statedArea] = dataObj.statedArea;
-          attributes[this.config.polygonLayer.rotation] = dataObj.rotation;
-          attributes[this.config.polygonLayer.scale] = dataObj.scale;
-          attributes[this.config.polygonLayer.miscloseRatio] =
-            dataObj.miscloseDetails.miscloseRatio;
-          attributes[this.config.polygonLayer.miscloseDistance] =
-            dataObj.miscloseDetails.miscloseDistance;
-          attributes[this.config.polygonLayer.planName] = this.planNameTextBox.get("value");
-          attributes[this.config.polygonLayer.documentType] = selectedDocumentType;
-          polygonGraphic = new Graphic(polygon, null, attributes);
-          addsFeatureArr.push(polygonGraphic);
-          this._saveParcelPolygon(addsFeatureArr);
-        } else {
-          this._showMessage(this.nls.planInfo.unableToCratePolygonParcel);
+          this._createPolylineData(null);
         }
       },
 
@@ -397,18 +423,12 @@
           if (attributes[this.config.polylineLayer.radius] !== null &&
             attributes[this.config.polylineLayer.radius] !== "" &&
             attributes[this.config.polylineLayer.radius] !== undefined) {
-            switch (this.planSettings.circularCurveParameters) {
-              case "radiusAndArcLength":
-                attributes[this.config.polylineLayer.arcLength] =
-                  attributes[this.config.polylineLayer.distance];
-                attributes[this.config.polylineLayer.chordLength] = null;
-                break;
-              case "radiusAndChordLength":
-                attributes[this.config.polylineLayer.arcLength] = null;
-                attributes[this.config.polylineLayer.chordLength] =
-                  attributes[this.config.polylineLayer.distance];
-                break;
-            }
+            // store arc length in layers unit
+            attributes[this.config.polylineLayer.arcLength] =
+              this._getValueAccToFeatureLayerUnit(units, values, "ArcLengthConversions");
+            // store chord length in layers unit
+            attributes[this.config.polylineLayer.chordLength] =
+              this._getValueAccToFeatureLayerUnit(units, values, "ChordLengthConversions");
             attributes[this.config.polylineLayer.distance] = null;
           } else {
             attributes[this.config.polylineLayer.arcLength] = null;
@@ -439,7 +459,6 @@
               this.loading.hide();
               this._showMessage(this.nls.planInfo.parcelSavedSuccessMessage);
               this.emit("displayMainPageAfterSave");
-              //TODO: on save enter the current parcel in edit mode or exit of traverse page?
             }), lang.hitch(this, function () {
               this.loading.hide();
               this._showMessage(this.nls.planInfo.unableToSaveParcelLines);
