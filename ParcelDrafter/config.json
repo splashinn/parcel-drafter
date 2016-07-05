@@ -105,7 +105,8 @@
 		"sequenceId": "SequenceID",
 		"relatedGUID": "guid_id"
 	},
-	"snappingTolerance":15,
+	"snappingLayers": ["ParcelDrafter_7027"],
+	"snappingTolerance": 15,
 	"miscloseSnapDistance": 6,
 	"miscloseRatioSnap": 5000
 }
