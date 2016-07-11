@@ -7,7 +7,8 @@ define([
   'dojo/_base/array',
   'dojo/_base/lang',
   'esri/geometry/geometryEngine',
-  'esri/SpatialReference'
+  'esri/SpatialReference',
+  'esri/geometry/scaleUtils'
 ],
   function (
     Point,
@@ -18,9 +19,14 @@ define([
     array,
     lang,
     geometryEngine,
-    SpatialReference) {
+    SpatialReference,
+    scaleUtils) {
     var mo = {};
 
+    /**
+    * Returns the projected geometry in outSR
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getProjectedGeometry = function (geometry, outSR, geometryService) {
       var deferred, result;
       deferred = new Deferred();
@@ -28,14 +34,18 @@ define([
         result = webMercatorUtils.project(geometry, outSR);
         deferred.resolve(result);
       } else {
-        geometryService.project([geometry], outSR, function (projectedgeometries) {
-          result = projectedgeometries[0];
+        geometryService.project([geometry], outSR, function (projectedGeometries) {
+          result = projectedGeometries[0];
           deferred.resolve(result);
         });
       }
       return deferred.promise;
     };
 
+    /**
+    * Returns the destination mapPoint
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getDestinationPoint = function (startPoint, bearing, distance) {
       var startX, startY, angle, endX, endY;
       if (startPoint === null) {
@@ -58,13 +68,17 @@ define([
       return new Point(endX, endY, startPoint.spatialReference);
     };
 
+    /**
+    * Returns the polyline geometry between point
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getLineBetweenPoints = function (pointsArray) {
       var polyline, pathsArray = [];
-      //itterate throug all the points and create paths array
+      //iterate through all the points and create paths array
       array.forEach(pointsArray, lang.hitch(this, function (point) {
         pathsArray.push([point.x, point.y]);
       }));
-      //check if paths exist and create polyline object form it
+      //check if paths exist and create polyline object from it
       if (pathsArray.length > 0) {
         polyline = new Polyline({
           "paths": [
@@ -77,14 +91,16 @@ define([
       return polyline;
     };
 
+    /**
+    * Returns angle between to points
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getAngleBetweenPoints = function (originPoint, chordPoint) {
       var dx, dy, XByY, YByX;
       dx = chordPoint.x - originPoint.x;
       dy = chordPoint.y - originPoint.y;
-
       XByY = Math.atan2(Math.abs(dx), Math.abs(dy)) * 180 / Math.PI;
       YByX = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
-
       if (dy === 0) {
         if (dx === 0) {
           return 0;
@@ -112,14 +128,22 @@ define([
       }
     };
 
-    mo.getDistanceBetweeenPoints = function (startPoint, endPoint) {
+    /**
+    * Returns distance between two point in meters using geometry engine
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
+    mo.getDistanceBetweenPoints = function (startPoint, endPoint) {
       var distance = geometryEngine.distance(startPoint, endPoint, 9001);
-      //as thier could be very small distance betwwen points,
+      //as their could be very small distance between points,
       //geometryEngine will return values in negative exponent which means
       // it is equivalent to zero so removeNegativeExponents from values
       return mo.removeNegativeExponents(distance);
     };
 
+    /**
+    * Returns the planar length of simplified geometry using geometry engine
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getLengthOfGeometry = function (geometry) {
       var lengthInMeters, simplifiedGeometry;
       simplifiedGeometry = geometryEngine.simplify(geometry);
@@ -127,6 +151,11 @@ define([
       return lengthInMeters;
     };
 
+    /**
+    * Returns the object containing area of the geometry, in acre, sqMeters,sqFeet, and sqUSFeet.
+    * if geometry is not simplified it will return 0 in all units
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getAreaOfGeometry = function (geometry) {
       var simplifiedGeometry, areaConversions;
       simplifiedGeometry = geometryEngine.simplify(geometry);
@@ -145,6 +174,10 @@ define([
       return areaConversions;
     };
 
+    /**
+    * Returns the polyline object form the paths array
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getPolyLineFromPaths = function (pathsArray) {
       var polyline, i;
       //create polyline in 102100 spatial reference
@@ -155,6 +188,10 @@ define([
       return polyline;
     };
 
+    /**
+    * Returns the polygon object form the paths array
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getPolygonFromPolyLines = function (pathsArray, addLastPoint, updateLastPoint) {
       var ring, polygon, i, j;
       ring = [];
@@ -179,12 +216,16 @@ define([
       return polygon;
     };
 
+    /**
+    * Returns the pointArray for an arc
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getPointsForArc = function (startAngle, endAngle, centerPoint, radius) {
       var i, pointArray = [], angleOfArc, segments, unitAngle, bearingForEachPoint, point;
       angleOfArc = endAngle - startAngle;
       segments = parseInt(angleOfArc, 10);
       //in case if angle is in between 0 to 1, segments parseInt value will be 0,
-      //but we would require atleast 1 segment to draw arc
+      //but we would require at least 1 segment to draw arc
       if (segments <= 0) {
         segments = 1;
       }
@@ -202,11 +243,15 @@ define([
       return pointArray;
     };
 
+    /**
+    * Returns the arc params required to draw arc
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.getArcParam = function (param) {
       var returnValue;
       returnValue = {};
       if (param.distance < 0) { //major arc
-        if (param.radius > 0) { // right side of chord
+        if (param.radius < 0) { // left side of chord
           returnValue.bearing = param.initBearing + 90;
           returnValue.centerPoint = mo.getDestinationPoint(param.chordMidPoint, returnValue.bearing,
             param.centerAndChordDistance);
@@ -214,8 +259,7 @@ define([
             param.chordEndPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
             param.chordStartPoint);
-
-        } else { // left side of chord
+        } else { // Right side of chord
           returnValue.bearing = param.initBearing - 90;
           returnValue.centerPoint = mo.getDestinationPoint(param.chordMidPoint, returnValue.bearing,
             param.centerAndChordDistance);
@@ -223,7 +267,6 @@ define([
             param.chordStartPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
             param.chordEndPoint);
-
         }
       } else { //minor arc
         if (param.radius > 0) { // right side of chord
@@ -234,7 +277,6 @@ define([
             param.chordStartPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
             param.chordEndPoint);
-
         } else { // left side of chord
           returnValue.bearing = param.initBearing - 90;
           returnValue.centerPoint = mo.getDestinationPoint(param.chordMidPoint,
@@ -243,12 +285,15 @@ define([
             param.chordEndPoint);
           returnValue.endAngle = mo.getAngleBetweenPoints(returnValue.centerPoint,
             param.chordStartPoint);
-
         }
       }
       return returnValue;
     };
 
+    /**
+    * Returns the value after removing negative exponents from it
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
     mo.removeNegativeExponents = function (num) {
       var returnValue;
       if (num.toString().toLowerCase().split('e-').length > 1) {
@@ -259,7 +304,11 @@ define([
       return returnValue;
     };
 
-    mo.getChordLenghtFormArcLength = function (arcLength, radius) {
+    /**
+    * Converts the chord length to arc length
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
+    mo.getChordLengthFromArcLength = function (arcLength, radius) {
       var chordLength, arcLengthOfSemiCircle, theta;
       arcLength = Math.abs(arcLength);
       // using formula 'Math.PI * radius' for calculating circumference of a semi-circle.
@@ -278,12 +327,86 @@ define([
       return chordLength;
     };
 
-    mo.getArcLenghtFormChordLength = function (chordLength, radius) {
+    /**
+    * Converts the arc length to chord length
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
+    mo.getArcLengthFromChordLength = function (chordLength, radius) {
       var arcLength;
       chordLength = Math.abs(chordLength);
       radius = Math.abs(radius);
       arcLength = (2 * Math.asin(chordLength / (2 * radius)) * radius);
       return arcLength;
+    };
+
+    /**
+    * Converts the chord bearing to tangent bearing
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
+    mo.chordBearingToTangentBearing = function (chordBearing, radius, chordLength) {
+      var radToChordAngle, minorArc, leftOfChord, tanBearing;
+      radToChordAngle = Math.acos((Math.abs(chordLength) / 2) / Math.abs(radius)) * (180 / Math.PI);//angle between radius and chord
+      minorArc = radius / Math.abs(radius);
+      leftOfChord = chordLength / Math.abs(chordLength);
+      /*
+      Combinations:
+      1. +r +c -> tb = cb + 90 - a
+      2. +r -c -> tb = cb - 90 - a
+      3. -r +c -> tb = cb - 90 + a
+      4. -r -c -> tb = cb + 90 + a
+      */
+      tanBearing = chordBearing + minorArc * leftOfChord * 90 - minorArc * radToChordAngle;
+      //ensure that angle is between 0 to 360
+      tanBearing =
+        tanBearing < 0 ? tanBearing + 360 :
+          (tanBearing >= 360 ? tanBearing % 360 : tanBearing);
+      //return the tanBearing removing negative exponent
+      return mo.removeNegativeExponents(tanBearing);
+    };
+
+    /**
+    * Converts the tangent bearing to chord bearing
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
+    mo.tangentBearingToChordBearing = function (tanBearing, radius, chordLength) {
+      var radToChordAngle, minorArc, leftOfChord, chordBearing;
+      radToChordAngle = Math.acos((Math.abs(chordLength) / 2) / Math.abs(radius)) * (180 / Math.PI);//angle between radius and chord
+      minorArc = radius / Math.abs(radius);
+      leftOfChord = chordLength / Math.abs(chordLength);
+      /*
+      Combinations:
+      1. +r +c -> cb = tb + 90 - a
+      2. +r -c -> cb = tb + 90 + a
+      3. -r +c -> cb = tb - 90 + a
+      4. -r -c -> cb = tb - 90 - a
+      */
+      chordBearing = tanBearing + minorArc * 90 - minorArc * leftOfChord * radToChordAngle;
+      //ensure that angle is between 0 to 360
+      chordBearing =
+        chordBearing < 0 ? chordBearing + 360 :
+          (chordBearing >= 360 ? chordBearing % 360 : chordBearing);
+      //return the chordBearing removing negative exponent
+      return mo.removeNegativeExponents(chordBearing);
+    };
+
+    /**
+    * This function is used to get unit from spatialReference
+    * @memberOf widgets/ParcelDrafter/geometryUtils
+    **/
+    mo.getUnitValueForSR = function (spatialReference) {
+      var mapUnit;
+      mapUnit = scaleUtils.getUnitValueForSR(spatialReference);
+      switch (mapUnit) {
+        case 1: // meters
+          return "meters";
+        case 111194.87428468118: // degrees
+          return "meters";
+        case 0.3048: // feet
+          return "feet";
+        case 0.3048006096: // us survey feet
+        case 0.3048006096012192:
+          return "uSSurveyFeet";
+      }
     };
 
     return mo;

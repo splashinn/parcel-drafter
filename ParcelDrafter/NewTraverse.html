@@ -19,24 +19,28 @@
         <div data-dojo-attach-point="traverseEntryNode" class="esriCTEntrtyNodeContent esriCTRow">
             <div data-dojo-attach-point="lineSymbolNode" class="esriCTSymbolContainer">
             </div>
-            <div data-dojo-attach-point="bearingNode" class="esriCTBearingRow" data-dojo-type="dijit/form/TextBox">
+            <div data-dojo-attach-point="bearingNode" class="esriCTBearingRow" data-dojo-type="dijit/form/ValidationTextBox">
             </div>
-            <div data-dojo-attach-point="lengthNode" data-dojo-type="dijit/form/TextBox">
+            <div data-dojo-attach-point="lengthNode" data-dojo-type="dijit/form/ValidationTextBox">
             </div>
-            <div data-dojo-attach-point="radiusNode" data-dojo-type="dijit/form/TextBox">
+            <div data-dojo-attach-point="radiusNode" data-dojo-type="dijit/form/ValidationTextBox">
             </div>
             <div class="esriCTAddRow">
-                <div data-dojo-attach-point="addButton" class="esriCTAddIcon" title=${nls.traverseSettings.addButtonTitle}>
+                <div data-dojo-attach-point="addButton" class="esriCTAddIcon"
+                title="${nls.traverseSettings.addButtonTitle}">
                 </div>
             </div>
         </div>
         <div class="esriCTTraverseTool">
             <div class="esriCTTraverseToolContainer">
-                <div class="esriCTTraverseToolIcons ecriCTLocationIcon esriCTCursorPointer" title="${nls.planSettings.onScreenDigitizationTooltipText}"  data-dojo-attach-point="screenDigitizationNode" >
+                <div class="esriCTTraverseToolIcons ecriCTLocationIcon esriCTCursorPointer" title="${nls.planSettings.onScreenDigitizationTooltipText}"
+                    data-dojo-attach-point="screenDigitizationNode">
                 </div>
-                <div class="esriCTHidden esriCTTraverseToolIcons ecriCTZoomToIcon esriCTCursorPointer" title="${nls.planSettings.zoomToLocationTooltipText}"  data-dojo-attach-point="zoomToNode" >
+                <div class="esriCTHidden esriCTTraverseToolIcons ecriCTZoomToIcon esriCTCursorPointer" title="${nls.planSettings.zoomToLocationTooltipText}"
+                    data-dojo-attach-point="zoomToNode">
                 </div>
-                <div class="esriCTHidden  esriCTTraverseToolIcons esriCTCollapse esriCTCursorPointer" title="${nls.planSettings.collapseGridTooltipText}" data-dojo-attach-point="expandCollapseNode">
+                <div class="esriCTHidden  esriCTTraverseToolIcons esriCTCollapse esriCTCursorPointer" title="${nls.planSettings.collapseGridTooltipText}"
+                    data-dojo-attach-point="expandCollapseNode">
                 </div>
             </div>
         </div>

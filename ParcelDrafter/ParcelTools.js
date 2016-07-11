@@ -24,8 +24,8 @@
     return declare([BaseWidget, _WidgetsInTemplateMixin, Evented], {
       baseClass: 'jimu-widget-ParcelDrafter-ParcelTools',
       templateString: ParcelToolsTemplate,
-      rotationAngle: 0, // to store rotation angle
-      scaledValue: 1.0, // to store scale value
+      rotationAngle: 0, //To store rotation angle
+      scaledValue: 1.0, //To store scale value
 
       constructor: function (options) {
         lang.mixin(this, options);
@@ -34,10 +34,10 @@
       postCreate: function () {
         this.inherited(arguments);
         domClass.add(this.domNode, "esriCTFullWidth");
-        //set constraints on the number textboxes
+        //set constraints on the rotation number textboxes
         this.rotationTxt.constraints = { min: -360, max: 360, places: 3 };
-        //set constraints on the number textboxes
-        this.scaleTxt.constraints = { places: 3 };
+        //set constraints on the scale number textboxes
+        this.scaleTxt.constraints = { min: 0.1, places: 3 };
         //set default values in the textboxes
         this.rotationTxt.set("value", this.rotationAngle);
         this.scaleTxt.set('value', this.scaledValue);
@@ -69,7 +69,6 @@
             this.setRotation(this.rotationTxt.displayedValue);
           }
         })));
-
         this.own(on(this.scaleTxt, "keypress", lang.hitch(this, function (evt) {
           var charOrCode;
           charOrCode = evt.charCode || evt.keyCode;
@@ -156,6 +155,8 @@
         if (show) {
           domClass.remove(this.domNode, "esriCTHidden");
         } else {
+          this.rotationAngle = 0;
+          this.scaledValue = 1.0;
           this.rotationTxt.set("value", Number(0));
           this.scaleTxt.set("value", Number(1));
           domClass.add(this.domNode, "esriCTHidden");
@@ -163,12 +164,13 @@
       },
 
       /**
-      * toggle rotaion feature
+      * toggle rotaion functionality
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
       _toggleRotating: function () {
-        if (domClass.contains(this.rotateButton, "esriCTDisableButton")) {
-          domClass.remove(this.rotateButton, "esriCTDisableButton");
+        if (domClass.contains(this.rotateButton.parentElement, "esriCTDisableButton")) {
+          domClass.remove(this.rotateButton.parentElement, "esriCTDisableButton");
+          this.disableScaling();
           this.emit("toggleRotating", true);
         } else {
           this.disableRotating();
@@ -177,12 +179,13 @@
       },
 
       /**
-      * toggle scaling feature
+      * toggle scaling functionality
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
       _toggleScaling: function () {
-        if (domClass.contains(this.scaleButton, "esriCTDisableButton")) {
-          domClass.remove(this.scaleButton, "esriCTDisableButton");
+        if (domClass.contains(this.scaleButton.parentElement, "esriCTDisableButton")) {
+          domClass.remove(this.scaleButton.parentElement, "esriCTDisableButton");
+          this.disableRotating();
           this.emit("toggleScaling", true);
         } else {
           this.disableScaling();
@@ -195,15 +198,15 @@
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
       disableRotating: function () {
-        domClass.add(this.rotateButton, "esriCTDisableButton");
+        domClass.add(this.rotateButton.parentElement, "esriCTDisableButton");
       },
 
       /**
-     * disable button
-     * @memberOf widgets/ParcelDrafter/ParcelTools
-     **/
+      * disable button
+      * @memberOf widgets/ParcelDrafter/ParcelTools
+      **/
       disableScaling: function () {
-        domClass.add(this.scaleButton, "esriCTDisableButton");
+        domClass.add(this.scaleButton.parentElement, "esriCTDisableButton");
       }
     });
   });
