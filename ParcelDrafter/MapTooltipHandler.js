@@ -164,23 +164,40 @@
           top: (py) + "px"
         });
         domStyle.set(this._mapTooltip, "display", "");
+        this._onMoving(evt);
       },
 
-      /* ----------------------- */
-      /* Event handler functions */
-      /* ----------------------- */
+      /**
+      * Emit's cick event of the layer/map
+      * @memberOf widgets/ParcelDrafter/MapTooltipHandler
+      **/
       _clicked: function (evt) {
         this.emit("clicked", evt);
       },
 
+      /**
+      * Emit's map drag event
+      * @memberOf widgets/ParcelDrafter/MapTooltipHandler
+      **/
       _onDragging: function (evt) {
         this.emit("dragging", evt);
       },
 
+      /**
+      * Emit's map move event
+      * @memberOf widgets/ParcelDrafter/MapTooltipHandler
+      **/
+      _onMoving: function (evt) {
+        this.emit("moving", evt);
+      },
+
+      /**
+      * Update's the tooltip to he shown on move
+      * @memberOf widgets/ParcelDrafter/MapTooltipHandler
+      **/
       updateTooltip: function (newTooltip) {
         this.toolTipText = newTooltip;
         this._mapTooltip.innerHTML = this.toolTipText;
       }
-
     });
   });

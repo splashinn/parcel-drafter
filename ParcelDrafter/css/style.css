@@ -100,6 +100,7 @@
     width: 45px;
     float: left;
     background-size: 45px 45px;
+    background-color: #8e8e8e;
 }
 
 .esriRtl .jimu-widget-ParcelDrafter .esriCTButtonIcon
@@ -152,7 +153,7 @@
 
 .jimu-widget-ParcelDrafter .esriCTEnableButton
 {
-    background-image: url('../images/digitizatio-selected.png');
+    background-image: url('../images/digitization-selected.png');
     background-color: #8e8e8e;
 }
 
@@ -214,6 +215,11 @@
     float: left;
     text-align: left;
 }
+
+.esriRtl .jimu-widget-ParcelDrafter .esriCTTraverseResultContainer{
+    text-align: right;
+}
+
 .jimu-widget-ParcelDrafter .esriCTGridEmptyLabel
 {
     width: 50px;
@@ -255,7 +261,7 @@
 
 .jimu-widget-ParcelDrafter .esriCTTraverseResultsDiv
 {
-    max-width: 50%;
+    max-width: 49%;
     float: left;
     padding-right: 5px;
 }
@@ -306,10 +312,25 @@
 /*------------------------- Styles for Parcel Tools Page Starts-----------------------*/
 .jimu-widget-ParcelDrafter .esriCTRotationButton
 {
-    background-image: url('../images/scale-rotation.png');
+    background-image: url('../images/scale-rotation-active.png');
 }
 
 .jimu-widget-ParcelDrafter .esriCTScaleButton
+{
+    background-image: url('../images/scale-active.png');
+}
+
+.jimu-widget-ParcelDrafter .esriCTDisableButton .esriCTParcelToolButtonIcon
+{
+    background-color: inherit;
+}
+
+.jimu-widget-ParcelDrafter .esriCTDisableButton .esriCTRotationButton
+{
+    background-image: url('../images/scale-rotation.png');
+}
+
+.jimu-widget-ParcelDrafter .esriCTDisableButton .esriCTScaleButton
 {
     background-image: url('../images/scale.png');
 }
@@ -317,7 +338,7 @@
 .jimu-widget-ParcelDrafter .esriCTParcelToolButtonLabel
 {
     float: left;
-    max-width: 50%;
+    max-width: calc(100% - 145px);
     line-height: 35px;
     padding: 5px 20px;
 }
@@ -355,8 +376,6 @@
 .jimu-widget-ParcelDrafter .esriCTPlanInfoButton
 {
     width: 80px;
-    height: 30px;
-    line-height: 30px;
 }
 
 /*------------------------- Styles for Parcel Tools Page Ends-----------------------*/
@@ -405,7 +424,7 @@
     line-height: 10px;
     font-weight: bold;
     text-align: center;
-    width: 85%;
+    width: calc(100% - 50px);
     padding: 5px;
     display: inline-block;
 }
@@ -483,6 +502,11 @@
     display: table-cell;
 }
 
+.jimu-widget-ParcelDrafter  .dijitTextBoxError {
+    border-color: #d9dde0 !important;
+    box-shadow: inset 0 0 0 2px #d46464;
+}
+
 .jimu-widget-ParcelDrafter .esriCTRow .dijitTextBoxHover
 {
     border-color: #d9dde0;
@@ -498,6 +522,10 @@
 .jimu-widget-ParcelDrafter .esriCTBearingRow
 {
     width: calc(100% - 210px) !important;
+}
+
+.jimu-widget-ParcelDrafter .dojoDndItemAfter .esriCTSymbolContainer, .jimu-widget-ParcelDrafter .dojoDndItemBefore .esriCTSymbolContainer{
+    background: #E4E4ED !important;
 }
 
 .jimu-widget-ParcelDrafter .dojoDndItem, .jimu-widget-demo .dojoDndItemAnchor, .jimu-widget-demo .dojoDndItemSelected, .dojoDndContainerOver, .dojoDndItemOver
@@ -662,3 +690,64 @@
 }
 /* CSS for RTL Mode Ends */
 /*------------------------- Styles for widget panel -----------------------*/
+/*------------------------- Styles for parcel info popup -----------------------*/
+
+.esriCTEditParcelDialog
+{
+    position: absolute;
+    width: 250px;
+    font: normal normal normal 10pt Helvetica;
+    z-index:100;
+}
+
+.esriCTParcelInfoPopup
+{
+    display: table;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.esriCTParcelInfoPopup .esriCTParcelInfoLabels
+{
+    height: 20px;
+    display: table-cell;
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-wrap: nowrap;
+    margin-right: 5px;
+}
+
+.esriCTLabelRows
+{
+    display: table-row;
+}
+
+.esriCTParcelInfoPopup .dijitTextBox
+{
+    display: table-cell;
+}
+
+.esriCTParcelInfoPopup .esriCTRowContainer
+{
+    display: table-row;
+}
+
+.esriCTParcelInfoPopup .dijitTextBoxError
+{
+    border-color: #d9dde0 !important;
+    box-shadow: inset 0 0 0 2px #d46464;
+}
+
+.esriCTParcelInfoPopup .dijitTextBoxHover
+{
+    border-color: #d9dde0;
+}
+
+.esriCTParcelInfoPopup .dijitTextBoxFocused
+{
+    border-color: #d9dde0 !important;
+    box-shadow: none;
+    outline: none;
+}
+/*------------------------- Styles for parcel info popup -----------------------*/

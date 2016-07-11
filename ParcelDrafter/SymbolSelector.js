@@ -1,23 +1,33 @@
 ﻿define([
-    'dojo/_base/declare',
-    'jimu/BaseWidgetSetting',
-    'dojo/_base/lang',
-    'dojo/on',
-    'dojo/dom-construct',
-    'dojo/_base/array',
-    'jimu/symbolUtils',
-    'esri/symbols/jsonUtils',
-    'dijit/popup',
-    'dijit/TooltipDialog',
-    'dojo/_base/html'
-  ],
-  function (declare, BaseWidgetSetting, lang, on, domConstruct, array, symbolUtils,
-   jsonUtils, dojoPopup, TooltipDialog, html) {
-
+  'dojo/_base/declare',
+  'jimu/BaseWidgetSetting',
+  'dojo/_base/lang',
+  'dojo/on',
+  'dojo/dom-construct',
+  'dojo/_base/array',
+  'jimu/symbolUtils',
+  'esri/symbols/jsonUtils',
+  'dijit/popup',
+  'dijit/TooltipDialog',
+  'dojo/_base/html'
+],
+  function (
+    declare,
+    BaseWidgetSetting,
+    lang,
+    on,
+    domConstruct,
+    array,
+    symbolUtils,
+    jsonUtils,
+    dojoPopup,
+    TooltipDialog,
+    html
+  ) {
     return declare([BaseWidgetSetting], {
       _tooltipDialog: null, // To contain tooltip node
-      selectedSymbol: null,
-      symbolData: [],
+      selectedSymbol: null, //Holds the selected symbol from list
+      symbolData: [], //Holds the symbol data
 
       constructor: function (options) {
         lang.mixin(this, options);
@@ -43,12 +53,20 @@
         })));
       },
 
+      /**
+      * Set's default symbol
+      * @memberOf widgets/ParcelDrafter/SymbolSelector
+      **/
       setDefault: function () {
         // Show default symbol in the preview node
         this.selectSymbol(this.symbolData[0]);
       },
 
-      _createSelectedSymbolNode: function() {
+      /**
+      * Creates node to show selected symbol
+      * @memberOf widgets/ParcelDrafter/SymbolSelector
+      **/
+      _createSelectedSymbolNode: function () {
         var outerNode = domConstruct.create("div", {}, this.domNode);
         this.selectedSymbolNode = domConstruct.create("div", {
           "class": "esriCTSelectedSymbol"
@@ -105,7 +123,7 @@
         }, symbolList);
         // Create symbol list item with the configured symbols
         array.forEach(this.symbolData, lang.hitch(this, function (
-            symbolJson) {
+          symbolJson) {
           var symbolListItemNode, symbolOuterNode, symbolInnerNode;
           symbolListItemNode = domConstruct.create("div", {
             "class": "esriCTSymbolOption",

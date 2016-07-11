@@ -21,7 +21,7 @@
     return declare([BaseWidget, _WidgetsInTemplateMixin, Evented], {
       baseClass: 'jimu-widget-ParcelDrafter-MisclosedDetails',
       templateString: MiscloseDetailsTemplate,
-      details: null,
+      details: null, //Object to hold the calculated misclose info
 
       constructor: function (options) {
         lang.mixin(this, options);
@@ -34,14 +34,13 @@
       },
 
       /**
-      * This function overrides
-      * background color for dart theme
-      * @memberOf widgets/ParcelDrafter/PlanSettings
+      * This function overrides background color for dart theme
+      * @memberOf widgets/ParcelDrafter/MiscloseDetails
       **/
       _setBackgroundColorForDartTheme: function () {
         // if applied Theme is for widget is dart Theme
         if (this.appConfig.theme.name === "DartTheme") {
-          domClass.add(this.noMiscloseCalculated, "esriCTMiscloseHeaderDiv");
+          domClass.add(this.traverseDetailsContainer, "esriCTMiscloseHeaderDiv");
         }
       },
 
