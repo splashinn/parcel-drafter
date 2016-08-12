@@ -259,6 +259,11 @@
     height: 21px;
 }
 
+.jimu-widget-ParcelDrafter .dijitTextBoxFocused .dijitInputContainer
+{
+    background: transparent;
+}
+
 .jimu-widget-ParcelDrafter .esriCTTraverseResultsDiv
 {
     max-width: 49%;
@@ -473,6 +478,12 @@
 }
 
 /* overriding CSS for the dijitSelect box starts */
+
+/* Remove close button from textbox in IE */
+input[type=text]::-ms-clear
+{
+    display: none;
+}
 
 /*------------------------- Styles for Plan Settings-----------------------*/
 
@@ -692,22 +703,20 @@
 /*------------------------- Styles for widget panel -----------------------*/
 /*------------------------- Styles for parcel info popup -----------------------*/
 
-.esriCTEditParcelDialog
+.jimu-widget-ParcelDrafter .esriCTEditParcelDialog
 {
     position: absolute;
     width: 250px;
-    font: normal normal normal 10pt Helvetica;
     z-index:100;
 }
 
-.esriCTParcelInfoPopup
+.jimu-widget-ParcelDrafter .esriCTParcelInfoPopup
 {
     display: table;
     border-collapse: collapse;
     width: 100%;
 }
-
-.esriCTParcelInfoPopup .esriCTParcelInfoLabels
+.jimu-widget-ParcelDrafter .esriCTParcelInfoLabels
 {
     height: 20px;
     display: table-cell;
@@ -717,37 +726,13 @@
     word-wrap: nowrap;
     margin-right: 5px;
 }
-
-.esriCTLabelRows
+.jimu-widget-ParcelDrafter .esriCTLabelRows
 {
     display: table-row;
 }
 
-.esriCTParcelInfoPopup .dijitTextBox
-{
-    display: table-cell;
-}
-
-.esriCTParcelInfoPopup .esriCTRowContainer
+.jimu-widget-ParcelDrafter .esriCTParcelInfoPopup .esriCTRowContainer
 {
     display: table-row;
-}
-
-.esriCTParcelInfoPopup .dijitTextBoxError
-{
-    border-color: #d9dde0 !important;
-    box-shadow: inset 0 0 0 2px #d46464;
-}
-
-.esriCTParcelInfoPopup .dijitTextBoxHover
-{
-    border-color: #d9dde0;
-}
-
-.esriCTParcelInfoPopup .dijitTextBoxFocused
-{
-    border-color: #d9dde0 !important;
-    box-shadow: none;
-    outline: none;
 }
 /*------------------------- Styles for parcel info popup -----------------------*/

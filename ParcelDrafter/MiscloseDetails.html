@@ -34,13 +34,12 @@
                 ${nls.traverseSettings.accuracyHigh}
             </div>
         </div>
-        <div class="esriCTTraverseResultContainer" data-dojo-attach-point="traverseStatedAreaNode">
+        <div class="esriCTTraverseResultContainer esriCTHidden" data-dojo-attach-point="traverseStatedAreaNode">
             <div class="esriCTTraverseResultsDiv esriCTEllipsis" title="${nls.traverseSettings.traverseStatedArea}">
                 ${nls.traverseSettings.traverseStatedArea}:
             </div>
             <div class="esriCTTraverseResultsDiv esriCTEllipsis esriCTTraversedValueDiv">
-                <div data-dojo-attach-point="traverseStatedArea" style="font-weight:normal; width: 100px; height: 25px;" data-dojo-type="dijit/form/TextBox"
-                    trim="true" required="true">
+                <div data-dojo-attach-point="traverseStatedArea" style="font-weight:normal; width: 100px; height: 25px;" data-dojo-type="dijit/form/ValidationTextBox">
                 </div>
             </div>
         </div>
