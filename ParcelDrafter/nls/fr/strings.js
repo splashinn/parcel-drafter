@@ -40,7 +40,7 @@
       "expandGridTooltipText": "@fr@ Expand grid", // Show on hover of the expand grid button
       "collapseGridTooltipText": "@fr@ Collapse grid", // Show on hover of the collapse grid button
       "zoomToLocationTooltipText": "@fr@ Zoom to location", // Show on hover of the zoomToLocation button
-      "onScreenDigitizationTooltipText": "@fr@ Digitization" // Show on hover of the zoomToLocation button
+      "onScreenDigitizationTooltipText": "@fr@ Digitize" // Show on hover of the Digitization button
     },
     "traverseSettings": {
       "bearingLabel": "@fr@ Bearing", // Shown as label for bearing column in traverse grid

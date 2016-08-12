@@ -1,10 +1,14 @@
-define([
-  './math.min'
-],
-  function (
-    math
-  ) {
+define([],
+  function () {
     var mo = {};
+    //Object that holds all the options and their keys for plan settings
+    mo.planSettingsOptions = {
+      "directionOrAngleType": ["northAzimuth", "southAzimuth", "quadrantBearing"],
+      "directionOrAngleUnits": ["decimalDegree", "degreeMinuteSeconds"],
+      "distanceAndLengthUnits": ["uSSurveyFeet", "meters"],
+      "areaUnits": ["squareUsFeet", "acres", "squareMeters"],
+      "circularCurveParameters": ["radiusAndChordLength", "radiusAndArcLength"]
+    };
 
     /**
     * This function is used to get quadrant from quadrant shortcut.
@@ -66,73 +70,56 @@ define([
     mo.getSouthAzimuthFromNorthAzimuth = function (northAzimuthAngle) {
       var southAzimuthAngle;
       if (northAzimuthAngle > 180) {
-        southAzimuthAngle = math.add(math.bignumber(northAzimuthAngle), math.bignumber(-180));
+        southAzimuthAngle = northAzimuthAngle - 180;
       } else if (northAzimuthAngle < 180) {
-        southAzimuthAngle = math.add(math.bignumber(northAzimuthAngle), math.bignumber(180));
-        // == is used just to math the data & not its type coz northAzimuthAngle angle is having
-        // dataType as bignumber
-      } else if (northAzimuthAngle == 180) { // jshint ignore:line
-        southAzimuthAngle = math.bignumber(0);
+        southAzimuthAngle = northAzimuthAngle + 180;
+      } else if (northAzimuthAngle === 180) {
+        southAzimuthAngle = 0;
       }
       return southAzimuthAngle;
     };
 
     /**
-    * This function is used to convert DMC to DD.
+    * This function is used to convert DMS to DD.
     * @memberOf widgets/ParcelDrafter/utils
     */
-    mo.DMCtoDD = function (dmcObj) {
-      var degreeValue, minutesValue, centisecondsValue, ddMinutes, ddCentiseconds, DD;
-      degreeValue = math.bignumber(Math.abs(parseFloat(dmcObj.degree)));
-      minutesValue = math.bignumber(parseFloat(dmcObj.minutes));
-      centisecondsValue = math.bignumber(parseFloat(dmcObj.centiseconds));
-      ddMinutes = math.divide(minutesValue, math.bignumber(60));
-      ddCentiseconds = math.divide(centisecondsValue, math.bignumber(360000));
-      DD = math.add(degreeValue, math.add(ddMinutes, ddCentiseconds));
-      if (dmcObj.isNegative) {
-        DD = math.multiply(DD, math.bignumber(-1));
+    mo.DMStoDD = function (dmsObj) {
+      var degreeValue, minutesValue, secondsValue, ddMinutes, ddSeconds, DD;
+      degreeValue = Math.abs(parseFloat(dmsObj.degree));
+      minutesValue = parseFloat(dmsObj.minutes);
+      secondsValue = parseFloat(dmsObj.seconds);
+      ddMinutes = minutesValue / 60;
+      ddSeconds = secondsValue / 3600;
+      DD = degreeValue + ddMinutes + ddSeconds;
+      if (dmsObj.isNegative) {
+        DD = -1 * DD;
       }
       return DD;
     };
 
     /**
-    * This function is used to convert DD to DMC.
+    * This function is used to convert DD to DMS.
     * @memberOf widgets/ParcelDrafter/utils
     */
-    mo.DDtoDMC = function (ddObj) {
-      var dmcObj, degree, minutes, centiseconds, totalCentiseconds, totalMins;
-      totalCentiseconds = math.multiply(math.bignumber(ddObj.angle), math.bignumber(360000));
-      centiseconds = math.mod(totalCentiseconds, math.bignumber(6000));
-      if ((Math.round(centiseconds * 1) - (centiseconds * 1)) < 1e-2) {
-        centiseconds = math.round(centiseconds);
-        // == is used just to math the data & not its type coz centiseconds is having
-        // dataType as bignumber
-        if (centiseconds == 6000) { // jshint ignore:line
-          centiseconds = math.bignumber(0);
-        }
-      }
-      totalMins = math.divide(math.add(totalCentiseconds,
-        math.multiply(math.bignumber(-1), centiseconds)), math.bignumber(6000));
-      minutes = math.mod(totalMins, math.bignumber(60));
-      if ((Math.round(minutes * 1) - (minutes * 1)) < 1e-2) {
-        minutes = math.round(minutes);
-        // == is used just to math the data & not its type coz minutes is having
-        // dataType as bignumber
-        if (minutes == 60) { // jshint ignore:line
-          minutes = math.bignumber(0);
-        }
-      }
-      degree = math.divide(math.add(totalMins,
-        math.multiply(math.bignumber(-1), minutes)), math.bignumber(60));
-      if ((Math.round(degree * 1) - (degree * 1)) < 1e-2) {
-        degree = math.round(degree);
-      }
-      dmcObj = {
-        "degree": Math.abs(degree * 1),
-        "minutes": minutes * 1,
-        "centiseconds": centiseconds * 1
+    mo.DDtoDMS = function (ddObj) {
+      var dmsObj, degree, minutes, seconds, totalSeconds, totalMins;
+      totalSeconds = ddObj.angle * 3600;
+      seconds = Math.round(totalSeconds % 60);
+      /* jshint ignore:start */
+      seconds = seconds == 60 ? 0 : seconds;
+      /* jshint ignore:end */
+      totalMins = (totalSeconds - seconds) / 60;
+      minutes = Math.round(totalMins % 60);
+      /* jshint ignore:start */
+      minutes = minutes == 60 ? 0 : minutes;
+      /* jshint ignore:end */
+      degree = Math.round((totalMins - minutes) / 60);
+      dmsObj = {
+        "degree": degree,
+        "minutes": minutes,
+        "seconds": seconds
       };
-      return dmcObj;
+      return dmsObj;
     };
 
     /**
@@ -144,22 +131,16 @@ define([
       bearingObj = {};
       bearingObj.degree = parseInt(res[1], 10);
       bearingObj.minutes = parseInt(res[2] || 0, 10);
-      if (res[3]) {
-        // convert seconds to centiseconds
-        bearingObj.centiseconds = Math.round(parseFloat(res[3]) * 100);
-      } else {
-        // assign centiseconds
-        bearingObj.centiseconds = 0;
-      }
+      bearingObj.seconds = parseInt(res[3] || 0, 10);
       bearingObj.quadrant = mo.getQuadrant("-" + res[4]);
       bearingObj.quadrantShortcut = "-" + res[4];
       if (typeof res[1] === "string") {
         isNegative = res[1].charAt(0) === '-';
       }
-      bearingObj.decimalDegrees = mo.DMCtoDD({
+      bearingObj.decimalDegrees = mo.DMStoDD({
         "degree": bearingObj.degree,
         "minutes": bearingObj.minutes,
-        "centiseconds": bearingObj.centiseconds,
+        "seconds": bearingObj.seconds,
         "isNegative": isNegative
       });
       return bearingObj;
@@ -174,22 +155,16 @@ define([
       bearingObj = {};
       bearingObj.degree = parseInt(res[2], 10);
       bearingObj.minutes = parseInt(res[3] || 0, 10);
-      if (res[4]) {
-        // convert seconds to centiseconds
-        bearingObj.centiseconds = Math.round(parseFloat(res[4]) * 100);
-      } else {
-        // assign centiseconds
-        bearingObj.centiseconds = 0;
-      }
+      bearingObj.seconds = parseInt(res[4] || 0, 10);
       bearingObj.quadrant = res[1] + res[5];
       bearingObj.quadrantShortcut = mo.getQuadrantShortcut(res[1] + res[5]);
       if (typeof res[2] === "string") {
         isNegative = res[2].charAt(0) === '-';
       }
-      bearingObj.decimalDegrees = mo.DMCtoDD({
+      bearingObj.decimalDegrees = mo.DMStoDD({
         "degree": bearingObj.degree,
         "minutes": bearingObj.minutes,
-        "centiseconds": bearingObj.centiseconds,
+        "seconds": bearingObj.seconds,
         "isNegative": isNegative
       });
       return bearingObj;
@@ -204,22 +179,16 @@ define([
       bearingObj = {};
       bearingObj.degree = parseInt(res[2], 10);
       bearingObj.minutes = parseInt(res[3] || 0, 10);
-      if (res[5]) {
-        // assign centiseconds
-        bearingObj.centiseconds = parseInt(res[5] || 0, 10);
-      } else {
-        // convert seconds to centiseconds
-        bearingObj.centiseconds = Math.round((parseInt(res[4] || 0, 10)) * 100);
-      }
-      bearingObj.quadrant = res[1] + res[6];
-      bearingObj.quadrantShortcut = mo.getQuadrantShortcut(res[1] + res[6]);
+      bearingObj.seconds = parseInt(res[4] || 0, 10);
+      bearingObj.quadrant = res[1] + res[5];
+      bearingObj.quadrantShortcut = mo.getQuadrantShortcut(res[1] + res[5]);
       if (typeof res[2] === "string") {
         isNegative = res[2].charAt(0) === '-';
       }
-      bearingObj.decimalDegrees = mo.DMCtoDD({
+      bearingObj.decimalDegrees = mo.DMStoDD({
         "degree": bearingObj.degree,
         "minutes": bearingObj.minutes,
-        "centiseconds": bearingObj.centiseconds,
+        "seconds": bearingObj.seconds,
         "isNegative": isNegative
       });
       return bearingObj;
@@ -234,20 +203,14 @@ define([
       bearingObj = {};
       bearingObj.degree = parseInt(res[1], 10);
       bearingObj.minutes = parseInt(res[2] || 0, 10);
-      if (res[4]) {
-        // assign centiseconds
-        bearingObj.centiseconds = parseInt(res[4] || 0, 10);
-      } else {
-        // convert seconds to centiseconds
-        bearingObj.centiseconds = Math.round((parseInt(res[3] || 0, 10)) * 100);
-      }
+      bearingObj.seconds = parseInt(res[3] || 0, 10);
       if (typeof res[1] === "string") {
         isNegative = res[1].charAt(0) === '-';
       }
-      bearingObj.decimalDegrees = mo.DMCtoDD({
+      bearingObj.decimalDegrees = mo.DMStoDD({
         "degree": bearingObj.degree,
         "minutes": bearingObj.minutes,
-        "centiseconds": bearingObj.centiseconds,
+        "seconds": bearingObj.seconds,
         "isNegative": isNegative
       });
       bearingObj.quadrantShortcut = mo.getQuadrantShortcutFromDD(bearingObj.decimalDegrees);
@@ -260,14 +223,14 @@ define([
     * @memberOf widgets/ParcelDrafter/utils
     */
     mo.getBearingObjForFormat4 = function (res) {
-      var dmcObj, bearingObj;
-      dmcObj = mo.DDtoDMC({
+      var dmsObj, bearingObj;
+      dmsObj = mo.DDtoDMS({
         "angle": res[1]
       });
       bearingObj = {};
-      bearingObj.degree = dmcObj.degree;
-      bearingObj.minutes = dmcObj.minutes;
-      bearingObj.centiseconds = dmcObj.centiseconds;
+      bearingObj.degree = dmsObj.degree;
+      bearingObj.minutes = dmsObj.minutes;
+      bearingObj.seconds = dmsObj.seconds;
       bearingObj.decimalDegrees = res[1];
       bearingObj.quadrantShortcut = mo.getQuadrantShortcutFromDD(bearingObj.decimalDegrees);
       bearingObj.quadrant = mo.getQuadrant(bearingObj.quadrantShortcut);
@@ -283,19 +246,14 @@ define([
       bearingObj = {};
       bearingObj.degree = parseInt(res[1], 10);
       bearingObj.minutes = parseInt(res[2] || 0, 10);
-      if (res[3]) {
-        // convert seconds to centiseconds
-        bearingObj.centiseconds = Math.round(parseFloat(res[3]) * 100);
-      } else {
-        bearingObj.centiseconds = 0;
-      }
+      bearingObj.seconds = parseInt(res[3] || 0, 10);
       if (typeof res[1] === "string") {
         isNegative = res[1].charAt(0) === '-';
       }
-      bearingObj.decimalDegrees = mo.DMCtoDD({
+      bearingObj.decimalDegrees = mo.DMStoDD({
         "degree": bearingObj.degree,
         "minutes": bearingObj.minutes,
-        "centiseconds": bearingObj.centiseconds,
+        "seconds": bearingObj.seconds,
         "isNegative": isNegative
       });
       bearingObj.quadrantShortcut = mo.getQuadrantShortcutFromDD(bearingObj.decimalDegrees);
@@ -312,22 +270,16 @@ define([
       bearingObj = {};
       bearingObj.degree = parseInt(res[1], 10);
       bearingObj.minutes = parseInt(res[2] || 0, 10);
-      if (res[4]) {
-        // assign centiseconds
-        bearingObj.centiseconds = parseInt(res[4] || 0, 10);
-      } else {
-        // convert seconds to centiseconds
-        bearingObj.centiseconds = Math.round((parseInt(res[3] || 0, 10)) * 100);
-      }
-      bearingObj.quadrantShortcut = res[5];
+      bearingObj.seconds = parseInt(res[3] || 0, 10);
+      bearingObj.quadrantShortcut = res[4];
       bearingObj.quadrant = mo.getQuadrant(bearingObj.quadrantShortcut);
       if (typeof res[1] === "string") {
         isNegative = res[1].charAt(0) === '-';
       }
-      bearingObj.decimalDegrees = mo.DMCtoDD({
+      bearingObj.decimalDegrees = mo.DMStoDD({
         "degree": bearingObj.degree,
         "minutes": bearingObj.minutes,
-        "centiseconds": bearingObj.centiseconds,
+        "seconds": bearingObj.seconds,
         "isNegative": isNegative
       });
       return bearingObj;
@@ -338,15 +290,15 @@ define([
     * @memberOf widgets/ParcelDrafter/utils
     */
     mo.getBearingObjForFormat7 = function (res) {
-      var bearingObj, dmcObj;
+      var bearingObj, dmsObj;
       bearingObj = {};
       bearingObj.decimalDegrees = res[2];
-      dmcObj = mo.DDtoDMC({
+      dmsObj = mo.DDtoDMS({
         "angle": bearingObj.decimalDegrees
       });
-      bearingObj.degree = parseInt(dmcObj.degree, 10);
-      bearingObj.minutes = parseInt(dmcObj.minutes || 0, 10);
-      bearingObj.centiseconds = parseInt(dmcObj.centiseconds || 0, 10);
+      bearingObj.degree = parseInt(dmsObj.degree, 10);
+      bearingObj.minutes = parseInt(dmsObj.minutes || 0, 10);
+      bearingObj.seconds = parseInt(dmsObj.seconds || 0, 10);
       bearingObj.quadrant = res[1] + res[3];
       bearingObj.quadrantShortcut = mo.getQuadrantShortcut(bearingObj.quadrant);
       return bearingObj;
@@ -357,15 +309,15 @@ define([
     * @memberOf widgets/ParcelDrafter/utils
     */
     mo.getBearingObjForFormat8 = function (res) {
-      var bearingObj, dmcObj;
+      var bearingObj, dmsObj;
       bearingObj = {};
       bearingObj.decimalDegrees = res[1];
-      dmcObj = mo.DDtoDMC({
+      dmsObj = mo.DDtoDMS({
         "angle": bearingObj.decimalDegrees
       });
-      bearingObj.degree = parseInt(dmcObj.degree, 10);
-      bearingObj.minutes = parseInt(dmcObj.minutes || 0, 10);
-      bearingObj.centiseconds = parseInt(dmcObj.centiseconds || 0, 10);
+      bearingObj.degree = parseInt(dmsObj.degree, 10);
+      bearingObj.minutes = parseInt(dmsObj.minutes || 0, 10);
+      bearingObj.seconds = parseInt(dmsObj.seconds || 0, 10);
       bearingObj.quadrantShortcut = res[2];
       bearingObj.quadrant = mo.getQuadrant(bearingObj.quadrantShortcut);
       return bearingObj;
@@ -381,66 +333,26 @@ define([
         quadrantObj.quadrantAngle = decimalDegree;
         quadrantObj.quadrant = "NE";
       } else if (decimalDegree > 90 && decimalDegree <= 180) {
-        quadrantObj.quadrantAngle = math.add(math.bignumber(180),
-          math.multiply(decimalDegree, math.bignumber(-1)));
+        quadrantObj.quadrantAngle = 180 - decimalDegree;
         quadrantObj.quadrant = "SE";
       } else if (decimalDegree > 180 && decimalDegree < 270) {
-        quadrantObj.quadrantAngle = math.add(decimalDegree, math.bignumber(-180));
+        quadrantObj.quadrantAngle = decimalDegree - 180;
         quadrantObj.quadrant = "SW";
       } else if (decimalDegree >= 270 && decimalDegree < 360) {
-        quadrantObj.quadrantAngle = math.add(math.bignumber(360),
-          math.multiply(decimalDegree, math.bignumber(-1)));
+        quadrantObj.quadrantAngle = 360 - decimalDegree;
         quadrantObj.quadrant = "NW";
       }
       return quadrantObj;
     };
 
     /**
-    * This function is used to check whether number is integer or float
+    * This function is used to do rounding calculation for seconds
     * @memberOf widgets/ParcelDrafter/utils
     */
-    mo.isInt = function (n) {
-      return n % 1 === 0;
-    };
-
-    /**
-    * This function is used to do rounding calculation for centiseconds
-    * @memberOf widgets/ParcelDrafter/utils
-    */
-    mo.roundCentiseconds = function (centiseconds) {
-      centiseconds = Number(centiseconds);
-      if (!mo.isInt(centiseconds)) {
-        centiseconds = parseInt(centiseconds, 10);
-      }
-      if (centiseconds < 1000) {
-        centiseconds = "0" + centiseconds;
-      } else if (centiseconds < 100) {
-        centiseconds = "00" + centiseconds;
-      }
-      return centiseconds;
-    };
-
-    /**
-    * This function is used to normalize seconds & centiseconds
-    * @memberOf widgets/ParcelDrafter/utils
-    */
-    mo.normalizeSecValue = function (value) {
-      var secondsAndCentisecondsArr, revisedValue;
-      secondsAndCentisecondsArr = value.toString().split(".");
-      // seconds
-      if (secondsAndCentisecondsArr[0].toString().length === 1) {
-        secondsAndCentisecondsArr[0] = "0" + secondsAndCentisecondsArr[0];
-      }
-      // centiseconds
-      if (secondsAndCentisecondsArr[1]) {
-        if (secondsAndCentisecondsArr[1].toString().length === 1) {
-          secondsAndCentisecondsArr[1] = secondsAndCentisecondsArr[1] + "0";
-        }
-        revisedValue = secondsAndCentisecondsArr[0] + "." + secondsAndCentisecondsArr[1];
-      } else {
-        revisedValue = secondsAndCentisecondsArr[0];
-      }
-      return revisedValue;
+    mo.roundSeconds = function (seconds) {
+      seconds = Number(seconds);
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      return seconds;
     };
 
     /**
@@ -448,33 +360,42 @@ define([
     * @memberOf widgets/ParcelDrafter/utils
     */
     mo.convertBearingToOutputFormats = function (bearingObj) {
-      var dmcObj, bearingFormat, quadrantObj, naMinutes, naCentiseconds,
-        saMinutes, saCentiseconds, saDD, naDD, qbDMCObj, qbMinutes, qbCentiseconds;
-      dmcObj = {};
+      var dmsObj, bearingFormat, quadrantObj, naMinutes, naSeconds,
+        saMinutes, saSeconds, saDD, naDD, qbDMSObj, qbMinutes, qbSeconds;
+      dmsObj = {};
       bearingFormat = {};
+      if (bearingObj.degree === 360) {
+        bearingObj.degree = 0;
+      }
       // output for naDD
       naDD = bearingObj.decimalDegrees;
+      if (naDD === 360) {
+        naDD = 0;
+      }
       bearingFormat.naDD = naDD;
       bearingFormat.naDDRound = (Math.round(naDD * 10000)) / 10000;
-      // output for naDMC
+      if (bearingFormat.naDDRound === 360) {
+        bearingFormat.naDDRound = 0;
+      }
+      // output for naDMS
       naMinutes = bearingObj.minutes < 10 ? "0" + bearingObj.minutes : bearingObj.minutes;
-      naCentiseconds = bearingObj.centiseconds;
-      // display minutes & centiseconds if its greater than 0
-      if ((Number(naMinutes) > 0) && (Number(mo.roundCentiseconds(naCentiseconds)) > 0)) {
-        bearingFormat.naDMC = bearingObj.degree + "-" + naMinutes + "-" +
-          mo.normalizeSecValue((Number(mo.roundCentiseconds(naCentiseconds)) / 100));
-        // display minutes & centiseconds if centiseconds is greater than 0
-      } else if ((Number(naMinutes) === 0) && (Number(mo.roundCentiseconds(naCentiseconds)) > 0)) {
-        bearingFormat.naDMC = bearingObj.degree + "-" + naMinutes + "-" +
-          mo.normalizeSecValue((Number(mo.roundCentiseconds(naCentiseconds)) / 100));
-        // display only minutes if its greater than 0 & centiseconds is 0
+      naSeconds = bearingObj.seconds;
+      // display minutes & seconds if its greater than 0
+      if ((Number(naMinutes) > 0) && (Number(mo.roundSeconds(naSeconds)) > 0)) {
+        bearingFormat.naDMS =
+          bearingObj.degree + "-" + naMinutes + "-" + mo.roundSeconds(naSeconds);
+        // display minutes & seconds if seconds is greater than 0
+      } else if ((Number(naMinutes) === 0) && (Number(mo.roundSeconds(naSeconds)) > 0)) {
+        bearingFormat.naDMS =
+          bearingObj.degree + "-" + naMinutes + "-" + mo.roundSeconds(naSeconds);
+        // display only minutes if its greater than 0 & seconds is 0
       } else if ((Number(naMinutes) > 0) &&
-        (Number(mo.roundCentiseconds(naCentiseconds)) === 0)) {
-        bearingFormat.naDMC = bearingObj.degree + "-" + naMinutes + "-" + "00";
-        // display only degree if minutes & centiseconds is 0
+        (Number(mo.roundSeconds(naSeconds)) === 0)) {
+        bearingFormat.naDMS = bearingObj.degree + "-" + naMinutes + "-" + "00";
+        // display only degree if minutes & seconds is 0
       } else if ((Number(naMinutes) === 0) &&
-        (Number(mo.roundCentiseconds(naCentiseconds)) === 0)) {
-        bearingFormat.naDMC = bearingObj.degree + "-" + "00" + "-" + "00";
+        (Number(mo.roundSeconds(naSeconds)) === 0)) {
+        bearingFormat.naDMS = bearingObj.degree + "-" + "00" + "-" + "00";
       }
       // output for qb3DD
       quadrantObj = mo.getQuadrantAngleAndShortcut(naDD);
@@ -483,68 +404,63 @@ define([
       bearingFormat.qb3DDRound = quadrantObj.quadrant.charAt(0) +
         ((Math.round(quadrantObj.quadrantAngle * 10000)) / 10000) +
         quadrantObj.quadrant.charAt(1);
-      // output for qb3DMC
-      qbDMCObj = mo.DDtoDMC({
+      // output for qb3DMS
+      qbDMSObj = mo.DDtoDMS({
         "angle": quadrantObj.quadrantAngle
       });
-      qbMinutes = qbDMCObj.minutes < 10 ? "0" + qbDMCObj.minutes : qbDMCObj.minutes;
-      qbCentiseconds = qbDMCObj.centiseconds;
-      // display minutes & centiseconds if its greater than 0
-      if ((Number(qbMinutes) > 0) && (Number(mo.roundCentiseconds(qbCentiseconds)) > 0)) {
-        bearingFormat.qb3DMC = quadrantObj.quadrant.charAt(0) +
-          qbDMCObj.degree + "-" + qbMinutes + "-" +
-          mo.normalizeSecValue((Number(mo.roundCentiseconds(qbCentiseconds)) / 100)) +
+      qbMinutes = qbDMSObj.minutes < 10 ? "0" + qbDMSObj.minutes : qbDMSObj.minutes;
+      qbSeconds = qbDMSObj.seconds;
+      // display minutes & seconds if its greater than 0
+      if ((Number(qbMinutes) > 0) && (Number(mo.roundSeconds(qbSeconds)) > 0)) {
+        bearingFormat.qb3DMS = quadrantObj.quadrant.charAt(0) +
+          qbDMSObj.degree + "-" + qbMinutes + "-" + mo.roundSeconds(qbSeconds) +
           quadrantObj.quadrant.charAt(1);
-        // display minutes & centiseconds if centiseconds is greater than 0
-      } else if ((Number(qbMinutes) === 0) && (Number(mo.roundCentiseconds(qbCentiseconds)) > 0)) {
-        bearingFormat.qb3DMC = quadrantObj.quadrant.charAt(0) +
-          qbDMCObj.degree + "-" + qbMinutes + "-" +
-          mo.normalizeSecValue((Number(mo.roundCentiseconds(qbCentiseconds)) / 100)) +
+        // display minutes & seconds if seconds is greater than 0
+      } else if ((Number(qbMinutes) === 0) && (Number(mo.roundSeconds(qbSeconds)) > 0)) {
+        bearingFormat.qb3DMS = quadrantObj.quadrant.charAt(0) +
+          qbDMSObj.degree + "-" + qbMinutes + "-" + mo.roundSeconds(qbSeconds) +
           quadrantObj.quadrant.charAt(1);
-        // display only minutes if its greater than 0 & centiseconds is 0
-      } else if ((Number(qbMinutes) > 0) && (Number(mo.roundCentiseconds(qbCentiseconds)) === 0)) {
-        bearingFormat.qb3DMC = quadrantObj.quadrant.charAt(0) +
-          qbDMCObj.degree + "-" + qbMinutes + "-" + "00" + quadrantObj.quadrant.charAt(1);
-        // display only degree if minutes & centiseconds is 0
+        // display only minutes if its greater than 0 & seconds is 0
+      } else if ((Number(qbMinutes) > 0) && (Number(mo.roundSeconds(qbSeconds)) === 0)) {
+        bearingFormat.qb3DMS = quadrantObj.quadrant.charAt(0) +
+          qbDMSObj.degree + "-" + qbMinutes + "-" + "00" + quadrantObj.quadrant.charAt(1);
+        // display only degree if minutes & seconds is 0
       } else if ((Number(qbMinutes) === 0) &&
-        (Number(mo.roundCentiseconds(qbCentiseconds)) === 0)) {
-        bearingFormat.qb3DMC = quadrantObj.quadrant.charAt(0) +
-          qbDMCObj.degree + "-" + "00" + "-" + "00" + quadrantObj.quadrant.charAt(1);
+        (Number(mo.roundSeconds(qbSeconds)) === 0)) {
+        bearingFormat.qb3DMS = quadrantObj.quadrant.charAt(0) +
+          qbDMSObj.degree + "-" + "00" + "-" + "00" + quadrantObj.quadrant.charAt(1);
       }
       // output for saDD
       saDD = mo.getSouthAzimuthFromNorthAzimuth(naDD);
+      if (saDD === 360) {
+        saDD = 0;
+      }
       bearingFormat.saDD = saDD;
       bearingFormat.saDDRound = (Math.round(saDD * 10000)) / 10000;
-      // output for saDMC
-      dmcObj = mo.DDtoDMC({
-        "angle": saDD
-      });
-      saMinutes = dmcObj.minutes < 10 ? "0" + dmcObj.minutes : dmcObj.minutes;
-      saCentiseconds = dmcObj.centiseconds;
-      // display minutes & centiseconds if its greater than 0
-      if ((Number(saMinutes) > 0) && (Number(mo.roundCentiseconds(saCentiseconds)) > 0)) {
-        bearingFormat.saDMC = dmcObj.degree + "-" + saMinutes + "-" +
-          mo.normalizeSecValue((Number(mo.roundCentiseconds(saCentiseconds)) / 100));
-        // display minutes & centiseconds if centiseconds is greater than 0
-      } else if ((Number(saMinutes) === 0) && (Number(mo.roundCentiseconds(saCentiseconds)) > 0)) {
-        bearingFormat.saDMC = dmcObj.degree + "-" + saMinutes + "-" +
-          mo.normalizeSecValue((Number(mo.roundCentiseconds(saCentiseconds)) / 100));
-        // display only minutes if its greater than 0 & centiseconds is 0
-      } else if ((Number(saMinutes) > 0) &&
-        (Number(mo.roundCentiseconds(saCentiseconds)) === 0)) {
-        bearingFormat.saDMC = dmcObj.degree + "-" + saMinutes + "-" + "00";
-        // display only degree if minutes & centiseconds is 0
-      } else if ((Number(saMinutes) === 0) &&
-        (Number(mo.roundCentiseconds(saCentiseconds)) === 0)) {
-        bearingFormat.saDMC = dmcObj.degree + "-" + "00" + "-" + "00";
-      }
-      // to convert number to long value
-      bearingFormat.naDD = bearingFormat.naDD * 1;
-      if (bearingFormat.naDDRound === 360) {
-        bearingFormat.naDDRound = 0;
-      }
       if (bearingFormat.saDDRound === 360) {
         bearingFormat.saDDRound = 0;
+      }
+      // output for saDMS
+      dmsObj = mo.DDtoDMS({
+        "angle": saDD
+      });
+      if (dmsObj.degree === 360) {
+        dmsObj.degree = 0;
+      }
+      saMinutes = dmsObj.minutes < 10 ? "0" + dmsObj.minutes : dmsObj.minutes;
+      saSeconds = dmsObj.seconds;
+      // display minutes & seconds if its greater than 0
+      if ((Number(saMinutes) > 0) && (Number(mo.roundSeconds(saSeconds)) > 0)) {
+        bearingFormat.saDMS = dmsObj.degree + "-" + saMinutes + "-" + mo.roundSeconds(saSeconds);
+        // display minutes & seconds if seconds is greater than 0
+      } else if ((Number(saMinutes) === 0) && (Number(mo.roundSeconds(saSeconds)) > 0)) {
+        bearingFormat.saDMS = dmsObj.degree + "-" + saMinutes + "-" + mo.roundSeconds(saSeconds);
+        // display only minutes if its greater than 0 & seconds is 0
+      } else if ((Number(saMinutes) > 0) && (Number(mo.roundSeconds(saSeconds)) === 0)) {
+        bearingFormat.saDMS = dmsObj.degree + "-" + saMinutes + "-" + "00";
+        // display only degree if minutes & seconds is 0
+      } else if ((Number(saMinutes) === 0) && (Number(mo.roundSeconds(saSeconds)) === 0)) {
+        bearingFormat.saDMS = dmsObj.degree + "-" + "00" + "-" + "00";
       }
       return bearingFormat;
     };
@@ -592,35 +508,34 @@ define([
     * Assumptions:
     * 1. degrees are within -359 to +359. "+" character is considered invalid.
     * 2. minutes and seconds are 00 to 59 and are optional. single digit are invalid
-    * 3. centiseconds are optional and from 00 to 99
-    * 4. For Decimal Degrees unlimited precision is supported
-    * 5. In Decimal Degrees .5 is invalid and has to preceded with 0 like 0.5
-    * 6. Each regex returns result array having its deg, min, sec & centiseconds in different array location
+    * 3. For Decimal Degrees unlimited precision is supported
+    * 4. In Decimal Degrees .5 is invalid and has to preceded with 0 like 0.5
+    * 5. Each regex returns result array having its deg, min, sec & seconds in different array location
     * @memberOf widgets/ParcelDrafter/utils
     */
     mo.getBearingFormatArr = function () {
       var formatRegExArr = [];
       // dd-mm-ss.ss-[1234]  (0)
       // RESULT OBJ : res[1] = degree; res[2] = minutes; res[3] = seconds;
-      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\-(0|[0-5]?\d)\-((?:[0-5]\d)(?:\.\d{2})?))?\-([1-4])$/, "type": "degreeMinuteSeconds" });
+      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\-(0|[0-5]?\d)\-(0|[0-5]\d))?\-([1-4])$/, "type": "degreeMinuteSeconds" });
       // [NS]dd-mm-ss.ss[EW]  (1)
       // RESULT OBJ : res[1] = quadrant 1st character; res[2] = degree; res[3] = minutes; res[4] = seconds; res[5] = quadrant 2nd character;
-      formatRegExArr.push({ "regex": /^([nNsS])((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\-(0|[0-5]?\d)\-((?:[0-5]\d)(?:\.\d{2})?))?([eEwW])$/, "type": "degreeMinuteSeconds" });
+      formatRegExArr.push({ "regex": /^([nNsS])((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\-(0|[0-5]?\d)\-(0|[0-5]\d))?([eEwW])$/, "type": "degreeMinuteSeconds" });
       // [NS]dd.mmssss[EW]  (2)
-      // RESULT OBJ : res[1] = quadrant 1st character; res[2] = degree; res[3] = minutes; res[4] = // seconds; res[5] = centiseconds; res[6] = quadrant 2nd character;
-      formatRegExArr.push({ "regex": /^([nNsS])((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\.([0-5]\d)(?:([0-5]\d)(\d{2})?)?)?([eEwW])$/, "type": "degreeMinuteSeconds" });
+      // RESULT OBJ : res[1] = quadrant 1st character; res[2] = degree; res[3] = minutes; res[4] = // seconds; res[5] = quadrant 2nd character;
+      formatRegExArr.push({ "regex": /^([nNsS])((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\.([0-5]\d)(?:([0-5]\d))?)?([eEwW])$/, "type": "degreeMinuteSeconds" });
       // dd.mmss[ss]  (3)
-      // RESULT OBJ : res[1] = degree; res[2] = minutes; res[3] = seconds; res[4] = centiseconds;
-      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\.([0-5]\d)(?:([0-5]\d)(\d{2})?)?)?$/, "type": "degreeMinuteSeconds" });
+      // RESULT OBJ : res[1] = degree; res[2] = minutes; res[3] = seconds;
+      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\.([0-5]\d)(?:([0-5]\d))?)?$/, "type": "degreeMinuteSeconds" });
       // dd.dddd (4)
       // RESULT OBJ : res[1] = degree;
       formatRegExArr.push({ "regex": /^((?:(?:\-?)(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0)(?:\.\d+)?)|(?:\-?)(?:\.\d+))$/, "type": "decimalDegree" });
       // dd-mm-ss[.ss]  (5)
       // RESULT OBJ : res[1] = degree; res[2] = minutes; res[3] = seconds;
-      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\-(0|[0-5]?\d)\-((?:[0-5]\d)(?:\.\d{2})?))?$/, "type": "degreeMinuteSeconds" });
+      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\-(0|[0-5]?\d)\-((?:[0-5]\d)))?$/, "type": "degreeMinuteSeconds" });
       // 'dd.mmssss-[1234]  (6)
-      // RESULT OBJ : res[1] = degree; res[2] = minutes; res[3] = seconds; res[4] = centiseconds; // res[5] = quadrant shortcut;
-      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\.([0-5]\d)(?:([0-5]\d)(\d{2})?)?)?(\-[1-4])$/, "type": "degreeMinuteSeconds" });
+      // RESULT OBJ : res[1] = degree; res[2] = minutes; res[3] = seconds; res[4] = quadrant shortcut;
+      formatRegExArr.push({ "regex": /^((?:\-)?(?:3[0-5]\d|[12]\d{2}|[1-9]\d?|0))(?:\.([0-5]\d)(?:([0-5]\d))?)?(\-[1-4])$/, "type": "degreeMinuteSeconds" });
       // [NS]dd.dddd[EW] (7)
       // RESULT OBJ : res[1] = quadrant 1st character; res[2] = degree; res[3] = quadrant 2nd
       // character;
@@ -633,32 +548,28 @@ define([
 
     /**
     * This function is used to convert a number from any quadrant to NA DD
-    * math.bignumber is used to handle large floating point number & to preserve DMS to DD to DMS
-    * values
     * @memberOf widgets/ParcelDrafter/utils
     */
     mo.getNorthAzimuthAngle = function (angle, quadrant) {
       var degree;
       quadrant = quadrant.toUpperCase();
+      angle = Number(angle);
       switch (quadrant) {
         case "-1":
-        case "NE": // d = (angle + 360) % 360
-          degree = math.add(math.bignumber(angle), math.bignumber(360)).mod(math.bignumber(360));
+        case "NE":
+          degree = (angle + 360) % 360;
           return degree;
         case "-2":
         case "SE": // d = ( 360 + 180 - angle) % 360
-          degree = math.add(math.bignumber(360 + 180),
-            math.bignumber(angle * (-1))).mod(math.bignumber(360));
+          degree = (360 + 180 - angle) % 360;
           return degree;
         case "-3":
         case "SW": // d = ( 360 + 180 + angle) % 360
-          degree = math.add(math.bignumber(angle),
-            math.bignumber(360 + 180)).mod(math.bignumber(360));
+          degree = (360 + 180 + angle) % 360;
           return degree;
         case "-4":
         case "NW": // d = ( 360 - angle) % 360
-          degree = math.add(math.bignumber(360),
-            math.bignumber(angle * (-1))).mod(math.bignumber(360));
+          degree = (360 - angle) % 360;
           return degree;
       }
     };
@@ -668,50 +579,49 @@ define([
     * @memberOf widgets/ParcelDrafter/utils
     */
     mo.convertBearingToNorthAzimuth = function (res, regExFormatArrIndex, planSettings) {
-      var bearingObj, northAzimuthDD, dmcObj;
+      var bearingObj, northAzimuthDD, dmsObj;
       switch (regExFormatArrIndex) {
         case 0:
           // get DD of user entered bearing
           bearingObj = mo.getBearingObjForFormat0(res);
           // get DD on basis of north azimuth
           northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, "-" + res[4]);
-          // get DMC of new DD which is on basis of north azimuth
-          dmcObj = mo.DDtoDMC({
+          // get DMS of new DD which is on basis of north azimuth
+          dmsObj = mo.DDtoDMS({
             "angle": northAzimuthDD
           });
-          // assign new dmc data to existing object
-          res[1] = dmcObj.degree;
-          res[2] = dmcObj.minutes;
-          res[3] = dmcObj.centiseconds / 100; // converting to seconds
+          // assign new dms data to existing object
+          res[1] = dmsObj.degree;
+          res[2] = dmsObj.minutes;
+          res[3] = dmsObj.seconds;
           return res;
         case 1:
           // get DD of user entered bearing
           bearingObj = mo.getBearingObjForFormat1(res);
           // get DD on basis of north azimuth
           northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, (res[1] + res[5]));
-          // get DMC of new DD which is on basis of north azimuth
-          dmcObj = mo.DDtoDMC({
+          // get DMS of new DD which is on basis of north azimuth
+          dmsObj = mo.DDtoDMS({
             "angle": northAzimuthDD
           });
-          // assign new dmc data to existing object
-          res[2] = dmcObj.degree;
-          res[3] = dmcObj.minutes;
-          res[4] = dmcObj.centiseconds / 100; // converting to seconds
+          // assign new dms data to existing object
+          res[2] = dmsObj.degree;
+          res[3] = dmsObj.minutes;
+          res[4] = dmsObj.seconds;
           return res;
         case 2:
           // get DD of user entered bearing
           bearingObj = mo.getBearingObjForFormat2(res);
           // get DD on basis of north azimuth
-          northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, (res[1] + res[6]));
-          // get DMC of new DD which is on basis of north azimuth
-          dmcObj = mo.DDtoDMC({
+          northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, (res[1] + res[5]));
+          // get DMS of new DD which is on basis of north azimuth
+          dmsObj = mo.DDtoDMS({
             "angle": northAzimuthDD
           });
-          // assign new dmc data to existing object
-          res[2] = dmcObj.degree;
-          res[3] = dmcObj.minutes;
-          res[4] = 0; // seconds
-          res[5] = dmcObj.centiseconds;
+          // assign new dms data to existing object
+          res[2] = dmsObj.degree;
+          res[3] = dmsObj.minutes;
+          res[4] = dmsObj.seconds;
           break;
         case 3:
           if ((planSettings.directionOrAngleType === "northAzimuth") ||
@@ -720,29 +630,27 @@ define([
             bearingObj = mo.getBearingObjForFormat3(res);
             // get DD on basis of north azimuth
             northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, "-1");
-            // get DMC of new DD which is on basis of north azimuth
-            dmcObj = mo.DDtoDMC({
+            // get DMS of new DD which is on basis of north azimuth
+            dmsObj = mo.DDtoDMS({
               "angle": northAzimuthDD
             });
-            // assign new dmc data to existing object
-            res[1] = dmcObj.degree;
-            res[2] = dmcObj.minutes;
-            res[3] = 0; // seconds
-            res[4] = dmcObj.centiseconds;
+            // assign new dms data to existing object
+            res[1] = dmsObj.degree;
+            res[2] = dmsObj.minutes;
+            res[3] = dmsObj.seconds;
           } else if (planSettings.directionOrAngleType === "southAzimuth") {
             // get DD of user entered bearing
             bearingObj = mo.getBearingObjForFormat3(res);
             // get DD on basis of north azimuth
             northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, "-3");
-            // get DMC of new DD which is on basis of north azimuth
-            dmcObj = mo.DDtoDMC({
+            // get DMS of new DD which is on basis of north azimuth
+            dmsObj = mo.DDtoDMS({
               "angle": northAzimuthDD
             });
-            // assign new dmc data to existing object
-            res[1] = dmcObj.degree;
-            res[2] = dmcObj.minutes;
-            res[3] = 0; // seconds
-            res[4] = dmcObj.centiseconds;
+            // assign new dms data to existing object
+            res[1] = dmsObj.degree;
+            res[2] = dmsObj.minutes;
+            res[3] = dmsObj.seconds;
           }
           return res;
         case 4:
@@ -759,27 +667,27 @@ define([
             bearingObj = mo.getBearingObjForFormat5(res);
             // get DD on basis of north azimuth
             northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, "-1");
-            // get DMC of new DD which is on basis of north azimuth
-            dmcObj = mo.DDtoDMC({
+            // get DMS of new DD which is on basis of north azimuth
+            dmsObj = mo.DDtoDMS({
               "angle": northAzimuthDD
             });
-            // assign new dmc data to existing object
-            res[1] = dmcObj.degree;
-            res[2] = dmcObj.minutes;
-            res[3] = dmcObj.centiseconds / 100;
+            // assign new dms data to existing object
+            res[1] = dmsObj.degree;
+            res[2] = dmsObj.minutes;
+            res[3] = dmsObj.seconds;
           } else if (planSettings.directionOrAngleType === "southAzimuth") {
             // get DD of user entered bearing
             bearingObj = mo.getBearingObjForFormat5(res);
             // get DD on basis of north azimuth
             northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, "-3");
-            // get DMC of new DD which is on basis of north azimuth
-            dmcObj = mo.DDtoDMC({
+            // get DMS of new DD which is on basis of north azimuth
+            dmsObj = mo.DDtoDMS({
               "angle": northAzimuthDD
             });
-            // assign new dmc data to existing object
-            res[1] = dmcObj.degree;
-            res[2] = dmcObj.minutes;
-            res[3] = dmcObj.centiseconds / 100; // converting to seconds
+            // assign new dms data to existing object
+            res[1] = dmsObj.degree;
+            res[2] = dmsObj.minutes;
+            res[3] = dmsObj.seconds;
           } else if (planSettings.directionOrAngleType === "quadrantBearing") {
             res = null;
           }
@@ -788,16 +696,15 @@ define([
           // get DD of user entered bearing
           bearingObj = mo.getBearingObjForFormat6(res);
           // get DD on basis of north azimuth
-          northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, res[5]);
-          // get DMC of new DD which is on basis of north azimuth
-          dmcObj = mo.DDtoDMC({
+          northAzimuthDD = mo.getNorthAzimuthAngle(bearingObj.decimalDegrees, res[4]);
+          // get DMS of new DD which is on basis of north azimuth
+          dmsObj = mo.DDtoDMS({
             "angle": northAzimuthDD
           });
-          // assign new dmc data to existing object
-          res[1] = dmcObj.degree;
-          res[2] = dmcObj.minutes;
-          res[3] = 0; // seconds
-          res[4] = dmcObj.centiseconds;
+          // assign new dms data to existing object
+          res[1] = dmsObj.degree;
+          res[2] = dmsObj.minutes;
+          res[3] = dmsObj.seconds;
           return res;
         case 7:
           res[2] = mo.getNorthAzimuthAngle(res[2], (res[1] + res[3]));
@@ -998,9 +905,12 @@ define([
       var formatRegExArr, res, returnValue, i;
       formatRegExArr = [];
       length = length.toString();
-      formatRegExArr.push(/^((\-?)((0?|([1-9]\d*))(\.\d+)?))$/); // 46, 46.50
-      formatRegExArr.push(/^(((\-?)((0?|([1-9]\d*))(\.\d+)?))(ft|FT|fT|Ft))$/); // 46ft, 46FT, 46fT, 46Ft
-      formatRegExArr.push(/^(((\-?)((0?|([1-9]\d*))(\.\d+)?))(m|M))$/); // 46m, 46M
+      // 46, 46.50
+      formatRegExArr.push(/^((\-?)((0?|([1-9]\d*))(\.\d+)?))$/);
+      // 46ft, 46FT, 46fT, 46Ft
+      formatRegExArr.push(/^(((\-?)((0?|([1-9]\d*))(\.\d+)?))(ft|FT|fT|Ft))$/);
+      // 46m, 46M
+      formatRegExArr.push(/^(((\-?)((0?|([1-9]\d*))(\.\d+)?))(m|M))$/);
       for (i = 0; i < formatRegExArr.length; i++) {
         res = formatRegExArr[i].exec(length.trim());
         if (res && res.length > 0) {

@@ -148,23 +148,18 @@
       },
 
       /**
-      * Based on the flag set's the visibility of the widget node
+      * Resets the values of rotation and scale tools.
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
-      showHideTools: function (show) {
-        if (show) {
-          domClass.remove(this.domNode, "esriCTHidden");
-        } else {
-          this.rotationAngle = 0;
-          this.scaledValue = 1.0;
-          this.rotationTxt.set("value", Number(0));
-          this.scaleTxt.set("value", Number(1));
-          domClass.add(this.domNode, "esriCTHidden");
-        }
+      resetTools: function () {
+        this.rotationAngle = 0;
+        this.scaledValue = 1.0;
+        this.rotationTxt.set("value", Number(0));
+        this.scaleTxt.set("value", Number(1));
       },
 
       /**
-      * toggle rotaion functionality
+      * Toggle the button state for onScreen rotation tool
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
       _toggleRotating: function () {
@@ -179,7 +174,7 @@
       },
 
       /**
-      * toggle scaling functionality
+      * Toggle the button state for onScreen scale tool
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
       _toggleScaling: function () {
@@ -194,7 +189,7 @@
       },
 
       /**
-      * disable button
+      * Disables button state for onScreen rotation tool
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
       disableRotating: function () {
@@ -202,7 +197,7 @@
       },
 
       /**
-      * disable button
+      * Disables button state for onScreen scale tool
       * @memberOf widgets/ParcelDrafter/ParcelTools
       **/
       disableScaling: function () {

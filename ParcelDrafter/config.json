@@ -1,344 +1,63 @@
 {
-	"documentTypeField": "Document_type",
-	"BoundaryLineType": 0,
-	"pointSymbol": {
-		"color": [
-			240,
-			18,
-			69,
-			255
-		],
-		"size": 15,
-		"angle": 0,
-		"xoffset": 0,
-		"yoffset": 0,
-		"type": "esriSMS",
-		"style": "esriSMSSquare",
-		"outline": {
-			"color": [
-				29,
-				29,
-				53,
-				255
-			],
-			"width": 0.75,
-			"type": "esriSLS",
-			"style": "esriSLSSolid"
-		}
-	},
-	"lineTypes": [
-		{
-			"type": 3,
-			"label": "Connection Line",
-			"symbol": {
-				"color": [
-					255,
-					0,
-					0,
-					255
-				],
-				"width": 2,
-				"type": "esriSLS",
-				"style": "esriSLSDash"
-			}
-		},
-		{
-			"type": 0,
-			"label": "Boundary Line",
-			"symbol": {
-				"color": [
-					29,
-					32,
-					23,
-					255
-				],
-				"width": 2,
-				"type": "esriSLS",
-				"style": "esriSLSSolid"
-			}
-		}
-	],
-	"polygonSymbol": {
-		"color": [
-			255,
-			189,
-			1,
-			0
-		],
-		"outline": {
-			"color": [
-				255,
-				189,
-				1,
-				255
-			],
-			"width": 2.25,
-			"type": "esriSLS",
-			"style": "esriSLSSolid"
-		},
-		"type": "esriSFS",
-		"style": "esriSFSSolid"
-	},
-	"polygonLayer": {
-		"layerId": "ParcelDrafter_7027",
-		"layerURL": "http://services1.arcgis.com/DlnuvLGpDczjeSgG/arcgis/rest/services/ParcelDrafter/FeatureServer/1",
-		"parcelName": {
-			"name": "Parcel_Name",
-			"type": "esriFieldTypeString",
-			"alias": "Parcel Name",
-			"sqlType": "sqlTypeOther",
-			"length": 50,
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"statedArea": {
-			"name": "Stated_Area",
-			"type": "esriFieldTypeString",
-			"alias": "Stated Area",
-			"sqlType": "sqlTypeOther",
-			"length": 50,
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"rotation": {
-			"name": "Rotation",
-			"type": "esriFieldTypeDouble",
-			"alias": "Rotation",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"scale": {
-			"name": "Scale",
-			"type": "esriFieldTypeDouble",
-			"alias": "Scale",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"miscloseRatio": {
-			"name": "Misclose_ratio",
-			"type": "esriFieldTypeDouble",
-			"alias": "Misclose ratio",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"miscloseDistance": {
-			"name": "Misclose_distance",
-			"type": "esriFieldTypeDouble",
-			"alias": "Misclose distance",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"planName": {
-			"name": "Plan_name",
-			"type": "esriFieldTypeString",
-			"alias": "Plan name",
-			"sqlType": "sqlTypeOther",
-			"length": 50,
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"documentType": {
-			"name": "Document_type",
-			"type": "esriFieldTypeInteger",
-			"alias": "Document type",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": {
-				"type": "codedValue",
-				"name": "Document type",
-				"codedValues": [
-					{
-						"name": "Deed Split",
-						"code": 0
-					},
-					{
-						"name": "Deed: Map update",
-						"code": 1
-					},
-					{
-						"name": "Subdivision Boundary",
-						"code": 2
-					},
-					{
-						"name": "ROW Vacation",
-						"code": 3
-					},
-					{
-						"name": "ROW dedication",
-						"code": 4
-					}
-				]
-			},
-			"defaultValue": null
-		},
-		"accuracy": {
-			"name": "Accuracy",
-			"type": "esriFieldTypeInteger",
-			"alias": "Accuracy",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"relatedGUID": {
-			"name": "GlobalID",
-			"type": "esriFieldTypeGlobalID",
-			"alias": "GlobalID",
-			"sqlType": "sqlTypeOther",
-			"length": 38,
-			"nullable": false,
-			"editable": false,
-			"domain": null,
-			"defaultValue": null
-		}
-	},
-	"polylineLayer": {
-		"layerId": "ParcelDrafter_6688",
-		"layerURL": "http://services1.arcgis.com/DlnuvLGpDczjeSgG/arcgis/rest/services/ParcelDrafter/FeatureServer/0",
-		"bearing": {
-			"name": "Bearing",
-			"type": "esriFieldTypeDouble",
-			"alias": "Bearing",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"distance": {
-			"name": "Distance",
-			"type": "esriFieldTypeDouble",
-			"alias": "Distance",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"lineType": {
-			"name": "Linetype",
-			"type": "esriFieldTypeInteger",
-			"alias": "Linetype",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": {
-				"type": "codedValue",
-				"name": "Linetype",
-				"codedValues": [
-					{
-						"name": "Boundary",
-						"code": 0
-					},
-					{
-						"name": "Dependent",
-						"code": 1
-					},
-					{
-						"name": "Precise Connection",
-						"code": 2
-					},
-					{
-						"name": "Connection",
-						"code": 3
-					},
-					{
-						"name": "Radial",
-						"code": 4
-					},
-					{
-						"name": "Road Frontage",
-						"code": 5
-					},
-					{
-						"name": "Origin Connection",
-						"code": 6
-					},
-					{
-						"name": "Part Connector",
-						"code": 7
-					}
-				]
-			},
-			"defaultValue": null
-		},
-		"radius": {
-			"name": "Radius",
-			"type": "esriFieldTypeDouble",
-			"alias": "Radius",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"arcLength": {
-			"name": "ArcLength",
-			"type": "esriFieldTypeDouble",
-			"alias": "ArcLength",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"chordLength": {
-			"name": "ChordLength",
-			"type": "esriFieldTypeDouble",
-			"alias": "ChordLength",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"sequenceId": {
-			"name": "SequenceID",
-			"type": "esriFieldTypeInteger",
-			"alias": "SequenceID",
-			"sqlType": "sqlTypeOther",
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		},
-		"relatedGUID": {
-			"name": "guid_id",
-			"type": "esriFieldTypeGUID",
-			"alias": "guid_id",
-			"sqlType": "sqlTypeOther",
-			"length": 38,
-			"nullable": true,
-			"editable": true,
-			"domain": null,
-			"defaultValue": null
-		}
-	},
-	"snappingLayers": [
-		"ParcelDrafter_7027"
-	],
-	"snappingTolerance": 15,
-	"miscloseSnapDistance": 6,
-	"miscloseSnapDistanceUnit": "uSSurveyFeet",
-	"miscloseRatioSnap": 5000
+  "pointSymbol": {
+    "color": [
+      240,
+      18,
+      69,
+      255
+    ],
+    "size": 15,
+    "angle": 0,
+    "xoffset": 0,
+    "yoffset": 0,
+    "type": "esriSMS",
+    "style": "esriSMSSquare",
+    "outline": {
+      "color": [
+        29,
+        29,
+        53,
+        255
+      ],
+      "width": 0.75,
+      "type": "esriSLS",
+      "style": "esriSLSSolid"
+    }
+  },
+  "lineTypes": [
+    {
+      "type": null,
+      "label": "Connection Line",
+      "symbol": {
+        "color": [
+          255,
+          0,
+          0,
+          255
+        ],
+        "width": 2,
+        "type": "esriSLS",
+        "style": "esriSLSDash"
+      }
+    },
+    {
+      "type": null,
+      "label": "Boundary Line",
+      "symbol": {
+        "color": [
+          29,
+          32,
+          23,
+          255
+        ],
+        "width": 2,
+        "type": "esriSLS",
+        "style": "esriSLSSolid"
+      }
+    }
+  ],
+  "snappingTolerance": 15,
+  "miscloseSnapDistance": 5,
+  "miscloseSnapDistanceUnit": "uSSurveyFeet",
+  "miscloseRatioSnap": 5000
 }

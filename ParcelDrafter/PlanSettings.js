@@ -8,6 +8,7 @@
   'dojo/Evented',
   'dojo/dom-class',
   'dojo/query',
+  './utils',
   'dijit/form/Select'
 ],
   function (
@@ -19,19 +20,14 @@
     lang,
     Evented,
     domClass,
-    query
+    query,
+    utils
   ) {
     return declare([BaseWidget, _WidgetsInTemplateMixin, Evented], {
       baseClass: 'jimu-widget-ParcelDrafter-PlanSettings',
       templateString: PlanSettingsTemplate,
       selectedPlanSettings: {}, //Holds selected planSettings
-      planSettingsOptions: {
-        "directionOrAngleType": ["northAzimuth", "southAzimuth", "quadrantBearing"],
-        "directionOrAngleUnits": ["decimalDegree", "degreeMinuteSeconds"],
-        "distanceAndLengthUnits": ["uSSurveyFeet", "meters"],
-        "areaUnits": ["squareUsFeet", "acres", "squareMeters"],
-        "circularCurveParameters": ["radiusAndChordLength", "radiusAndArcLength"]
-      }, //Object that holds all the options and thier keys
+      planSettingsOptions: lang.clone(utils.planSettingsOptions), //Object that holds all the options and thier keys
 
       constructor: function (options) {
         lang.mixin(this, options);

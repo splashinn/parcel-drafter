@@ -332,10 +332,13 @@ define([
     * @memberOf widgets/ParcelDrafter/geometryUtils
     **/
     mo.getArcLengthFromChordLength = function (chordLength, radius) {
-      var arcLength;
-      chordLength = Math.abs(chordLength);
+      var arcLength, absChordLength;
+      absChordLength = Math.abs(chordLength);
       radius = Math.abs(radius);
-      arcLength = (2 * Math.asin(chordLength / (2 * radius)) * radius);
+      arcLength = (2 * Math.asin(absChordLength / (2 * radius)) * radius);
+      if (chordLength < 0) {
+        arcLength = (2 * Math.PI * radius) - arcLength;
+      }
       return arcLength;
     };
 

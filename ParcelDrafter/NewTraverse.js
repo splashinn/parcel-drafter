@@ -30,7 +30,8 @@ define([
   'dijit/TooltipDialog',
   'dijit/popup',
   'dojo/Deferred',
-  'esri/geometry/Extent'
+  'esri/geometry/Extent',
+  'dojo/dom-geometry'
 ],
   function (
     declare,
@@ -64,7 +65,8 @@ define([
     TooltipDialog,
     dijitPopup,
     Deferred,
-    Extent
+    Extent,
+    domGeom
   ) {
     return declare([BaseWidget, _WidgetsInTemplateMixin, Evented], {
       baseClass: 'jimu-widget-ParcelDrafter',
@@ -87,6 +89,11 @@ define([
       polylineDeleteArr: [], //To store polyline that needs to be deleted before saving edited one
       _popupDialog: null, //Stores parcel info content
       _popupCoords: null, //Stores tooltip position for pop-up
+      numberFieldTypes: ['esriFieldTypeSmallInteger',
+        'esriFieldTypeInteger',
+        'esriFieldTypeSingle',
+        'esriFieldTypeDouble'
+      ],
 
       postCreate: function () {
         domClass.add(this.domNode, "esriCTNewTraverseGrid");
@@ -533,36 +540,44 @@ define([
       **/
       _setTangentBearing: function (values, previousValues) {
         var bearingValue, planSettingsNADD;
-        //get the previous entered values object
-        // previousValues = this._itemList[this._itemList.length - 1];
+        //As all our calculations are in NADD, create PlanSettings for NADD
+        planSettingsNADD = lang.clone(this._planSettings);
+        planSettingsNADD.directionOrAngleType = "northAzimuth";
+        planSettingsNADD.directionOrAngleUnits = "decimalDegree";
         //get the previous bearing in NADD
         bearingValue = previousValues.BearingConversions.naDD;
-        //if drawing arc with tangent bearing, get tangent bearing and update bearing
-        //else if drawing lines use the previous bearing as it is
+        //if previous entry is arc then the bearing for current entry should be tangent of previous
+        if (previousValues.RadiusConversions) {
+          bearingValue = geometryUtils.chordBearingToTangentBearing(
+            bearingValue,
+            previousValues.RadiusConversions.meters,
+            previousValues.ChordLengthConversions.meters);
+        }
+        //If drawing arcs with *tb, prev tangentBearing/bearing should be used
+        //to get chordBearing for current arc.
+        //Else wile drawing lines with *tb, if prev is arc then use its tangentBearing
+        //otherwise use bearing of prev as it is.
         if (values.RadiusConversions) {
-          //if previous entry is arc then first get it's tangent bearing
-          if (previousValues.RadiusConversions) {
-            bearingValue = geometryUtils.chordBearingToTangentBearing(
-              bearingValue,
-              previousValues.RadiusConversions.meters,
-              previousValues.ChordLengthConversions.meters);
-          }
-          //once we have tangent bearing convert it to chord,
-          //as we are drawing arcs with tangent only
+          //once we have bearing of previous entry convert it to chord
           bearingValue = geometryUtils.tangentBearingToChordBearing(
             bearingValue,
             values.RadiusConversions.meters,
             values.ChordLengthConversions.meters);
           values.Bearing = bearingValue;
-          //as all aur calculations are in NADD, first get data according to north Azimuth DD
-          planSettingsNADD = lang.clone(this._planSettings);
-          planSettingsNADD.directionOrAngleType = "northAzimuth";
-          planSettingsNADD.directionOrAngleUnits = "decimalDegree";
+          //get data according to north Azimuth DD
           values.BearingConversions =
             utils.categorizeBearingFormat(values.Bearing, planSettingsNADD);
         } else {
-          values.Bearing = previousValues.Bearing;
-          values.BearingConversions = lang.clone(previousValues.BearingConversions);
+          //if previous in arc then draw it's tangent else directly use previous chord angle
+          if (previousValues.RadiusConversions) {
+            values.Bearing = bearingValue;
+            //get data according to north Azimuth DD
+            values.BearingConversions =
+              utils.categorizeBearingFormat(values.Bearing, planSettingsNADD);
+          } else {
+            values.Bearing = previousValues.Bearing;
+            values.BearingConversions = lang.clone(previousValues.BearingConversions);
+          }
         }
         return values;
       },
@@ -759,7 +774,9 @@ define([
         this._misCloseDetailsInstance = new MiscloseDetails({
           nls: this.nls,
           config: this.config,
-          appConfig: this.appConfig
+          appConfig: this.appConfig,
+          numberFieldTypes: this.numberFieldTypes,
+          validateNumericField: this.validateNumericField
         }, domConstruct.create("div", {}, this.misCloseDetailsNode));
         //on load no misclose info
         this._misCloseDetailsInstance.setMiscloseDetails(null);
@@ -774,8 +791,6 @@ define([
           nls: this.nls,
           config: this.config
         }, domConstruct.create("div", {}, this.parcelToolsNode));
-        //by default hide the tools
-        this._parcelToolInstance.showHideTools(false);
         this._parcelToolInstance.on("rotateGeometries", lang.hitch(this, function (rotationAngle) {
           if (rotationAngle !== this._rotationAngle) {
             this._rotationAngle = rotationAngle;
@@ -810,6 +825,8 @@ define([
           nls: this.nls,
           config: this.config,
           loading: this.loading,
+          numberFieldTypes: this.numberFieldTypes,
+          validateNumericField: this.validateNumericField,
           geometryService: this.geometryService,
           parcelPolygonGraphicsLayer: this.parcelPolygonGraphicsLayer,
           parcelLinesGraphicsLayer: this.parcelLinesGraphicsLayer,
@@ -827,6 +844,8 @@ define([
         //Handle click event of parcelInfo save button
         this._planInfoInstance.on("saveTraversedParcel", lang.hitch(this, function () {
           var dataObj;
+          //hide edit popup as it is blocking buttons on error msg dialogue
+          this.closePopup();
           if (this._itemList && this._itemList.length > 0) {
             var parcelValidationDetails, statedAreaValue;
             statedAreaValue =
@@ -1293,19 +1312,19 @@ define([
           return returnCompleteValue ? bearingData.naDD : bearingData.naDDRound;
         } else if (this._planSettings.directionOrAngleType === "northAzimuth" &&
           this._planSettings.directionOrAngleUnits === "degreeMinuteSeconds") {
-          return bearingData.naDMC;
+          return bearingData.naDMS;
         } else if (this._planSettings.directionOrAngleType === "southAzimuth" &&
           this._planSettings.directionOrAngleUnits === "decimalDegree") {
           return returnCompleteValue ? bearingData.saDD : bearingData.saDDRound;
         } else if (this._planSettings.directionOrAngleType === "southAzimuth" &&
           this._planSettings.directionOrAngleUnits === "degreeMinuteSeconds") {
-          return bearingData.saDMC;
+          return bearingData.saDMS;
         } else if (this._planSettings.directionOrAngleType === "quadrantBearing" &&
           this._planSettings.directionOrAngleUnits === "decimalDegree") {
           return returnCompleteValue ? bearingData.qb3DD : bearingData.qb3DDRound;
         } else if (this._planSettings.directionOrAngleType === "quadrantBearing" &&
           this._planSettings.directionOrAngleUnits === "degreeMinuteSeconds") {
-          return bearingData.qb3DMC;
+          return bearingData.qb3DMS;
         }
       },
 
@@ -1323,13 +1342,18 @@ define([
         this.radiusNode.reset();
         //if grid has any values show the last bearing in initial bearing node and select it
         if (this._itemList.length > 0) {
-          //if resetting after digitization show bearing according to current plan settings,
-          //as in digitization bering are entered in quadrant bearing format
-          if (resettingAfterDigitization) {
-            bearingValue = this._getBearingAccordingToPlanSettings(
-              this._itemList[this._itemList.length - 1].BearingConversions);
+          //if last entry in the grid is tb show "*tb"
+          if (this._itemList[this._itemList.length - 1].isTB) {
+            bearingValue = "*tb";
           } else {
-            bearingValue = this._itemList[this._itemList.length - 1].Bearing;
+            //if resetting after digitization show bearing according to current plan settings,
+            //as in digitization bering are entered in quadrant bearing format
+            if (resettingAfterDigitization) {
+              bearingValue = this._getBearingAccordingToPlanSettings(
+                this._itemList[this._itemList.length - 1].BearingConversions);
+            } else {
+              bearingValue = this._itemList[this._itemList.length - 1].Bearing;
+            }
           }
           this.bearingNode.set("value", bearingValue);
           this.bearingNode.textbox.setSelectionRange(0, bearingValue.length);
@@ -1553,7 +1577,7 @@ define([
         }
         //if radius is negative paths are created in reverse direction,
         //so reverse array to get proper direction
-        if (radius < 0 ) {
+        if (radius < 0) {
           arcGeometryPointsArray.reverse();
         }
         return { "endPoint": chordEndPoint, "arcGeometryPointsArray": arcGeometryPointsArray };
@@ -1658,10 +1682,10 @@ define([
       **/
       _setExtentToLayer: function (graphicsLayer, forceZoom) {
         var newExtent;
-        newExtent = graphicsUtils.graphicsExtent(graphicsLayer.graphics).expand(1.5);
+        newExtent = graphicsUtils.graphicsExtent(graphicsLayer.graphics);
         //set the new extent only if it is out of current map extent
         if (forceZoom || !this.map.extent.contains(newExtent)) {
-          this.map.setExtent(newExtent);
+          this.map.setExtent(newExtent.expand(1.5));
         }
       },
 
@@ -1719,7 +1743,8 @@ define([
           angle = 0;
         }
         distance = geometryUtils.getDistanceBetweenPoints(this._startPointForNextLine, mapPoint);
-        //returned angle will always be in NA DD so convert it to quadrant format so that it will not get override in case of SA
+        //returned angle will always be in NA DD so convert it to quadrant format
+        //so that it will not get override in case of SA
         quadrantAngle = this.getAngleFromDDTOQB(angle);
         this.bearingNode.set("value", quadrantAngle);
         //returned distance will always be in meters, based on plan settings convert if required
@@ -1783,8 +1808,7 @@ define([
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       setParcelClosure: function (forceSetStartPoint) {
-        var miscloseDetails, parcelCloseDetails, resetStartPoint;
-        resetStartPoint = false;
+        var miscloseDetails, parcelCloseDetails;
         parcelCloseDetails = this.getParcelCloseDetails();
         if (parcelCloseDetails.isClosed) {
           //calculate misclose details on parcel close details
@@ -1792,8 +1816,6 @@ define([
             parcelCloseDetails.compassStartPoint,
             parcelCloseDetails.compassEndPoint
           );
-          //show the parcel tools to rotate and scale
-          this._parcelToolInstance.showHideTools(true);
           //set misclose info
           this._misCloseDetailsInstance.setMiscloseDetails(miscloseDetails);
           //apply compass rule corrections and again redraw if it is saying to adjust the points
@@ -1809,27 +1831,12 @@ define([
             }
           }
         } else {
-          //hide the parcel tools
-          this._parcelToolInstance.showHideTools(false);
           //clear misclose info
           this._misCloseDetailsInstance.setMiscloseDetails(null);
           //clear flag to adjustPoints and appliedCompassRule
           this.adjustPoints = false;
-
-          //if current angle is not 0 or scale is not 1,
-          //then we need to redraw everything as parcel is not closed,
-          //also remove previously applied rotation and scale.
-          if (this._rotationAngle !== 0 || this._scaleValue !== 1) {
-            //reset the rotation angle and scale
-            this._rotationAngle = 0;
-            this._scaleValue = 1;
-            resetStartPoint = true;
-          }
           if (this.appliedCompassRule || forceSetStartPoint) {
             this.appliedCompassRule = false;
-            resetStartPoint = true;
-          }
-          if (resetStartPoint) {
             this.setStartPoint(this.startPoint);
           }
         }
@@ -1888,7 +1895,8 @@ define([
             compassEndPoint,
             compassStartPoint
           );
-          //returned angle will always be in NA DD so convert it to quadrant format so that it will not get override in case of SA
+          //returned angle will always be in NA DD so convert it to quadrant format
+          //so that it will not get override in case of SA
           miscloseBearing = this.getAngleFromDDTOQB(miscloseBearing);
           // get bearingData according to all formats based on current plan settings
           bearingData = utils.categorizeBearingFormat(miscloseBearing, this._planSettings);
@@ -2106,7 +2114,7 @@ define([
         bearingData = utils.categorizeBearingFormat(bearing, planSettingsNADD);
         if (bearingData) {
           if (this._planSettings.directionOrAngleUnits === "degreeMinuteSeconds") {
-            returnValue = bearingData.qb3DMC;
+            returnValue = bearingData.qb3DMS;
           } else {
             returnValue = bearingData.qb3DD;
           }
@@ -2198,7 +2206,8 @@ define([
               obj.ChordLength =
                 obj.ChordLengthConversions[this._planSettings.distanceAndLengthUnits];
             }
-            //keep the length values according to planSettings, so that length will be used for calculating arc and chord length, while updating values from grid
+            //keep the length values according to planSettings, so that length will be used
+            //for calculating arc and chord length, while updating values from grid
             if (this._planSettings.circularCurveParameters === "radiusAndArcLength") {
               obj.Length = obj.ArcLength;
               obj.LengthConversions = lang.clone(obj.ArcLengthConversions);
@@ -2296,8 +2305,8 @@ define([
         this._symbolSelector.setDefault();
         //deactivate digitization tool
         domClass.remove(this.screenDigitizationNode, "esriCTEnableButton");
-        //hide the parcel tools as everything is cleared we will not have closed polygon
-        this._parcelToolInstance.showHideTools(false);
+        //reset the rotation & scale values
+        this._parcelToolInstance.resetTools();
         //deactivate parcel tools
         this.deactivateParcelTools();
         //clear misclose info
@@ -2310,14 +2319,12 @@ define([
         this.polylineDeleteArr = [];
         //reset the scroll position to top
         this.domNode.scrollTop = 0;
-        // reset parcel name
-        this._planInfoInstance.parcelNameTextBox.set("value", null);
-        // reset plan name
-        this._planInfoInstance.planNameTextBox.set("value", null);
-        // reset document type
-        this._planInfoInstance.documentTypeDropdown.set("item", null);
+        // reset parcel name, plan name, document type
+        this._planInfoInstance.resetValues();
         // reset stated area
         this._misCloseDetailsInstance.traverseStatedArea.set("value", null);
+        //hide popup dialog
+        this.closePopup();
       },
 
       /**
@@ -2338,7 +2345,8 @@ define([
           //show parcel popup on map
           defer.resolve(true);
         } else {
-          dijitPopup.close(this.dialog);
+          //hide popup dialog
+          this.closePopup();
           defer.resolve(false);
         }
         return defer;
@@ -2368,12 +2376,12 @@ define([
       **/
       _createPopupContent: function (evt, graphic) {
         var parcelPopupContent, labelContainer, parcelInfoFieldRow, radius, length,
-          radiusConversions, values;
+          radiusConversions, values, popupWidth;
         //get selected parcels info
         values = this._itemList[graphic.attributes.rowIndex];
         if (values) {
           parcelPopupContent = domConstruct.create("div", {
-            "class": "esriCTParcelInfoPopup"
+            "class": "esriCTParcelInfoPopup " + this.baseClass
           }, null);
           //create label row
           labelContainer = domConstruct.create("div", {
@@ -2384,7 +2392,7 @@ define([
           this._createFieldLabels(labelContainer, this.nls.traverseSettings.radiusLabel);
           //create input field rows
           parcelInfoFieldRow = domConstruct.create("div", {
-            "class": "esriCTRowContainer",
+            "class": "esriCTRowContainer esriCTRow",
             "rowIndex": graphic.attributes.rowIndex
           }, parcelPopupContent);
 
@@ -2410,6 +2418,14 @@ define([
           }
           this._createFieldInputs(parcelInfoFieldRow, length, "esriCTLengthRow", true);
           this._createFieldInputs(parcelInfoFieldRow, radius, "esriCTRadiusRow", true);
+          //set the width of the popup according to the width of widget panel so that,
+          //textbox in popup will match their width with textBoxes in widget panel.
+          if (domGeom.position(this.traverseEntryNode) &&
+            domGeom.position(this.traverseEntryNode).w) {
+            popupWidth = domGeom.position(this.traverseEntryNode).w - 42;
+            domStyle.set(this._popupDialog.domNode, "width",
+              popupWidth + "px");
+          }
           this._popupDialog.setContent(parcelPopupContent);
           this._popupCoords = {
             pageX: evt.pageX,
@@ -2434,6 +2450,17 @@ define([
       },
 
       /**
+      * get extent from the point geometry
+      * Hide popup dialog
+      * @memberOf widgets/ParcelDrafter/NewTraverse
+      **/
+      closePopup: function () {
+        if (this._popupDialog) {
+          dijitPopup.close(this._popupDialog);
+        }
+      },
+
+      /**
       * Create field labels in parcel popup
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
@@ -2454,6 +2481,59 @@ define([
           "class": "esriCTEditParcelDialog"
         });
         this._popupDialog.startup();
+      },
+
+      validateNumericField: function (inputValue, inputType) {
+        var isValid, typeCastedInputValue, floatVal = /^[-+]?[0-9]+\.[0-9]+$/,
+          decimal = /^[-+]?[0-9]+$/;
+        // trim current value
+        inputValue = lang.trim(inputValue);
+        // Set validation on the field by their types
+        switch (inputType) {
+          case "esriFieldTypeSmallInteger":
+            typeCastedInputValue = parseInt(inputValue, 10);
+            if ((inputValue.match(decimal) && typeCastedInputValue >= -32768 &&
+              typeCastedInputValue <= 32767) && inputValue.length !== 0) {
+              isValid = true;
+            } else {
+              isValid = false;
+            }
+            break;
+          case "esriFieldTypeInteger":
+            typeCastedInputValue = parseInt(inputValue, 10);
+            if ((inputValue.match(decimal) && typeCastedInputValue >= -2147483648 &&
+              typeCastedInputValue <= 2147483647) && inputValue.length !== 0) {
+              isValid = true;
+            } else {
+              isValid = false;
+            }
+            break;
+          case "esriFieldTypeSingle":
+            // zero or more occurrence of (+-) at the start of expression
+            // at least one occurrence of digits between o-9
+            // occurrence of .
+            // at least one occurrence of digits between o-9 in the end
+            typeCastedInputValue = parseFloat(inputValue);
+            if (((inputValue.match(decimal) || inputValue.match(floatVal)) &&
+              typeCastedInputValue >= -3.4 * Math.pow(10, 38) &&
+              typeCastedInputValue <= 1.2 * Math.pow(10, 38)) && inputValue.length !== 0) {
+              isValid = true;
+            } else {
+              isValid = false;
+            }
+            break;
+          case "esriFieldTypeDouble":
+            typeCastedInputValue = parseFloat(inputValue);
+            if (((inputValue.match(decimal) || inputValue.match(floatVal)) &&
+              typeCastedInputValue >= -2.2 * Math.pow(10, 308) &&
+              typeCastedInputValue <= 1.8 * Math.pow(10, 38)) && inputValue.length !== 0) {
+              isValid = true;
+            } else {
+              isValid = false;
+            }
+            break;
+        }
+        return isValid;
       }
     });
   });

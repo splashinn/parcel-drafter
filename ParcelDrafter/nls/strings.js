@@ -13,7 +13,8 @@ define({
     "mapTooltipForScale": "Drag to scale", // Shown as tooltip when mouse drag over the map once scaling tool is activated
     "backButtonTooltip": "Back", // Shown as tooltip on back buttons
     "newTraverseTitle": "New Traverse", // Shown as title for new traverse page
-    "clearingDataConfirmationMessage": "All the entered data will be cleared, Do you want to proceed.", // Shown as warning message when user wants to clear all the parcel data
+    "editTraverseTitle": "Edit Traverse", // Shown as title for new traverse page
+    "clearingDataConfirmationMessage": "Changes will be discarded, do you want to proceed?", // Shown as warning message when user wants to clear all the parcel data
     "confirmationBoxYESButtonLabel": "Yes", // Shown as label for yes button of confirmation box
     "confirmationBoxNOButtonLabel": "No", // Shown as label for no button of confirmation box
     "unableToFetchParcelMessage": "Unable to fetch parcel.", // Shown when error occurs while  fetching parcel polyline for editing it
@@ -40,7 +41,7 @@ define({
       "expandGridTooltipText": "Expand grid", // Show on hover of the expand grid button
       "collapseGridTooltipText": "Collapse grid", // Show on hover of the collapse grid button
       "zoomToLocationTooltipText": "Zoom to location", // Show on hover of the zoomToLocation button
-      "onScreenDigitizationTooltipText": "Digitization" // Show on hover of the zoomToLocation button
+      "onScreenDigitizationTooltipText": "Digitize" // Show on hover of the Digitization button
     },
     "traverseSettings": {
       "bearingLabel": "Bearing", // Shown as label for bearing column in traverse grid
@@ -61,13 +62,6 @@ define({
       "rotationToolLabel": "Angle", // Shown as label to Rotate of selected parcel
       "scaleToolLabel": "Scale" // Shown as label to scale of selected parcel
     },
-    "parcelInfos": {
-      "parcelNamePlaceholderText": "Parcel name (required)", // Shown as Place Holder for Parcel name
-      "parcelDocumentTypeText": "Document type (optional)", // Shown as Place Holder for Document type
-      "planNamePlaceholderText": "Plan name (optional)",  // Shown as Place Holder for Plan name
-      "cancelButtonLabel": "Cancel", // Shown as label of cancel button
-      "saveButtonLabel": "Save" // Shown as label of Save button
-    },
     "newTraverse": {
       "invalidBearingMessage": "Invalid Bearing.", // Shown when invalid bearing is entered
       "invalidLengthMessage": "Invalid Length.", // Shown when invalid length is entered
@@ -79,6 +73,13 @@ define({
       "invalidEndPointMessage": "Invalid End-Point, unable to draw line." // Shown when user tries to draw line at invalid end point
     },
     "planInfo": {
+      "requiredText": "(required)",
+      "optionalText": "(optional)",
+      "parcelNamePlaceholderText": "Parcel name", // Shown as Place Holder for Parcel name
+      "parcelDocumentTypeText": "Document type", // Shown as Place Holder for Document type
+      "planNamePlaceholderText": "Plan name",  // Shown as Place Holder for Plan name
+      "cancelButtonLabel": "Cancel", // Shown as label of cancel button
+      "saveButtonLabel": "Save", // Shown as label of Save button
       "saveNonClosedParcelConfirmationMessage": "The entered parcel is not closed, do you still want to proceed and save only parcel lines?", // Shown when user tries to save unclosed polygon
       "confirmationBoxYESButtonLabel": "Yes", // Confirmation box YES button label
       "confirmationBoxNOButtonLabel": "No", // Confirmation box NO button label
@@ -88,8 +89,9 @@ define({
       "unableToUpdateParcelLines": "Unable to update parcel lines.", // Shown when error occurs while updating parcel lines
       "parcelSavedSuccessMessage": "Parcel saved successfully.", // Shown when parcel is saved successfully
       "enterValidParcelNameMessage": "Please enter valid parcel name.", // Shown as error message when parcel name is invalid
-      "enterValidDocumentTyeMessage": "Please select valid document type.", // Shown as error message when document type is invalid
-      "enterValidStatedAreaNameMessage": "Please add valid stated area." // Shown as error message when stated area is invalid
+      "enterValidPlanNameMessage": "Please enter valid plan name.", // Shown as error message when parcel name is invalid
+      "enterValidDocumentTyeMessage": "Invalid document type.", // Shown as error message when document type is invalid
+      "enterValidStatedAreaNameMessage": "Please enter valid stated area." // Shown as error message when stated area is invalid
     }
   }),
   "fr": 1

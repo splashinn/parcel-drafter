@@ -10,6 +10,7 @@ define([
   './PlanSettings',
   './NewTraverse',
   './MapTooltipHandler',
+  './layerUtils',
   'esri/tasks/GeometryService',
   'jimu/dijit/Message',
   'jimu/dijit/LoadingIndicator',
@@ -28,6 +29,7 @@ define([
     PlanSettings,
     NewTraverse,
     MapTooltipHandler,
+    layerUtils,
     GeometryService,
     Message,
     LoadingIndicator,
@@ -46,6 +48,12 @@ define([
       _polygonLayerSpatialReference: null, //Store spatial reference of polygon layer
       _isUpdateStartPoint: null, //Flag to indicate if updated startPoint feature is on
 
+      postMixInProperties: function () {
+        //mixin default nls with widget nls
+        this.nls.common = {};
+        lang.mixin(this.nls.common, window.jimuNls.common);
+      },
+
       postCreate: function () {
         this.inherited(arguments);
         //create instance of geometryService
@@ -60,11 +68,18 @@ define([
           this._showErrorInWidgetPanel(this.nls.invalidConfigMsg);
           return false;
         }
+        //initialize the layerUtils object which will help in getting layer details form map
+        this._layerUtils = new layerUtils({
+          "map": this.map, getPopupInfo: true, getRenderer: false
+        });
+        //update the polyline layer details from web-map properties to support popup info
+        lang.mixin(this.config.polylineLayer, this._layerUtils.getLayerDetailsFromMap(
+          this.config.polylineLayer.baseURL,
+          this.config.polylineLayer.layerId, this.config.polylineLayer.id));
         //Initialize loading widget
         this._initLoading();
         //get spatialReference of the layers to store the data in layer units
         this._getSpatialReferenceOfParcelLayers();
-
       },
 
       startup: function () {
@@ -92,10 +107,10 @@ define([
         var isValid;
         isValid = true;
         if (this.config) {
-          if (!this.config.polygonLayer || !this.map.getLayer(this.config.polygonLayer.layerId)) {
+          if (!this.config.polygonLayer || !this.map.getLayer(this.config.polygonLayer.id)) {
             isValid = false;
           }
-          if (!this.config.polylineLayer || !this.map.getLayer(this.config.polylineLayer.layerId)) {
+          if (!this.config.polylineLayer || !this.map.getLayer(this.config.polylineLayer.id)) {
             isValid = false;
           }
         } else {
@@ -137,7 +152,7 @@ define([
         var lineLayerRequest, polygonLayerRequest;
         this.loading.show();
         lineLayerRequest = esriRequest({
-          url: this.config.polylineLayer.layerURL,
+          url: this.config.polylineLayer.url,
           content: { f: "json" },
           handleAs: "json",
           callbackParamName: "callback"
@@ -145,7 +160,7 @@ define([
         lineLayerRequest.then(lang.hitch(this, function (response) {
           this._lineLayerSpatialReference = response.extent.spatialReference;
           polygonLayerRequest = esriRequest({
-            url: this.config.polygonLayer.layerURL,
+            url: this.config.polygonLayer.url,
             content: { f: "json" },
             handleAs: "json",
             callbackParamName: "callback"
@@ -174,6 +189,8 @@ define([
           this.newTraverseSelectMessageNode.innerHTML = "";
           this._newTraverseInstance.deActivateDigitizationTool();
           this._newTraverseInstance.deactivateParcelTools();
+          //hide popup to edit values
+          this._newTraverseInstance.closePopup();
         }
       },
 
@@ -249,7 +266,7 @@ define([
         //allow snapping with configured layers
         if (this.config.snappingLayers && this.config.snappingLayers.length) {
           for (i = 0; i < this.config.snappingLayers.length; i++) {
-            snappingLayer = this.map.getLayer(this.config.snappingLayers[i]);
+            snappingLayer = this.map.getLayer(this.config.snappingLayers[i].id);
             if (snappingLayer) {
               layerInfos.push({ layer: snappingLayer });
             }
@@ -289,22 +306,24 @@ define([
       },
 
       /**
-      * Confirms if user wants to cancel the traverse, and if yes reset to main page.
+      * Confirm if user wants to cancel the traverse, and if yes reset to main page.
       * before cancelling traversed parcel
       * @memberOf widgets/ParcelDrafter/Widget
       **/
       _confirmCancelTraverse: function () {
         var confirmationBox;
+        //hide popup to edit values
+        this._newTraverseInstance.closePopup();
         confirmationBox = new Message({
           message: this.nls.clearingDataConfirmationMessage,
           type: "question",
           buttons: [{
-            "label": this.nls.confirmationBoxYESButtonLabel,
+            "label": this.nls.common.yes,
             "onClick": lang.hitch(this, function () {
               confirmationBox.close();
               this._resetOnBackToMainPage();
             })
-          }, { "label": this.nls.confirmationBoxNOButtonLabel }]
+          }, { "label": this.nls.common.no }]
         });
       },
 
@@ -342,30 +361,23 @@ define([
         this._isUpdateStartPoint = true;
         //handle clicked event
         this._mapTooltipHandler.on("clicked", lang.hitch(this, function (evt) {
-          var mapPoint;
-          if (this.map.snappingManager && this.map.snappingManager._snappingPoint) {
-            mapPoint = this.map.snappingManager._snappingPoint;
-          } else {
-            mapPoint = evt.mapPoint;
-          }
-          // if map tooltip handler text is set to screen digitization widget
-          // add parcel points on map
-          if (this._mapTooltipHandler.toolTipText === this.nls.mapTooltipForScreenDigitization) {
-            this._newTraverseInstance.pointAddedFromDigitization(mapPoint);
-          } else {
-            if (!this._startPoint) {
-              if (this._mapTooltipHandler.toolTipText === this.nls.mapTooltipForEditNewTraverse) {
-                this._startPoint = mapPoint;
-                // get polygon that needs to be edited
-                this._getPolygonForEdits(evt);
+          var deferred;
+          //if snapping manager is available use snapping otherwise used clicked mapPoint
+          if (this.map && this.map.snappingManager) {
+            //call the getSnappingPoint method to get snapped point, & in deferred callback check
+            //if snapPoint is valid use it otherwise used clicked mapPoint
+            deferred = this.map.snappingManager.getSnappingPoint(evt.screenPoint);
+            deferred.then(lang.hitch(this, function (snappingPoint) {
+              var mapPoint;
+              if (snappingPoint) {
+                mapPoint = snappingPoint;
               } else {
-                //after selecting start point for first time show new traverse page
-                this._showPanel("traversePage");
-                this._mapTooltipHandler.updateTooltip(this.nls.mapTooltipForUpdateStartPoint);
+                mapPoint = evt.mapPoint;
               }
-            }
-            this._startPoint = mapPoint;
-            this._newTraverseInstance.setStartPoint(this._startPoint);
+              this._onMapPointSelected(mapPoint);
+            }));
+          } else {
+            this._onMapPointSelected(evt.mapPoint);
           }
         }));
         this._mapTooltipHandler.on("dragging", lang.hitch(this, function (evt) {
@@ -397,20 +409,49 @@ define([
       },
 
       /**
+      * This function execute the  appropriate action after mapPoint is selected
+      * @memberOf widgets/ParcelDrafter/Widget
+      */
+      _onMapPointSelected: function (mapPoint) {
+        // if map tooltip handler text is set to screen digitization widget
+        // add parcel points on map else start point is selected/updated
+        if (this._mapTooltipHandler.toolTipText === this.nls.mapTooltipForScreenDigitization) {
+          this._newTraverseInstance.pointAddedFromDigitization(mapPoint);
+        } else {
+          if (!this._startPoint) {
+            if (this._mapTooltipHandler.toolTipText === this.nls.mapTooltipForEditNewTraverse) {
+              this._startPoint = mapPoint;
+              // get polygon that needs to be edited
+              this._getPolygonForEdits(mapPoint);
+            } else {
+              //set traverse page title
+              domAttr.set(this.traverseTitleNode, "innerHTML", this.nls.newTraverseTitle);
+              domAttr.set(this.traverseTitleNode, "title", this.nls.newTraverseTitle);
+              //after selecting start point for first time show new traverse page
+              this._showPanel("traversePage");
+              this._mapTooltipHandler.updateTooltip(this.nls.mapTooltipForUpdateStartPoint);
+            }
+          }
+          this._startPoint = mapPoint;
+          this._newTraverseInstance.setStartPoint(this._startPoint);
+        }
+      },
+
+      /**
       * This function is used to get polygons that needs to be edited
       * @memberOf widgets/ParcelDrafter/Widget
       */
-      _getPolygonForEdits: function (evt) {
+      _getPolygonForEdits: function (mapPoint) {
         var featureQuery, polygonLayer, currentDateTime;
         this.loading.show();
         currentDateTime = new Date().getTime();
         featureQuery = new Query();
-        featureQuery.geometry = evt.mapPoint;
+        featureQuery.geometry = mapPoint;
         featureQuery.outSpatialReference = this.map.spatialReference;
         featureQuery.returnGeometry = false;
         featureQuery.outFields = ["*"];
         featureQuery.where = currentDateTime + "=" + currentDateTime;
-        polygonLayer = this.map.getLayer(this.config.polygonLayer.layerId);
+        polygonLayer = this.map.getLayer(this.config.polygonLayer.id);
         if (polygonLayer) {
           polygonLayer.queryFeatures(featureQuery, lang.hitch(this, function (featureSet) {
             var i;
@@ -454,7 +495,7 @@ define([
         featureQuery.returnGeometry = true;
         featureQuery.outFields = ["*"];
         featureQuery.where = this.config.polylineLayer.relatedGUID.name + "='" + guid + "'";
-        lineLayer = this.map.getLayer(this.config.polylineLayer.layerId);
+        lineLayer = this.map.getLayer(this.config.polylineLayer.id);
         if (lineLayer) {
           lineLayer.queryFeatures(featureQuery, lang.hitch(this, function (featureSet) {
             this.loading.hide();
@@ -462,6 +503,9 @@ define([
               this._newTraverseInstance.polylineDeleteArr = featureSet.features;
               //set the start point as the first point of polyline
               this._startPoint = featureSet.features[0].geometry.getPoint(0, 0);
+              //set traverse page title
+              domAttr.set(this.traverseTitleNode, "innerHTML", this.nls.editTraverseTitle);
+              domAttr.set(this.traverseTitleNode, "title", this.nls.editTraverseTitle);
               this._newTraverseInstance.initEditing(this._startPoint, featureSet,
                 this._lineLayerSpatialReference);
               this._toggleSnapping(true);
@@ -622,7 +666,10 @@ define([
       **/
       _showMessage: function (msg) {
         var alertMessage = new Message({
-          message: msg
+          message: msg,
+          buttons: [{
+            "label": this.nls.common.ok
+          }]
         });
         alertMessage.message = msg;
       },
