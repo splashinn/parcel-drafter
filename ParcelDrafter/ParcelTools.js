@@ -41,25 +41,21 @@
         //set default values in the textboxes
         this.rotationTxt.set("value", this.rotationAngle);
         this.scaleTxt.set('value', this.scaledValue);
-
-        //set value after focus out
-        on(this.rotationTxt, "blur", lang.hitch(this, function () {
+        //set value after focus out of scale/rotation textbox
+        this.own(on(this.rotationTxt, "blur", lang.hitch(this, function () {
           this.setRotation(this.rotationTxt.displayedValue);
-        }));
-
-        //attach 'click' event on rotate button to enable rotating feature
-        on(this.rotateButton, "click", lang.hitch(this, function () {
-          this._toggleRotating();
-        }));
-
-        on(this.scaleTxt, "blur", lang.hitch(this, function () {
+        })));
+        this.own(on(this.scaleTxt, "blur", lang.hitch(this, function () {
           this.setScale(this.scaleTxt.displayedValue);
-        }));
-
+        })));
+        //attach 'click' event on rotate button to enable rotating feature
+        this.own(on(this.rotateButton, "click", lang.hitch(this, function () {
+          this._toggleRotating();
+        })));
         //attach 'click' event on scale button to enable scaling feature
-        on(this.scaleButton, "click", lang.hitch(this, function () {
+        this.own(on(this.scaleButton, "click", lang.hitch(this, function () {
           this._toggleScaling();
-        }));
+        })));
         //set value in textbox once enter or tab key os pressed
         this.own(on(this.rotationTxt, "keypress", lang.hitch(this, function (evt) {
           var charOrCode;

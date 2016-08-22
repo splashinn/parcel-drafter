@@ -295,8 +295,9 @@
         }
         //create polygon geometry and add it to the graphic layer
         if (boundaryLinesArray.length > 0) {
+          //create the parcel polygon with the lines spatialReference
           parcelPolygon = geometryUtils.getPolygonFromPolyLines(
-            boundaryLinesArray, false, true);
+            boundaryLinesArray, false, true, lineFeatures[0].geometry.spatialReference);
           if (parcelPolygon) {
             this.parcelPolygonGraphicsLayer.clear();
             polygonGraphic = new Graphic(parcelPolygon);

@@ -1,5 +1,6 @@
 ﻿define([
   'dojo/_base/declare',
+  'dijit/_WidgetBase',
   'dojo/_base/lang',
   'dojo/Evented',
   'dojo/dom-style',
@@ -8,13 +9,14 @@
 ],
   function (
     declare,
+    _WidgetBase,
     lang,
     Evented,
     domStyle,
     domConstruct,
     on
   ) {
-    return declare([Evented], {
+    return declare([_WidgetBase, Evented], {
       baseClass: 'jimu-widget-ParcelDrafter-MapTooltipHandler',
       map: null, //map object
       handleClickFor: null, //object to hold layer/map object for which click events need to be handled
@@ -44,18 +46,18 @@
           this.updateTooltip(tooltipText);
         }
         this._disableWebMapPopup();
-        this._mapClickHandler = on(this.handleClickFor, "click", lang.hitch(this, function (evt) {
+        this._mapClickHandler = this.own(on(this.handleClickFor, "click", lang.hitch(this, function (evt) {
           this._clicked(evt);
-        }));
+        })))[0];
         //handle mouse move on map to show tooltip only on non-touch devices
         if ("ontouchstart" in document.documentElement) {
           domStyle.set(this._mapTooltip, "display", "none");
         } else {
-          this._mapMoveHandler = this.map.on("mouse-move", lang.hitch(
-            this, this._onMapMouseMove));
-          this.map.on("mouse-out", lang.hitch(this, function () {
+          this._mapMoveHandler = this.own(this.map.on("mouse-move", lang.hitch(
+            this, this._onMapMouseMove)))[0];
+          this.own(this.map.on("mouse-out", lang.hitch(this, function () {
             domStyle.set(this._mapTooltip, "display", "none");
-          }));
+          })));
         }
       },
 
@@ -88,9 +90,10 @@
           this._mapClickHandler.remove();
         }
         this.map.disableMapNavigation();
-        this._mouseDragHandler = this.map.on("mouse-drag", lang.hitch(this, function (evt) {
-          this._onDragging(evt);
-        }));
+        this._mouseDragHandler =
+          this.own(this.map.on("mouse-drag", lang.hitch(this, function (evt) {
+            this._onDragging(evt);
+          })))[0];
       },
 
       /**
@@ -143,7 +146,6 @@
 
       /**
       * On map mouse move update the toolTip position
-      * to show in infowindow at the selected location.
       * @memberOf widgets/ParcelDrafter/MapTooltipHandler
       **/
       _onMapMouseMove: function (evt) {
@@ -192,7 +194,7 @@
       },
 
       /**
-      * Update's the tooltip to he shown on move
+      * Update's the tooltip to be shown on move
       * @memberOf widgets/ParcelDrafter/MapTooltipHandler
       **/
       updateTooltip: function (newTooltip) {

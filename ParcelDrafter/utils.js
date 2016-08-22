@@ -1,6 +1,8 @@
 define([],
   function () {
     var mo = {};
+    mo.bearingFieldPlaces = 4;
+
     //Object that holds all the options and their keys for plan settings
     mo.planSettingsOptions = {
       "directionOrAngleType": ["northAzimuth", "southAzimuth", "quadrantBearing"],
@@ -356,6 +358,22 @@ define([],
     };
 
     /**
+    * This function is used to do rounding according to number of places
+    * @memberOf widgets/ParcelDrafter/utils
+    */
+    mo.honourPopupRounding = function (places, value) {
+      var returnValue, roundingValue;
+      //if places not found by default show only 4 places
+      if (isNaN(places) || places === null) {
+        places = 4;
+      }
+      roundingValue = Math.pow(10, places);
+      returnValue = (Math.round(value * roundingValue)) / roundingValue;
+      returnValue = returnValue.toFixed(places);
+      return returnValue;
+    };
+
+    /**
     * This function is used to convert bearing to all possible output formats.
     * @memberOf widgets/ParcelDrafter/utils
     */
@@ -373,8 +391,8 @@ define([],
         naDD = 0;
       }
       bearingFormat.naDD = naDD;
-      bearingFormat.naDDRound = (Math.round(naDD * 10000)) / 10000;
-      if (bearingFormat.naDDRound === 360) {
+      bearingFormat.naDDRound = mo.honourPopupRounding(mo.bearingFieldPlaces, naDD);
+      if (Number(bearingFormat.naDDRound) === 360) {
         bearingFormat.naDDRound = 0;
       }
       // output for naDMS
@@ -402,7 +420,7 @@ define([],
       bearingFormat.qb3DD = quadrantObj.quadrant.charAt(0) + quadrantObj.quadrantAngle +
         quadrantObj.quadrant.charAt(1);
       bearingFormat.qb3DDRound = quadrantObj.quadrant.charAt(0) +
-        ((Math.round(quadrantObj.quadrantAngle * 10000)) / 10000) +
+        mo.honourPopupRounding(mo.bearingFieldPlaces, quadrantObj.quadrantAngle) +
         quadrantObj.quadrant.charAt(1);
       // output for qb3DMS
       qbDMSObj = mo.DDtoDMS({
@@ -436,8 +454,8 @@ define([],
         saDD = 0;
       }
       bearingFormat.saDD = saDD;
-      bearingFormat.saDDRound = (Math.round(saDD * 10000)) / 10000;
-      if (bearingFormat.saDDRound === 360) {
+      bearingFormat.saDDRound = mo.honourPopupRounding(mo.bearingFieldPlaces, saDD);
+      if (Number(bearingFormat.saDDRound) === 360) {
         bearingFormat.saDDRound = 0;
       }
       // output for saDMS

@@ -55,18 +55,24 @@ define([
     return declare([BaseWidgetSetting, _WidgetsInTemplateMixin], {
       baseClass: 'jimu-widget-ParcelDrafter-setting',
       templateString: layerChooserTemplate,
-      loginFieldInfo: {},
       selectedLayerDetails: [],
-      _layerChooserFromMap: null,
-      relatedLayerTypes: ["point", 'polyline', 'polygon'],
       relatedLayerInfo: [],
+      relatedLayerTypes: [],
       chooseRelatedLayers: false,
+      _layerChooserFromMap: null,
 
       startup: function () {
         this.inherited(arguments);
       },
 
       postCreate: function () {
+        //init widget var
+        this.selectedLayerDetails = [];
+        this.relatedLayerInfo = [];
+        //if related layer types are not set load all types of layer
+        if (!this.relatedLayerTypes || this.relatedLayerTypes.length === 0) {
+          this.relatedLayerTypes = ["point", 'polyline', 'polygon'];
+        }
         this._initPopup();
         this._initLayerSelector();
       },
@@ -85,7 +91,7 @@ define([
         this.okButton.onClick = lang.hitch(this, function () {
           //in case of multiple layer selector get selected layers
           if (this.multiple) {
-            this._getSelectedSearchLayers();
+            this._getSelectedLayers();
           }
           //in case of related layer chooser get the selected related layer
           if (this.chooseRelatedLayers && this.relatedLayerInfo.length > 0) {
@@ -217,7 +223,7 @@ define([
       * This function get selected layer and create map server URL
       * @memberOf widgets/ParcelDrafter/setting/layerChooserPopup
       **/
-      _getSelectedSearchLayers: function () {
+      _getSelectedLayers: function () {
         var i, selectedLayerItems, baseURL, layerItem;
         this.selectedLayerDetails = [];
         //get selected items from chooser
@@ -255,12 +261,13 @@ define([
       * @memberOf widgets/ParcelDrafter/setting/LayerChooser
       **/
       _getLayerDetailsFromMap: function (baseURL, relatedLayerId) {
-        var selectedLayer = {};
+        var selectedLayersArray = [], selectedLayer;
         if (this.map && this.map.webMapResponse && this.map.webMapResponse
           .itemInfo && this.map.webMapResponse.itemInfo.itemData &&
           this.map.webMapResponse.itemInfo.itemData.operationalLayers) {
           array.forEach(this.map.webMapResponse.itemInfo.itemData.operationalLayers,
             lang.hitch(this, function (layer) {
+              selectedLayer = {};
               if (layer.layerObject) {
                 if (layer.layerType === "ArcGISMapServiceLayer" ||
                   layer.layerType === "ArcGISTiledMapServiceLayer") {
@@ -272,7 +279,7 @@ define([
                         if (subLayer.id === parseInt(
                           relatedLayerId, 10)) {
                           selectedLayer.title = subLayer.name;
-                          return;
+                          selectedLayersArray.push(selectedLayer);
                         }
                       }));
                     array.forEach(layer.layers, lang.hitch(this,
@@ -283,23 +290,22 @@ define([
                             selectedLayer.title = subLayer.name;
                           }
                           selectedLayer.id = layer.id;
-                          return;
+                          selectedLayersArray.push(selectedLayer);
                         }
                       }));
                   }
                 } else {
-                  if (layer.url.replace(/.*?:\/\//g, "") === (
-                    baseURL + relatedLayerId).replace(/.*?:\/\//g,
-                    "")) {
+                  if (layer.url.replace(/.*?:\/\//g, "").toLowerCase() ===
+                    (baseURL + relatedLayerId).replace(/.*?:\/\//g, "").toLowerCase()) {
                     selectedLayer.id = layer.id;
                     selectedLayer.title = layer.title;
-                    return;
+                    selectedLayersArray.push(selectedLayer);
                   }
                 }
               }
             }));
         }
-        return selectedLayer;
+        return selectedLayersArray;
       },
 
       /**
@@ -334,7 +340,8 @@ define([
           //after getting all the infos get it's details from map and add in selector
           all(deferredLayerInfoArray).then(lang.hitch(this, function (
             result) {
-            var relatedLayerInfo, relatedLayerType, i;
+            var relatedLayerInfo, updatedRelatedLayerInfo, relatedLayerType, i, j,
+              relatedLayerDetailsFromMap;
             //create new options for related layer selector according to selected layer
             for (i = 0; i < result.length; i++) {
               if (result[i]) {
@@ -353,16 +360,20 @@ define([
                     relatedLayerInfo.fields = lang.clone(result[i].fields);
                   }
                   //try to get related layers details from webmap's operational layer
-                  relatedLayerInfo = lang.mixin(relatedLayerInfo,
-                    this._getLayerDetailsFromMap(baseURL, result[i].id));
-                  if (relatedLayerInfo.title) {
-                    this.relatedLayerInfo[options.length] =
-                      relatedLayerInfo;
-                    options.push({
-                      label: this.relatedLayerInfo[options.length]
-                        .title,
-                      value: options.length
-                    });
+                  relatedLayerDetailsFromMap = this._getLayerDetailsFromMap(baseURL,
+                    result[i].id);
+                  //the related layer may have multiple instance in webMap so show all of them
+                  for (j = 0; j < relatedLayerDetailsFromMap.length; j++) {
+                    //set relatedLayerInfo in all instances
+                    updatedRelatedLayerInfo = lang.clone(relatedLayerInfo);
+                    lang.mixin(updatedRelatedLayerInfo, relatedLayerDetailsFromMap[j]);
+                    if (updatedRelatedLayerInfo.title) {
+                      this.relatedLayerInfo[options.length] = updatedRelatedLayerInfo;
+                      options.push({
+                        label: this.relatedLayerInfo[options.length].title,
+                        value: options.length
+                      });
+                    }
                   }
                 }
               }

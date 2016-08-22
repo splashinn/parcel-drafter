@@ -30,7 +30,7 @@
       postCreate: function () {
         this.inherited(arguments);
         domClass.add(this.domNode, "esriCTFullWidth");
-        //if field is configured for statedArea then show it
+        //if field is configured for statedArea then show it and set validator according to field
         if (this.config.polygonLayer.statedArea &&
           this.config.polygonLayer.statedArea.hasOwnProperty('name')) {
           domClass.remove(this.traverseStatedAreaNode, "esriCTHidden");

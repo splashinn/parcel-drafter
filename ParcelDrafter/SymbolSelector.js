@@ -1,6 +1,6 @@
 ﻿define([
   'dojo/_base/declare',
-  'jimu/BaseWidgetSetting',
+  'jimu/BaseWidget',
   'dojo/_base/lang',
   'dojo/on',
   'dojo/dom-construct',
@@ -13,7 +13,7 @@
 ],
   function (
     declare,
-    BaseWidgetSetting,
+    BaseWidget,
     lang,
     on,
     domConstruct,
@@ -24,7 +24,7 @@
     TooltipDialog,
     html
   ) {
-    return declare([BaseWidgetSetting], {
+    return declare([BaseWidget], {
       _tooltipDialog: null, // To contain tooltip node
       selectedSymbol: null, //Holds the selected symbol from list
       symbolData: [], //Holds the symbol data
@@ -34,6 +34,11 @@
       },
 
       postCreate: function () {
+        //initialize widget variable
+        if (!this.symbolData) {
+          this.symbolData = [];
+        }
+        //create selected symbol node
         this._createSelectedSymbolNode();
         // Initially hide tooltip dialog
         this._hideTooltipDialog();
@@ -154,12 +159,12 @@
       **/
       _attachRowClick: function (symbolListItemNode, symbolJson) {
         // Attach 'click' event to show the selected symbol
-        on(symbolListItemNode, "click", lang.hitch(this, function () {
+        this.own(on(symbolListItemNode, "click", lang.hitch(this, function () {
           this.selectSymbol(symbolJson);
           if (this.hideOnSelect) {
             this._hideTooltipDialog();
           }
-        }));
+        })));
       },
 
       /**

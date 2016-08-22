@@ -16,17 +16,17 @@
 ///////////////////////////////////////////////////////////////////////////
 define({
   root: ({
-    "setBtnLabel": "Set",
-    "selectLabel": "Select", // Shown as a label for default dropbox when field is not required.
+    "setBtnLabel": "Set", //Shown as select layer button title
+    "selectLabel": "Select", // Shown as a label for default dropBox when field is not required.
     "selectLayerLabel": "Select parcel layers", // Shown as a label in config UI for parcel layers.
     "selectLayerHintText": "Hint: Use set button to select the parcel polygon and it's related line   layer", // Shown as hint text in config UI for layer hint text.
     "layerSelector": {
-      "selectedLayerNotHavingRelatedLayer": "Selected polygon layer don't have any valid related layer."
+      "selectedLayerNotHavingRelatedLayer": "Selected polygon layer don't have any valid related layer."// Shown as error if selected parcel polygon layer don't have valid related line layer.
     },
     "parcelLineLayer": {
       "selectLayerLabel": "Select related line layer", // shown as a label in config for select layer.
       "layerSettingTabLabel": "Parcel layers", // shown as label in config UI for first tab.
-      "closureSettingTabLabel": "Closure settings", // shown as label in config UI for second tab.
+      "advancedSettingTabLabel": "Advanced settings", // shown as label in config UI for second tab.
       "selectLayerHintText": "Hint: Use to store COGO values in parcel line layer",
       // Shown as a hint text in config for select layer.
       "selectFieldLegendLabel": "Select fields to store COGO values in parcel line layer",
@@ -60,7 +60,7 @@ define({
       "selectPolygonLayerLabelPopUp": "Select a polygon layer", // shown as a label in config for line layer pop up
     },
 
-    "simpleTable": {
+    "lineTypesTable": {
       "lineTypeLabel": "Line Type", // shown as a label in config for column in simple table.
       "valueLabel": "Value", // shown as a label in config for column in simple table.
       "symbolLabel": "Symbol", // shown as a label in config for column in simple table.
@@ -111,7 +111,6 @@ define({
       "invalidBoundaryLineType" : "Invalid boundary line value", // Shown as error message when invalid values in lineTypes of boundary line.
       "selectDistinctPolylineFields": "Please select distinct field for each COGO value.", //Shown as error if same field is configured for multiple properties of polyline layer
       "selectDistinctPolygonFields": "Please select distinct field for each parcel polygon attribute." //Shown as error if same field is configured for multiple properties of polyline layer
-
     }
 
   })
