@@ -101,6 +101,11 @@ define([
       dy = chordPoint.y - originPoint.y;
       XByY = Math.atan2(Math.abs(dx), Math.abs(dy)) * 180 / Math.PI;
       YByX = Math.atan2(Math.abs(dy), Math.abs(dx)) * 180 / Math.PI;
+      //remove negative exponents from the calculated value
+      dx = mo.removeNegativeExponents(dx);
+      dy = mo.removeNegativeExponents(dy);
+      XByY = mo.removeNegativeExponents(XByY);
+      YByX = mo.removeNegativeExponents(YByX);
       if (dy === 0) {
         if (dx === 0) {
           return 0;
@@ -192,11 +197,16 @@ define([
     * Returns the polygon object form the paths array
     * @memberOf widgets/ParcelDrafter/geometryUtils
     **/
-    mo.getPolygonFromPolyLines = function (pathsArray, addLastPoint, updateLastPoint) {
+    mo.getPolygonFromPolyLines = function (pathsArray, addLastPoint, updateLastPoint,
+      spatialReference) {
       var ring, polygon, i, j;
       ring = [];
-      //create polygon in 102100 spatial reference
-      polygon = new Polygon(new SpatialReference({ wkid: 102100 }));
+      //create polygon in 102100 spatial reference if spatial reference is not valid
+      if (!spatialReference) {
+        polygon = new Polygon(new SpatialReference({ wkid: 102100 }));
+      } else {
+        polygon = new Polygon(new SpatialReference(spatialReference));
+      }
       for (i = 0; i < pathsArray.length; i++) {
         for (j = 0; j < pathsArray[i].length; j++) {
           ring.push(pathsArray[i][j]);
@@ -348,17 +358,18 @@ define([
     **/
     mo.chordBearingToTangentBearing = function (chordBearing, radius, chordLength) {
       var radToChordAngle, minorArc, leftOfChord, tanBearing;
-      radToChordAngle = Math.acos((Math.abs(chordLength) / 2) / Math.abs(radius)) * (180 / Math.PI);//angle between radius and chord
+      radToChordAngle = Math.acos((Math.abs(chordLength) / 2) / Math.abs(radius)) * (180 / Math.PI);
+      //angle between radius and chord
       minorArc = radius / Math.abs(radius);
       leftOfChord = chordLength / Math.abs(chordLength);
       /*
       Combinations:
       1. +r +c -> tb = cb + 90 - a
-      2. +r -c -> tb = cb - 90 - a
+      2. +r -c -> tb = cb + 90 + a
       3. -r +c -> tb = cb - 90 + a
-      4. -r -c -> tb = cb + 90 + a
+      4. -r -c -> tb = cb - 90 - a
       */
-      tanBearing = chordBearing + minorArc * leftOfChord * 90 - minorArc * radToChordAngle;
+      tanBearing = chordBearing + minorArc * 90 - minorArc * leftOfChord * radToChordAngle;
       //ensure that angle is between 0 to 360
       tanBearing =
         tanBearing < 0 ? tanBearing + 360 :
@@ -373,7 +384,8 @@ define([
     **/
     mo.tangentBearingToChordBearing = function (tanBearing, radius, chordLength) {
       var radToChordAngle, minorArc, leftOfChord, chordBearing;
-      radToChordAngle = Math.acos((Math.abs(chordLength) / 2) / Math.abs(radius)) * (180 / Math.PI);//angle between radius and chord
+      radToChordAngle = Math.acos((Math.abs(chordLength) / 2) / Math.abs(radius)) * (180 / Math.PI);
+      //angle between radius and chord
       minorArc = radius / Math.abs(radius);
       leftOfChord = chordLength / Math.abs(chordLength);
       /*

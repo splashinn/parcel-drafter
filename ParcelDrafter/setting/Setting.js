@@ -69,20 +69,16 @@ define([
       _tab: null, // to store tab object
       _symbolParams: {},
       _layerUtils: null, // Utils widget instance
-      /*Array's to store dataType keywords*/
+      /*Store dataType keywords in variables*/
       _stringFieldType: 'esriFieldTypeString',
       _oidFieldType: 'esriFieldTypeOID',
       _guidFieldType: 'esriFieldTypeGUID',
       _globalIdFieldType: 'esriFieldTypeGlobalID',
-      _numberFieldTypes: ['esriFieldTypeSmallInteger',
-        'esriFieldTypeInteger',
-        'esriFieldTypeSingle',
-        'esriFieldTypeDouble'
-      ],
+      _numberFieldTypes: [],
       polylineDetails: null,
       polygonDetails: null,
       snappingLayerDetails: null,
-      distanceAndLengthUnits: lang.clone(appUtils.planSettingsOptions.distanceAndLengthUnits),
+      distanceAndLengthUnits: {},
 
       postMixInProperties: function () {
         //mixin default nls with widget nls
@@ -91,6 +87,12 @@ define([
       },
 
       postCreate: function () {
+        //initialize widget variables
+        this._symbolParams = {};
+        this._numberFieldTypes = ['esriFieldTypeSmallInteger', 'esriFieldTypeInteger',
+          'esriFieldTypeSingle', 'esriFieldTypeDouble'];
+        this.distanceAndLengthUnits = lang.clone(appUtils.planSettingsOptions.distanceAndLengthUnits);
+
         //initialize the layerUtils object which will help in getting layer details form map
         this._layerUtils = new layerUtils({
           "map": this.map, getPopupInfo: false, getRenderer: false
@@ -111,7 +113,8 @@ define([
           this._showLayerChooser("snapping", [''], true);
         })));
         //Handle lineType change event to load options in line type table
-        this.lineTypeFieldNode.on("change", lang.hitch(this, this._updateLineTypeOptions));
+        this.own(this.lineTypeFieldNode.on("change", lang.hitch(this,
+          this._updateLineTypeOptions)));
         //load allowed unit for misclose snapping distance
         this._loadMiscloseUnits();
         //the config object is passed in
@@ -136,7 +139,7 @@ define([
           content: this.parcelLineLayerNode
         };
         closureSettingTab = {
-          title: this.nls.parcelLineLayer.closureSettingTabLabel,
+          title: this.nls.parcelLineLayer.advancedSettingTabLabel,
           content: this.closureSettingsNode
         };
         tabs = [layerSettingTab, closureSettingTab];
@@ -423,7 +426,7 @@ define([
               config.lineTypes[0].label = selectedConnectionType.label;
               config.lineTypes[0].type = selectedConnectionType.value;
             } else {
-              config.lineTypes[0].label = this.nls.simpleTable.connectionLineLabel;
+              config.lineTypes[0].label = this.nls.lineTypesTable.connectionLineLabel;
               config.lineTypes[0].type = this.connectionBox.get('value');
             }
           }
@@ -434,7 +437,7 @@ define([
               config.lineTypes[1].label = selectedBoundaryType.label;
               config.lineTypes[1].type = selectedBoundaryType.value;
             } else {
-              config.lineTypes[1].label = this.nls.simpleTable.boundaryLineLabel;
+              config.lineTypes[1].label = this.nls.lineTypesTable.boundaryLineLabel;
               config.lineTypes[1].type = this.boundaryBox.get('value');
             }
             //set boundary line type
@@ -828,7 +831,7 @@ define([
         //Remove previous options
         dropDown.options.length = 0;
         //Add empty option to reset the dropdown if options are empty
-        if(options.length ===0){
+        if (options.length === 0) {
           options.push({ "value": " ", "label": "", "field": null });
         }
         dropDown.addOption(options);
@@ -842,13 +845,13 @@ define([
         var args, fields, lineTypesTable;
         fields = [{
           name: 'lineType',
-          title: this.nls.simpleTable.lineTypeLabel,
+          title: this.nls.lineTypesTable.lineTypeLabel,
           type: 'text',
           editable: 'false',
           width: '150px'
         }, {
             name: 'value',
-            title: this.nls.simpleTable.valueLabel,
+            title: this.nls.lineTypesTable.valueLabel,
             type: 'text',
             editable: 'false',
             width: '100px'
@@ -886,7 +889,7 @@ define([
           //query for all columns of created row
           tds = dojoQuery('.simple-table-cell', tr);
           //set line type label from nls in first column
-          tds[0].innerHTML = this.nls.simpleTable[lineType + "Label"];
+          tds[0].innerHTML = this.nls.lineTypesTable[lineType + "Label"];
           //create control to select /enter value of line type in second column
           domClass.add(tds[1], "esriCTTableCell");
           if (lineType === "connectionLine") {
@@ -899,7 +902,7 @@ define([
           symbolNode = domConstruct.create("div",
             { "class": "esriCTTableControl esriCTPreviewField" }, tds[2]);
           this._createSymbolPicker(symbolNode, lineType,
-            "esriGeometryPolyline", this.nls.simpleTable[lineType + "Label"]);
+            "esriGeometryPolyline", this.nls.lineTypesTable[lineType + "Label"]);
         }
       },
 

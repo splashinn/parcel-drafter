@@ -27,7 +27,7 @@
       baseClass: 'jimu-widget-ParcelDrafter-PlanSettings',
       templateString: PlanSettingsTemplate,
       selectedPlanSettings: {}, //Holds selected planSettings
-      planSettingsOptions: lang.clone(utils.planSettingsOptions), //Object that holds all the options and thier keys
+      planSettingsOptions: lang.clone(utils.planSettingsOptions), //Object that holds all the options and their keys
 
       constructor: function (options) {
         lang.mixin(this, options);
@@ -51,6 +51,10 @@
 
       postCreate: function () {
         this.inherited(arguments);
+        //set widget variables
+        this.selectedPlanSettings = {};
+        this.planSettingsOptions = lang.clone(utils.planSettingsOptions);
+        //set class to main container
         domClass.add(this.domNode, "esriCTPlanSettingsContainer esriCTFullWidth");
         //TODO: try to remove the timeout
         setTimeout(lang.hitch(this, this._setBackgroundColorForDartTheme), 500);
@@ -62,16 +66,16 @@
       * @memberOf widgets/ParcelDrafter/PlanSettings
       **/
       _setBackgroundColorForDartTheme: function () {
-        var buttonContentsdiv, i, selectBoxArrowdiv;
+        var buttonContentsDiv, i, selectBoxArrowDiv;
         // if applied theme is dart Theme
         if (this.appConfig.theme.name === "DartTheme") {
-          //upadte the style of arrow buttons for dijit/select to match with combobox
-          buttonContentsdiv = query(".dijitSelect .dijitButtonContents", this.planSettingsNode);
-          selectBoxArrowdiv = query(".dijitSelect .dijitArrowButton", this.planSettingsNode);
+          //update the style of arrow buttons for dijit/select to match with combobox
+          buttonContentsDiv = query(".dijitSelect .dijitButtonContents", this.planSettingsNode);
+          selectBoxArrowDiv = query(".dijitSelect .dijitArrowButton", this.planSettingsNode);
           // loop through all dijit/select div for applying css
-          for (i = 0; i < buttonContentsdiv.length && i < selectBoxArrowdiv.length; i++) {
-            domClass.add(buttonContentsdiv[i], "dijitButtonContentsDartTheme");
-            domClass.add(selectBoxArrowdiv[i], "dijitArrowButtonDartTheme");
+          for (i = 0; i < buttonContentsDiv.length && i < selectBoxArrowDiv.length; i++) {
+            domClass.add(buttonContentsDiv[i], "dijitButtonContentsDartTheme");
+            domClass.add(selectBoxArrowDiv[i], "dijitArrowButtonDartTheme");
           }
         }
       },

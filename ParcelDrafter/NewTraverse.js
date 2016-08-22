@@ -94,8 +94,21 @@ define([
         'esriFieldTypeSingle',
         'esriFieldTypeDouble'
       ],
+      lengthFieldPlaces: 4, //Number of places to be shown in length field
+      radiusFieldPlaces: 4, //Number of places to be shown in radius field
+      miscloseDistanceFieldPlaces: 4, //Number of places to be shown in miscloseDistance field
 
       postCreate: function () {
+        //initialize widget array & object variables
+        this.numberFieldTypes = [
+          'esriFieldTypeSmallInteger', 'esriFieldTypeInteger',
+          'esriFieldTypeSingle', 'esriFieldTypeDouble'];
+        this.polygonDeleteArr = [];
+        this.polylineDeleteArr = [];
+        this._arrayOfAllBoundaryLines = [];
+        this._nodes = [];
+        this._itemList = [];
+        //add class to main node
         domClass.add(this.domNode, "esriCTNewTraverseGrid");
         //create graphics layer for geometries
         this._addGraphicsLayer();
@@ -124,6 +137,32 @@ define([
         this._createPlanInfo();
         //Create tooltip dialog
         this._createTooltip();
+        //set bearing, length & radius field places as per popupInfo
+        if (this.config.polylineLayer && this.config.polylineLayer.popupInfo &&
+          this.config.polylineLayer.popupInfo.fieldInfos) {
+          array.forEach(this.config.polylineLayer.popupInfo.fieldInfos, lang.hitch(this,
+            function (field) {
+              if (field.fieldName === this.config.polylineLayer.bearing.name) {
+                utils.bearingFieldPlaces = field.format.places;
+              }
+              if (field.fieldName === this.config.polylineLayer.distance.name) {
+                this.lengthFieldPlaces = field.format.places;
+              }
+              if (field.fieldName === this.config.polylineLayer.radius.name) {
+                this.radiusFieldPlaces = field.format.places;
+              }
+            }));
+        }
+        //set miscloseDistance field places as per popupInfo
+        if (this.config.polygonLayer && this.config.polygonLayer.popupInfo &&
+          this.config.polygonLayer.popupInfo.fieldInfos) {
+          array.forEach(this.config.polygonLayer.popupInfo.fieldInfos, lang.hitch(this,
+            function (field) {
+              if (field.fieldName === this.config.polygonLayer.miscloseDistance.name) {
+                this.miscloseDistanceFieldPlaces = field.format.places;
+              }
+            }));
+        }
       },
 
       /**
@@ -252,21 +291,46 @@ define([
           case "Bearing":
             value = this.bearingNode.get('value');
             if (value === "*" && this._itemList.length > 0) {
-              value = this._itemList[this._itemList.length - 1].Bearing;
+              //show the last entered value according to current planSettings
+              if (this._itemList[this._itemList.length - 1].BearingConversions) {
+                value = this._getBearingAccordingToPlanSettings(
+                  this._itemList[this._itemList.length - 1].BearingConversions);
+              } else {
+                value = this._itemList[this._itemList.length - 1].Bearing;
+              }
               this.bearingNode.set("value", value);
             }
             break;
           case "Length":
             value = this.lengthNode.get('value');
             if (value === "*" && this._itemList.length > 0) {
-              value = this._itemList[this._itemList.length - 1].Length;
+              //show the last entered value according to current planSettings
+              //According to plan settings show arcLength/chordLength in length textbox
+              if (this._planSettings.circularCurveParameters === "radiusAndArcLength" &&
+                this._itemList[this._itemList.length - 1].ArcLengthConversions) {
+                value = this._itemList[this._itemList.length - 1].ArcLengthConversions[
+                  this._planSettings.distanceAndLengthUnits];
+              } else {
+                if (this._itemList[this._itemList.length - 1].LengthConversions) {
+                  value = this._itemList[this._itemList.length - 1].LengthConversions[
+                    this._planSettings.distanceAndLengthUnits];
+                } else {
+                  value = this._itemList[this._itemList.length - 1].Length;
+                }
+              }
               this.lengthNode.set("value", value);
             }
             break;
           case "Radius":
             value = this.radiusNode.get('value');
             if (value === "*" && this._itemList.length > 0) {
-              value = this._itemList[this._itemList.length - 1].Radius;
+              //show the last entered value according to current planSettings
+              if (this._itemList[this._itemList.length - 1].RadiusConversions) {
+                value = this._itemList[this._itemList.length - 1].RadiusConversions[
+                  this._planSettings.distanceAndLengthUnits];
+              } else {
+                value = this._itemList[this._itemList.length - 1].Radius;
+              }
               this.radiusNode.set("value", value);
             }
             break;
@@ -547,7 +611,7 @@ define([
         //get the previous bearing in NADD
         bearingValue = previousValues.BearingConversions.naDD;
         //if previous entry is arc then the bearing for current entry should be tangent of previous
-        if (previousValues.RadiusConversions) {
+        if (previousValues.RadiusConversions && previousValues.RadiusConversions.meters !== 0) {
           bearingValue = geometryUtils.chordBearingToTangentBearing(
             bearingValue,
             previousValues.RadiusConversions.meters,
@@ -557,7 +621,7 @@ define([
         //to get chordBearing for current arc.
         //Else wile drawing lines with *tb, if prev is arc then use its tangentBearing
         //otherwise use bearing of prev as it is.
-        if (values.RadiusConversions) {
+        if (values.RadiusConversions && values.RadiusConversions.meters !== 0) {
           //once we have bearing of previous entry convert it to chord
           bearingValue = geometryUtils.tangentBearingToChordBearing(
             bearingValue,
@@ -568,8 +632,8 @@ define([
           values.BearingConversions =
             utils.categorizeBearingFormat(values.Bearing, planSettingsNADD);
         } else {
-          //if previous in arc then draw it's tangent else directly use previous chord angle
-          if (previousValues.RadiusConversions) {
+          //if previous is arc then draw it's tangent else directly use previous chord angle
+          if (previousValues.RadiusConversions && previousValues.RadiusConversions.meters !== 0) {
             values.Bearing = bearingValue;
             //get data according to north Azimuth DD
             values.BearingConversions =
@@ -679,6 +743,11 @@ define([
           if (isAddedFromScreenDigitization) {
             if (this._rotationAngle) {
               newBearing = values.BearingConversions.naDD - this._rotationAngle;
+              //if bearing is greater than 360 mod it
+              newBearing = newBearing >= 360 ? newBearing % 360 : newBearing;
+              //newBearing will be in NA DD so convert it to quadrant format
+              //so that it will not get overridden in case of SA
+              newBearing = this.getAngleFromDDTOQB(newBearing);
               values.Bearing = newBearing;
               values.BearingConversions = this._validateBearing(newBearing);
             }
@@ -741,6 +810,13 @@ define([
             values.ArcLengthConversions = this._validateLength(values.ArcLength, "meters");
           }
         } else {
+          //if planSettings is for arc length and clearing radius converts the arc to straight line,
+          //so in this case arc length should be used as distance of the converted straight line
+          if (this._planSettings.circularCurveParameters === "radiusAndArcLength" &&
+            values.ArcLengthConversions) {
+            values.Length = values.ArcLength;
+            values.LengthConversions = lang.clone(values.ArcLengthConversions);
+          }
           values.ChordLength = 0;
           values.ChordLengthConversions = null;
           values.ArcLength = 0;
@@ -791,28 +867,33 @@ define([
           nls: this.nls,
           config: this.config
         }, domConstruct.create("div", {}, this.parcelToolsNode));
-        this._parcelToolInstance.on("rotateGeometries", lang.hitch(this, function (rotationAngle) {
-          if (rotationAngle !== this._rotationAngle) {
-            this._rotationAngle = rotationAngle;
-            if (this._itemList && this._itemList.length > 0) {
-              this.setStartPoint(this.startPoint);
+        //handle events generated by parcel tools on rotate/scale
+        this.own(this._parcelToolInstance.on("rotateGeometries",
+          lang.hitch(this, function (rotationAngle) {
+            if (rotationAngle !== this._rotationAngle) {
+              this._rotationAngle = rotationAngle;
+              if (this._itemList && this._itemList.length > 0) {
+                this.setStartPoint(this.startPoint);
+              }
             }
-          }
-        }));
-        this._parcelToolInstance.on("scaleGeometries", lang.hitch(this, function (scaleValue) {
-          if (scaleValue !== this._scaleValue) {
-            this._scaleValue = scaleValue;
-            if (this._itemList && this._itemList.length > 0) {
-              this.setStartPoint(this.startPoint);
+          })));
+        this.own(this._parcelToolInstance.on("scaleGeometries",
+          lang.hitch(this, function (scaleValue) {
+            if (scaleValue !== this._scaleValue) {
+              this._scaleValue = scaleValue;
+              if (this._itemList && this._itemList.length > 0) {
+                this.setStartPoint(this.startPoint);
+              }
             }
-          }
-        }));
-        this._parcelToolInstance.on("toggleRotating", lang.hitch(this, function (isEnable) {
-          this.emit("toggleRotating", isEnable);
-        }));
-        this._parcelToolInstance.on("toggleScaling", lang.hitch(this, function (isEnable) {
-          this.emit("toggleScaling", isEnable);
-        }));
+          })));
+        this.own(this._parcelToolInstance.on("toggleRotating",
+          lang.hitch(this, function (isEnable) {
+            this.emit("toggleRotating", isEnable);
+          })));
+        this.own(this._parcelToolInstance.on("toggleScaling",
+          lang.hitch(this, function (isEnable) {
+            this.emit("toggleScaling", isEnable);
+          })));
       },
 
       /**
@@ -834,47 +915,51 @@ define([
           polygonLayerUnit: geometryUtils.getUnitValueForSR(this.polygonLayerSpatialReference)
         }, domConstruct.create("div", {}, this.planInfoNode));
         //Handle click event of parcelInfo cancel button
-        this._planInfoInstance.on("cancelTraversedParcel", lang.hitch(this, function () {
-          this.emit("cancelTraverse");
-        }));
+        this.own(this._planInfoInstance.on("cancelTraversedParcel",
+          lang.hitch(this, function () {
+            this.emit("cancelTraverse");
+          })));
         //Handle show message event of parcelInfo
-        this._planInfoInstance.on("showMessage", lang.hitch(this, function (msg) {
-          this._showMessage(msg);
-        }));
+        this.own(this._planInfoInstance.on("showMessage",
+          lang.hitch(this, function (msg) {
+            this._showMessage(msg);
+          })));
         //Handle click event of parcelInfo save button
-        this._planInfoInstance.on("saveTraversedParcel", lang.hitch(this, function () {
-          var dataObj;
-          //hide edit popup as it is blocking buttons on error msg dialogue
-          this.closePopup();
-          if (this._itemList && this._itemList.length > 0) {
-            var parcelValidationDetails, statedAreaValue;
-            statedAreaValue =
-              this._misCloseDetailsInstance.traverseStatedArea.get("value").trim();
-            parcelValidationDetails =
-              this._planInfoInstance.validateParcelDetails(statedAreaValue);
-            if (parcelValidationDetails.status) {
-              dataObj = {};
-              dataObj.itemList = this._itemList;
-              dataObj.statedArea = this._misCloseDetailsInstance.traverseStatedArea.get("value");
-              dataObj.rotation = this._rotationAngle;
-              dataObj.scale = this._scaleValue;
-              dataObj.appliedCompassRule = this.appliedCompassRule;
-              dataObj.miscloseDetails = this._misCloseDetailsInstance.getMiscloseDetails();
-              dataObj.polygonDeleteArr = this.polygonDeleteArr;
-              dataObj.polylineDeleteArr = this.polylineDeleteArr;
-              dataObj.planSettings = this._planSettings;
-              this._planInfoInstance.saveData(dataObj);
+        this.own(this._planInfoInstance.on("saveTraversedParcel",
+          lang.hitch(this, function () {
+            var dataObj;
+            //hide edit popup as it is blocking buttons on error msg dialogue
+            this.closePopup();
+            if (this._itemList && this._itemList.length > 0) {
+              var parcelValidationDetails, statedAreaValue;
+              statedAreaValue =
+                this._misCloseDetailsInstance.traverseStatedArea.get("value").trim();
+              parcelValidationDetails =
+                this._planInfoInstance.validateParcelDetails(statedAreaValue);
+              if (parcelValidationDetails.status) {
+                dataObj = {};
+                dataObj.itemList = this._itemList;
+                dataObj.statedArea = this._misCloseDetailsInstance.traverseStatedArea.get("value");
+                dataObj.rotation = this._rotationAngle;
+                dataObj.scale = this._scaleValue;
+                dataObj.appliedCompassRule = this.appliedCompassRule;
+                dataObj.miscloseDetails = this._misCloseDetailsInstance.getMiscloseDetails();
+                dataObj.polygonDeleteArr = this.polygonDeleteArr;
+                dataObj.polylineDeleteArr = this.polylineDeleteArr;
+                dataObj.planSettings = this._planSettings;
+                this._planInfoInstance.saveData(dataObj);
+              } else {
+                this._showMessage(parcelValidationDetails.message);
+              }
             } else {
-              this._showMessage(parcelValidationDetails.message);
+              this._showMessage(this.nls.newTraverse.enterValidParcelInfoMessage);
             }
-          } else {
-            this._showMessage(this.nls.newTraverse.enterValidParcelInfoMessage);
-          }
-        }));
+          })));
         // to display main page once parcel is saved
-        this._planInfoInstance.on("displayMainPageAfterSave", lang.hitch(this, function () {
-          this.emit("displayMainPageAfterSave");
-        }));
+        this.own(this._planInfoInstance.on("displayMainPageAfterSave",
+          lang.hitch(this, function () {
+            this.emit("displayMainPageAfterSave");
+          })));
       },
 
       /**
@@ -897,7 +982,7 @@ define([
         for (i = 0; i < this._itemList.length; i++) {
           this._createRow(this._itemList[i], i);
         }
-        this._dndContainer.on('DndDrop', lang.hitch(this, this._onDndDrop));
+        this.own(this._dndContainer.on('DndDrop', lang.hitch(this, this._onDndDrop)));
         this._dndContainer.insertNodes(false, this._nodes);
       },
 
@@ -968,18 +1053,16 @@ define([
         radiusConversions = values.RadiusConversions;
         if (radiusConversions) {
           //get radius according to plan settings
-          radius = values.RadiusConversions[this._planSettings.distanceAndLengthUnits + "Round"];
+          radius = this._getRoundedValue(values.RadiusConversions, "Radius");
           //According to plan settings show arcLength/chordLength in length textbox
           if (this._planSettings.circularCurveParameters === "radiusAndArcLength") {
-            length = values.ArcLengthConversions[
-              this._planSettings.distanceAndLengthUnits + "Round"];
+            length = this._getRoundedValue(values.ArcLengthConversions, "Length");
           } else {
-            length = values.ChordLengthConversions[
-              this._planSettings.distanceAndLengthUnits + "Round"];
+            length = this._getRoundedValue(values.ChordLengthConversions, "Length");
           }
         } else {
           radius = "";
-          length = values.LengthConversions[this._planSettings.distanceAndLengthUnits + "Round"];
+          length = this._getRoundedValue(values.LengthConversions, "Length");
         }
         this._createFieldInputs(row, length, "esriCTLengthRow");
         this._createFieldInputs(row, radius, "esriCTRadiusRow");
@@ -1032,10 +1115,10 @@ define([
             "rowIndex": index,
             "title": this.nls.traverseSettings.deleteButtonTitle
           }, deleteButton);
-        on(deleteIcon, "click", lang.hitch(this, function (evt) {
+        this.own(on(deleteIcon, "click", lang.hitch(this, function (evt) {
           var rowIndex = parseInt(domAttr.get(evt.currentTarget, "rowIndex"), 10);
           this._deleteRow(row, rowIndex);
-        }));
+        })));
       },
 
       /**
@@ -1163,7 +1246,8 @@ define([
           }
           //check which attribute value is changed
           if (domClass.contains(inputTextBox.domNode, "esriCTBearingRow") &&
-            String(values.Bearing) !== updatedValue) {
+            String(this._getBearingAccordingToPlanSettings(values.BearingConversions)) !==
+            updatedValue) {
             updatedCol = "Bearing";
             //capture previous value before updating the new entered one
             prevValue = values.Bearing;
@@ -1175,7 +1259,8 @@ define([
               values.isTB = false;
             }
           } else if (domClass.contains(inputTextBox.domNode, "esriCTLengthRow") &&
-            String(values.Length) !== updatedValue) {
+            String(this._getRoundedValue(values.LengthConversions, "Length")) !==
+            updatedValue) {
             updatedCol = "Length";
             //capture previous value before updating the new entered one
             prevValue = values.Length;
@@ -1184,12 +1269,24 @@ define([
             isUpdated = true;
           } else if (domClass.contains(inputTextBox.domNode, "esriCTRadiusRow") &&
             String(values.Radius) !== updatedValue) {
-            updatedCol = "Radius";
-            //capture previous value before updating the new entered one
-            prevValue = values.Radius;
-            //if radius value is changed
-            values.Radius = updatedValue;
-            isUpdated = true;
+            if (values.RadiusConversions) {
+              if (String(this._getRoundedValue(values.RadiusConversions, "Radius")) !==
+                updatedValue) {
+                updatedCol = "Radius";
+                //capture previous value before updating the new entered one
+                prevValue = values.Radius;
+                //if radius value is changed
+                values.Radius = updatedValue;
+                isUpdated = true;
+              }
+            } else {
+              updatedCol = "Radius";
+              //capture previous value before updating the new entered one
+              prevValue = values.Radius;
+              //if radius value is changed
+              values.Radius = updatedValue;
+              isUpdated = true;
+            }
           }
           //if value is updated then only redraw the parcel
           if (isUpdated) {
@@ -1197,10 +1294,12 @@ define([
             validatedValues = this._getValidatedValues(values, updatedCol, index);
             if (validatedValues) {
               if (updatedCol === "Bearing") {
+                //get updated value according planSettings in rounded format
                 updatedValueAsPerPlanSettings =
                   this._getBearingAccordingToPlanSettings(validatedValues.BearingConversions);
-                //update the value in itemList
-                values.Bearing = updatedValueAsPerPlanSettings;
+                //update the value in itemList it should be complete value
+                values.Bearing =
+                  this._getBearingAccordingToPlanSettings(validatedValues.BearingConversions, true);
                 if (values.isTB) {
                   updatedValueAsPerPlanSettings = "*" + updatedValueAsPerPlanSettings;
                 }
@@ -1209,10 +1308,10 @@ define([
                 //if bearing is updated and next values are tb then that should also be updated
                 updatedTangentBearings = this._updateTBFromIndex(index + 1);
               } else if (updatedCol === "Length") {
-                updatedValueAsPerPlanSettings =
-                  values.LengthConversions[this._planSettings.distanceAndLengthUnits];
+                updatedValueAsPerPlanSettings = this._getRoundedValue(values.LengthConversions,
+                  "Length");
                 //update the value in itemList
-                values.Length = updatedValueAsPerPlanSettings;
+                values.Length = values.LengthConversions[this._planSettings.distanceAndLengthUnits];
                 //if length is updated & it is arc, update arc and chord length as well
                 if (values.RadiusConversions) {
                   values = this._createValuesForArc(values);
@@ -1222,14 +1321,16 @@ define([
                 //if bearing is updated and next values are tb then that should also be updated
                 updatedTangentBearings = this._updateTBFromIndex(index);
               } else if (updatedCol === "Radius") {
+                //update the value in itemList and in textbox
                 if (values.RadiusConversions) {
-                  updatedValueAsPerPlanSettings =
+                  values.Radius =
                     values.RadiusConversions[this._planSettings.distanceAndLengthUnits];
+                  updatedValueAsPerPlanSettings = this._getRoundedValue(values.RadiusConversions,
+                    "Radius");
                 } else {
+                  values.Radius = "";
                   updatedValueAsPerPlanSettings = "";
                 }
-                //update the value in itemList
-                values.Radius = updatedValueAsPerPlanSettings;
                 //if radius is updated & it is arc, add/update arc and chord length as well
                 values = this._createValuesForArc(values);
                 //show the entered value in textbox according to planSettings
@@ -1268,19 +1369,20 @@ define([
         var updatedValue;
         //if entered value is not valid resetting the value to prev value.
         if (updatedCol === "Bearing") {
-          values.Bearing = this._getBearingAccordingToPlanSettings(values.BearingConversions);
-          updatedValue = values.Bearing;
+          values.Bearing = this._getBearingAccordingToPlanSettings(values.BearingConversions, true);
+          updatedValue = this._getBearingAccordingToPlanSettings(values.BearingConversions);
         } else if (updatedCol === "Length") {
           values.Length = values.LengthConversions[this._planSettings.distanceAndLengthUnits];
-          updatedValue = values.Length;
+          updatedValue = this._getRoundedValue(values.LengthConversions, "Length");
         } else if (updatedCol === "Radius") {
           if (values.RadiusConversions) {
             values.Radius =
               values.RadiusConversions[this._planSettings.distanceAndLengthUnits];
+            updatedValue = this._getRoundedValue(values.RadiusConversions, "Radius");
           } else {
             values.Radius = "";
+            updatedValue = "";
           }
-          updatedValue = values.Radius;
         }
         //also  show the value in textbox
         inputTextBox.set('value', updatedValue);
@@ -1326,6 +1428,27 @@ define([
           this._planSettings.directionOrAngleUnits === "degreeMinuteSeconds") {
           return bearingData.qb3DMS;
         }
+      },
+
+      /**
+      * Returns the rounded value according to plan settings and places configured
+      * @memberOf widgets/ParcelDrafter/NewTraverse
+      **/
+      _getRoundedValue: function (conversionObj, valueFor) {
+        var places, value;
+        value = conversionObj[this._planSettings.distanceAndLengthUnits];
+        switch (valueFor) {
+          case "Length":
+            places = this.lengthFieldPlaces;
+            break;
+          case "Radius":
+            places = this.radiusFieldPlaces;
+            break;
+          case "MiscloseDistance":
+            places = this.miscloseDistanceFieldPlaces;
+            break;
+        }
+        return utils.honourPopupRounding(places, value);
       },
 
       /**
@@ -1443,7 +1566,10 @@ define([
           geometryUtils.getProjectedGeometry(graphic.geometry, this.map.spatialReference,
             this.geometryService).then(lang.hitch(this, function (projectedGeometry) {
               if (projectedGeometry) {
-                newGraphic = new Graphic(projectedGeometry, attributes, graphic.symbol);
+                //create new graphic with the projected geometry
+                newGraphic = new Graphic(projectedGeometry);
+                newGraphic.setAttributes(attributes);
+                newGraphic.setSymbol(graphic.symbol);
                 layer.add(newGraphic);
                 //set map extent to lines graphic layer
                 if (setExtentToLayer) {
@@ -1682,10 +1808,12 @@ define([
       **/
       _setExtentToLayer: function (graphicsLayer, forceZoom) {
         var newExtent;
-        newExtent = graphicsUtils.graphicsExtent(graphicsLayer.graphics);
-        //set the new extent only if it is out of current map extent
-        if (forceZoom || !this.map.extent.contains(newExtent)) {
-          this.map.setExtent(newExtent.expand(1.5));
+        if (graphicsLayer.graphics.length > 0) {
+          newExtent = graphicsUtils.graphicsExtent(graphicsLayer.graphics);
+          //set the new extent only if it is out of current map extent
+          if (forceZoom || !this.map.extent.contains(newExtent)) {
+            this.map.setExtent(newExtent.expand(1.5));
+          }
         }
       },
 
@@ -1736,30 +1864,37 @@ define([
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       pointAddedFromDigitization: function (mapPoint) {
-        var angle, distance, quadrantAngle;
-        angle = geometryUtils.getAngleBetweenPoints(this._startPointForNextLine, mapPoint);
-        //if angle is 360 consider it as 0
-        if (angle === 360) {
-          angle = 0;
-        }
-        distance = geometryUtils.getDistanceBetweenPoints(this._startPointForNextLine, mapPoint);
-        //returned angle will always be in NA DD so convert it to quadrant format
-        //so that it will not get override in case of SA
-        quadrantAngle = this.getAngleFromDDTOQB(angle);
-        this.bearingNode.set("value", quadrantAngle);
-        //returned distance will always be in meters, based on plan settings convert if required
-        if (this._planSettings.distanceAndLengthUnits === "uSSurveyFeet") {
-          distance = utils.metersToUSSurveyFeet(distance);
-        }
-        //Divide the distance by scale value if scaling is applied and point added from screen
-        if (this._scaleValue > 0) {
-          distance = distance / this._scaleValue;
-        }
-        this.lengthNode.set("value", distance);
-        //as we can only create straight lines from screen digitization always pass empty radius
-        this.radiusNode.set("value", "");
-        //set the added from screenDigitization flag to true
-        this._addNewItem(true);
+        var angle, distance, quadrantAngle, defaultStartPointSpatialRef;
+        defaultStartPointSpatialRef = new SpatialReference(102100);
+        geometryUtils.getProjectedGeometry(mapPoint, defaultStartPointSpatialRef,
+          this.geometryService).then(
+          lang.hitch(this, function (projectedGeometry) {
+            angle = geometryUtils.getAngleBetweenPoints(this._startPointForNextLine,
+              projectedGeometry);
+            //if angle is 360 consider it as 0
+            if (angle === 360) {
+              angle = 0;
+            }
+            distance = geometryUtils.getDistanceBetweenPoints(this._startPointForNextLine,
+              projectedGeometry);
+            //returned angle will always be in NA DD so convert it to quadrant format
+            //so that it will not get override in case of SA
+            quadrantAngle = this.getAngleFromDDTOQB(angle);
+            this.bearingNode.set("value", quadrantAngle);
+            //returned distance will always be in meters, based on plan settings convert if required
+            if (this._planSettings.distanceAndLengthUnits === "uSSurveyFeet") {
+              distance = utils.metersToUSSurveyFeet(distance);
+            }
+            //Divide the distance by scale value if scaling is applied and point added from screen
+            if (this._scaleValue > 0) {
+              distance = distance / this._scaleValue;
+            }
+            this.lengthNode.set("value", distance);
+            //as we can only create straight lines from screen digitization always pass empty radius
+            this.radiusNode.set("value", "");
+            //set the added from screenDigitization flag to true
+            this._addNewItem(true);
+          }));
       },
 
       /**
@@ -1854,8 +1989,8 @@ define([
             this._getBearingAccordingToPlanSettings(miscloseDetails.BearingConversions);
         }
         //get the distance according to current plan settings and add it's abbreviation to it.
-        miscloseDistance =
-          miscloseDetails.LengthConversions[this._planSettings.distanceAndLengthUnits + "Round"];
+        miscloseDistance = this._getRoundedValue(miscloseDetails.LengthConversions,
+          "MiscloseDistance");
         returnVal.miscloseDistance = miscloseDistance + " " +
           this.nls.planSettings[this._planSettings.distanceAndLengthUnits].abbreviation;
         //get calculated area according to planSettings
@@ -2403,18 +2538,16 @@ define([
           radiusConversions = values.RadiusConversions;
           if (radiusConversions) {
             //get radius according to plan settings
-            radius = values.RadiusConversions[this._planSettings.distanceAndLengthUnits + "Round"];
+            radius = this._getRoundedValue(values.RadiusConversions, "Radius");
             //According to plan settings show arcLength/chordLength in length textbox
             if (this._planSettings.circularCurveParameters === "radiusAndArcLength") {
-              length = values.ArcLengthConversions[
-                this._planSettings.distanceAndLengthUnits + "Round"];
+              length = this._getRoundedValue(values.ArcLengthConversions, "Length");
             } else {
-              length = values.ChordLengthConversions[
-                this._planSettings.distanceAndLengthUnits + "Round"];
+              length = this._getRoundedValue(values.ChordLengthConversions, "Length");
             }
           } else {
             radius = "";
-            length = values.LengthConversions[this._planSettings.distanceAndLengthUnits + "Round"];
+            length = this._getRoundedValue(values.LengthConversions, "Length");
           }
           this._createFieldInputs(parcelInfoFieldRow, length, "esriCTLengthRow", true);
           this._createFieldInputs(parcelInfoFieldRow, radius, "esriCTRadiusRow", true);

@@ -80,8 +80,9 @@ define([
                     }
                   } else {
                     if (!id || layer.id === id) {
-                      if (layer.url.replace(/.*?:\/\//g, "") === (
-                        baseURL + layerId).replace(/.*?:\/\//g, "") && layer.id === id) {
+                      if (layer.url.replace(/.*?:\/\//g, "").toLowerCase() ===
+                        (baseURL + layerId).replace(/.*?:\/\//g, "").toLowerCase() &&
+                        layer.id === id) {
                         //set flag to identify layer type
                         selectedLayer.isMapServer = false;
                         //set layer title

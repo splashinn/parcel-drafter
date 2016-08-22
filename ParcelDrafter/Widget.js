@@ -72,10 +72,13 @@ define([
         this._layerUtils = new layerUtils({
           "map": this.map, getPopupInfo: true, getRenderer: false
         });
-        //update the polyline layer details from web-map properties to support popup info
+        //update the layer details from web-map properties to support popup info
         lang.mixin(this.config.polylineLayer, this._layerUtils.getLayerDetailsFromMap(
           this.config.polylineLayer.baseURL,
           this.config.polylineLayer.layerId, this.config.polylineLayer.id));
+        lang.mixin(this.config.polygonLayer, this._layerUtils.getLayerDetailsFromMap(
+          this.config.polygonLayer.baseURL,
+          this.config.polygonLayer.layerId, this.config.polygonLayer.id));
         //Initialize loading widget
         this._initLoading();
         //get spatialReference of the layers to store the data in layer units
@@ -88,6 +91,44 @@ define([
         domClass.add(this.domNode.parentElement, "esriCTOverridePanelStyle");
       },
 
+      /**
+      * Performs activities like resizing widget components, connect map click etc on widget open
+      * @memberOf widgets/ParcelDrafter/Widget
+      */
+      onOpen: function () {
+        //if current open panel is not mainPage  connect tooltip to update start point
+        if (this._mapTooltipHandler && this._prevOpenPanel !== "mainPage") {
+          this._isUpdateStartPoint = true;
+          this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForUpdateStartPoint);
+          this._toggleSnapping(true);
+        }
+      },
+
+      /**
+      * Performs activities like disconnect map handlers, close popup etc on widget close
+      * @memberOf widgets/ParcelDrafter/Widget
+      */
+      onClose: function () {
+        //disconnect map click handler if active and deactivate all tools
+        if (this._mapTooltipHandler) {
+          this._toggleSnapping(false);
+          this._mapTooltipHandler.disconnectEventHandler();
+          domClass.replace(this.newTraverseButton, "esriCTNewTraverseButton",
+            "esriCTNewTraverseActive");
+          domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
+            "esriCTEditTraverseActive");
+          this.newTraverseSelectMessageNode.innerHTML = "";
+          this._newTraverseInstance.deActivateDigitizationTool();
+          this._newTraverseInstance.deactivateParcelTools();
+          //hide popup to edit values
+          this._newTraverseInstance.closePopup();
+        }
+      },
+
+      /**
+      * This function initialize the widget workFlow
+      * @memberOf widgets/ParcelDrafter/Widget
+      */
       _initWidgetWorkFlow: function () {
         //Handle click events for different controls
         this._handleClickEvents();
@@ -132,19 +173,6 @@ define([
       },
 
       /**
-       * Resize the widget components and connect map click on widget open
-       * @memberOf widgets/ParcelDrafter/Widget
-       */
-      onOpen: function () {
-        //if current open panel is not mainPage  connect tooltip to update start point
-        if (this._mapTooltipHandler && this._prevOpenPanel !== "mainPage") {
-          this._isUpdateStartPoint = true;
-          this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForUpdateStartPoint);
-          this._toggleSnapping(true);
-        }
-      },
-
-      /**
       * This function is used to get spatial reference of parcel layers(line & polygon)
       * @memberOf widgets/ParcelDrafter/Widget
       */
@@ -174,39 +202,16 @@ define([
       },
 
       /**
-      * disconnect map click on widget close
-      * @memberOf widgets/ParcelDrafter/Widget
-      */
-      onClose: function () {
-        //disconnect map click handler if active and deactivate all tools
-        if (this._mapTooltipHandler) {
-          this._toggleSnapping(false);
-          this._mapTooltipHandler.disconnectEventHandler();
-          domClass.replace(this.newTraverseButton, "esriCTNewTraverseButton",
-            "esriCTNewTraverseActive");
-          domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
-            "esriCTEditTraverseActive");
-          this.newTraverseSelectMessageNode.innerHTML = "";
-          this._newTraverseInstance.deActivateDigitizationTool();
-          this._newTraverseInstance.deactivateParcelTools();
-          //hide popup to edit values
-          this._newTraverseInstance.closePopup();
-        }
-      },
-
-      /**
       * Handle click events for different controls
       * @memberOf widgets/ParcelDrafter/Widget
       **/
       _handleClickEvents: function () {
-
         //handle plan Settings button click
-        on(this.planSettingsButton, "click", lang.hitch(this, function () {
+        this.own(on(this.planSettingsButton, "click", lang.hitch(this, function () {
           this._showPanel("planSettingsPage");
-        }));
-
+        })));
         //handle start traverse button click
-        on(this.newTraverseButton, "click", lang.hitch(this, function () {
+        this.own(on(this.newTraverseButton, "click", lang.hitch(this, function () {
           this._mapTooltipHandler.disconnectEventHandler();
           this._newTraverseInstance.clearAll();
           //check if button is active or not
@@ -225,10 +230,9 @@ define([
             this._toggleSnapping(true);
             this.newTraverseSelectMessageNode.innerHTML = this.nls.mapTooltipForStartNewTraverse;
           }
-        }));
-
+        })));
         //handle edit traverse button click
-        on(this.editTraverseButton, "click", lang.hitch(this, function () {
+        this.own(on(this.editTraverseButton, "click", lang.hitch(this, function () {
           this._mapTooltipHandler.disconnectEventHandler();
           this._newTraverseInstance.clearAll();
           //check if button is active or not
@@ -244,14 +248,12 @@ define([
             this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForEditNewTraverse);
             this.newTraverseSelectMessageNode.innerHTML = this.nls.mapTooltipForEditNewTraverse;
           }
-        }));
-
+        })));
         //Handle click event of plan settings back button
-        on(this.planSettingsPanelBackButton, "click", lang.hitch(this, function () {
+        this.own(on(this.planSettingsPanelBackButton, "click", lang.hitch(this, function () {
           this._planSettingsInstance.onClose();
           this._showPanel("traversePage");
-        }));
-
+        })));
         //Handle click event of plan settings back button
         this.own(on(this.traversePanelBackButton, "click", lang.hitch(this,
           this._confirmCancelTraverse)));
@@ -360,7 +362,7 @@ define([
         //set default map click action to update start point
         this._isUpdateStartPoint = true;
         //handle clicked event
-        this._mapTooltipHandler.on("clicked", lang.hitch(this, function (evt) {
+        this.own(this._mapTooltipHandler.on("clicked", lang.hitch(this, function (evt) {
           var deferred;
           //if snapping manager is available use snapping otherwise used clicked mapPoint
           if (this.map && this.map.snappingManager) {
@@ -379,8 +381,8 @@ define([
           } else {
             this._onMapPointSelected(evt.mapPoint);
           }
-        }));
-        this._mapTooltipHandler.on("dragging", lang.hitch(this, function (evt) {
+        })));
+        this.own(this._mapTooltipHandler.on("dragging", lang.hitch(this, function (evt) {
           if (this._startPoint) {
             if (this._mapTooltipHandler.toolTipText === this.nls.mapTooltipForRotate) {
               //set rotation angle for selected parcel
@@ -389,8 +391,8 @@ define([
               this._newTraverseInstance.setScaling(evt.mapPoint);
             }
           }
-        }));
-        this._mapTooltipHandler.on("moving", lang.hitch(this, function (evt) {
+        })));
+        this.own(this._mapTooltipHandler.on("moving", lang.hitch(this, function (evt) {
           //Do not allow parcel editing if rotation or scaling feature is activated
           if (this._mapTooltipHandler.toolTipText === this.nls.mapTooltipForUpdateStartPoint) {
             if (this._startPoint) {
@@ -403,7 +405,7 @@ define([
                 }));
             }
           }
-        }));
+        })));
         // once widget is created call its startup method
         this._mapTooltipHandler.startup();
       },
@@ -468,7 +470,6 @@ define([
               this._startPoint = null;
               this._showMessage(this.nls.unableToFetchParcelMessage);
             }
-
           }), lang.hitch(this, function () {
             this.loading.hide();
             this._startPoint = null;
@@ -543,27 +544,32 @@ define([
           lineLayerSpatialReference: this._lineLayerSpatialReference,
           polygonLayerSpatialReference: this._polygonLayerSpatialReference
         }, this.traverseNode);
-        this._newTraverseInstance.on("showMessage", lang.hitch(this, this._showMessage));
-        this._newTraverseInstance.on("activateDigitizationTool", lang.hitch(this, function () {
-          this._onActivateDigitization();
-        }));
-        this._newTraverseInstance.on("deActivateDigitizationTool", lang.hitch(this, function () {
-          this._onDeactivateDigitization();
-        }));
+        this.own(this._newTraverseInstance.on("showMessage", lang.hitch(this, this._showMessage)));
+        this.own(this._newTraverseInstance.on("activateDigitizationTool",
+          lang.hitch(this, function () {
+            this._onActivateDigitization();
+          })));
+        this.own(this._newTraverseInstance.on("deActivateDigitizationTool",
+          lang.hitch(this, function () {
+            this._onDeactivateDigitization();
+          })));
         //Handle click event of parcelInfo cancel button
-        this._newTraverseInstance.on("cancelTraverse", lang.hitch(this, function () {
+        this.own(this._newTraverseInstance.on("cancelTraverse", lang.hitch(this, function () {
           this._confirmCancelTraverse();
-        }));
+        })));
         // to display main page once parcel is saved
-        this._newTraverseInstance.on("displayMainPageAfterSave", lang.hitch(this, function () {
-          this._resetOnBackToMainPage();
-        }));
-        this._newTraverseInstance.on("toggleRotating", lang.hitch(this, function (isEnable) {
-          this._toggleRotating(isEnable);
-        }));
-        this._newTraverseInstance.on("toggleScaling", lang.hitch(this, function (isEnable) {
-          this._toggleScaling(isEnable);
-        }));
+        this.own(this._newTraverseInstance.on("displayMainPageAfterSave",
+          lang.hitch(this, function () {
+            this._resetOnBackToMainPage();
+          })));
+        this.own(this._newTraverseInstance.on("toggleRotating",
+          lang.hitch(this, function (isEnable) {
+            this._toggleRotating(isEnable);
+          })));
+        this.own(this._newTraverseInstance.on("toggleScaling",
+          lang.hitch(this, function (isEnable) {
+            this._toggleScaling(isEnable);
+          })));
       },
 
       /**
@@ -632,11 +638,11 @@ define([
           config: this.config,
           appConfig: this.appConfig
         }, domConstruct.create("div", {}, this.planSettingsNode));
-        this._planSettingsInstance.on("planSettingsChanged", lang.hitch(this,
-          function (updatedSettings) {
+        this.own(this._planSettingsInstance.on("planSettingsChanged",
+          lang.hitch(this, function (updatedSettings) {
             this._newTraverseInstance.updateAccordingToPlanSettings(
               updatedSettings);
-          }));
+          })));
         this._planSettingsInstance.startup();
       },
 
