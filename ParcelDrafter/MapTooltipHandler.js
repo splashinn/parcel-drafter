@@ -46,9 +46,10 @@
           this.updateTooltip(tooltipText);
         }
         this._disableWebMapPopup();
-        this._mapClickHandler = this.own(on(this.handleClickFor, "click", lang.hitch(this, function (evt) {
-          this._clicked(evt);
-        })))[0];
+        this._mapClickHandler = this.own(on(this.handleClickFor, "click",
+          lang.hitch(this, function (evt) {
+            this._clicked(evt);
+          })))[0];
         //handle mouse move on map to show tooltip only on non-touch devices
         if ("ontouchstart" in document.documentElement) {
           domStyle.set(this._mapTooltip, "display", "none");

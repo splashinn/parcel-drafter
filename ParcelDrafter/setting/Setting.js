@@ -91,7 +91,8 @@ define([
         this._symbolParams = {};
         this._numberFieldTypes = ['esriFieldTypeSmallInteger', 'esriFieldTypeInteger',
           'esriFieldTypeSingle', 'esriFieldTypeDouble'];
-        this.distanceAndLengthUnits = lang.clone(appUtils.planSettingsOptions.distanceAndLengthUnits);
+        this.distanceAndLengthUnits =
+          lang.clone(appUtils.planSettingsOptions.distanceAndLengthUnits);
 
         //initialize the layerUtils object which will help in getting layer details form map
         this._layerUtils = new layerUtils({

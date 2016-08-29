@@ -563,12 +563,12 @@ define([
                     return null;
                   }
                 } else {
-                  //as radius is empty set radiusConversions to null
-                  values.RadiusConversions = null;
                   //if radius is not entered then length cannot be negative
                   if (parseInt(lengthConversions.meters, 10) < 0) {
                     return null;
                   }
+                  //as radius is empty set radiusConversions to null
+                  values.RadiusConversions = null;
                 }
                 values.LengthConversions = lengthConversions;
               } else {
@@ -699,7 +699,7 @@ define([
       setRotation: function (endPoint) {
         var angle;
         //calculate angle value
-        angle = geometryUtils.getAngleBetweenPoints(this.startPoint, endPoint);
+        angle = geometryUtils.getRotationAngleBetweenPoints(this.startPoint, endPoint);
         if (this._itemList.length > 0) {
           angle -= this._itemList[0].BearingConversions.naDDRound;
         }
@@ -717,7 +717,7 @@ define([
       setScaling: function (endPoint) {
         var distance, scaleRatio;
         //calculate distance value
-        distance = geometryUtils.getDistanceBetweenPoints(this.startPoint, endPoint);
+        distance = geometryUtils.getScaleDistanceBetweenPoints(this.startPoint, endPoint);
         if (this.distance) {
           scaleRatio = distance / this.distance;
           //minimum value for the scale would be 1
@@ -1528,7 +1528,7 @@ define([
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       setStartPoint: function (startPoint) {
-        var defaultStartPointSpatialRef = new SpatialReference(102100);
+        var defaultStartPointSpatialRef = new SpatialReference(4326);
         geometryUtils.getProjectedGeometry(startPoint, defaultStartPointSpatialRef,
           this.geometryService).then(
           lang.hitch(this, function (projectedGeometry) {
@@ -1562,7 +1562,7 @@ define([
         var newGraphic, attributes = {};
         attributes.rowIndex = layer.graphics.length;
         graphic.attributes = attributes;
-        if (this.map.spatialReference.wkid !== 102100) {
+        if (this.map.spatialReference.wkid !== 4326) {
           geometryUtils.getProjectedGeometry(graphic.geometry, this.map.spatialReference,
             this.geometryService).then(lang.hitch(this, function (projectedGeometry) {
               if (projectedGeometry) {
@@ -1865,7 +1865,7 @@ define([
       **/
       pointAddedFromDigitization: function (mapPoint) {
         var angle, distance, quadrantAngle, defaultStartPointSpatialRef;
-        defaultStartPointSpatialRef = new SpatialReference(102100);
+        defaultStartPointSpatialRef = new SpatialReference(4326);
         geometryUtils.getProjectedGeometry(mapPoint, defaultStartPointSpatialRef,
           this.geometryService).then(
           lang.hitch(this, function (projectedGeometry) {
@@ -2030,6 +2030,10 @@ define([
             compassEndPoint,
             compassStartPoint
           );
+          //if misclose distance in 0 show misclose bearing also 0
+          if (miscloseDistance === 0) {
+            miscloseBearing = 0;
+          }
           //returned angle will always be in NA DD so convert it to quadrant format
           //so that it will not get override in case of SA
           miscloseBearing = this.getAngleFromDDTOQB(miscloseBearing);
