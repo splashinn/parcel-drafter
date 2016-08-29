@@ -1,4 +1,4 @@
-[Thumbnail]: adopta.png "Parcel Drafter"
+﻿[Thumbnail]: adopta.png "Parcel Drafter"
 
 [supported browsers]: http://doc.arcgis.com/en/arcgis-online/reference/browsers.htm
 [New to Github? Get started here.]: http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html
@@ -8,7 +8,7 @@
 [Esri's ArcGIS API for JavaScript]: http://help.arcgis.com/en/webapi/javascript/arcgis/
 [Esri's ArcGIS Online Help]: http://resources.arcgis.com/en/help/arcgisonline/
 [guidelines for contributing]: https://github.com/esri/contributing
-[LICENSE.txt]: LICENSE.txt
+[LICENSE.txt]: ParcelDrafter/LICENSE.txt
 
 # Parcel-Drafter
 
