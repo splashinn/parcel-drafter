@@ -483,13 +483,25 @@ define([
       },
 
       /**
+      * This function is used to sort feature accordingly to sequence ID of feature
+      * @memberOf widgets/ParcelDrafter/Widget
+      **/
+      _sortFeatureAccToSequenceID: function (features) {
+        var sequenceID;
+        sequenceID = this.config.polylineLayer.sequenceId.name;
+        features.sort(function (a, b) {
+          return a.attributes[sequenceID] - b.attributes[sequenceID];
+        });
+        return features;
+      },
+
+      /**
       * This function is used to get lines that needs to be edited
       * @memberOf widgets/ParcelDrafter/Widget
       */
       _getLinesForEdits: function (polygon) {
-        var featureQuery, lineLayer, guid, editBearingDataArr;
+        var featureQuery, lineLayer, guid;
         this.loading.show();
-        editBearingDataArr = [];
         guid = polygon.attributes[this.config.polygonLayer.relatedGUID.name];
         featureQuery = new Query();
         featureQuery.outSpatialReference = this.map.spatialReference;
@@ -501,6 +513,8 @@ define([
           lineLayer.queryFeatures(featureQuery, lang.hitch(this, function (featureSet) {
             this.loading.hide();
             if (featureSet && featureSet.features.length > 0) {
+              //first sort the features according to sequenceID so that the order will be maintained
+              featureSet.features = this._sortFeatureAccToSequenceID(featureSet.features);
               this._newTraverseInstance.polylineDeleteArr = featureSet.features;
               //set the start point as the first point of polyline
               this._startPoint = featureSet.features[0].geometry.getPoint(0, 0);
