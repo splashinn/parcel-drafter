@@ -937,9 +937,12 @@ define([
               parcelValidationDetails =
                 this._planInfoInstance.validateParcelDetails(statedAreaValue);
               if (parcelValidationDetails.status) {
+                if(this._misCloseDetailsInstance.traverseStatedArea.get("value") === ""){
+                  statedAreaValue = null;
+                }
                 dataObj = {};
                 dataObj.itemList = this._itemList;
-                dataObj.statedArea = this._misCloseDetailsInstance.traverseStatedArea.get("value");
+                dataObj.statedArea = statedAreaValue;
                 dataObj.rotation = this._rotationAngle;
                 dataObj.scale = this._scaleValue;
                 dataObj.appliedCompassRule = this.appliedCompassRule;
@@ -1523,8 +1526,7 @@ define([
       /**
       * Sets start-point and if additional parcel points are added,
       * it will redraw the parcel considering update in start point.
-      * Note: It will always set the start point in 102100 as.
-      * we are using meters for calculating the endpoints.
+      * Note: It will always set the start point in 4326 as.
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       setStartPoint: function (startPoint) {
@@ -1723,9 +1725,8 @@ define([
         //if misclose is adjusted then adjustPoints
         if (values.adjustedValues && this.adjustPoints) {
           bearing = values.adjustedValues.adjustedBearing;
-          if (values.BearingConversions.qb3DDRound.charAt(0) === "S") {
-            bearing = values.adjustedValues.adjustedBearingNADD;
-          } else if (values.adjustedValues.lat < 0) {
+          if (values.BearingConversions.qb3DDRound.charAt(0) === "S" ||
+            values.adjustedValues.lat < 0) {
             bearing = values.adjustedValues.adjustedBearingNADD;
           }
           distance = values.adjustedValues.adjustedLength;
@@ -1768,9 +1769,8 @@ define([
         //if misclose is adjusted then adjustPoints
         if (values.adjustedValues && this.adjustPoints) {
           initBearing = values.adjustedValues.adjustedBearing;
-          if (values.BearingConversions.qb3DDRound.charAt(0) === "S") {
-            initBearing = values.adjustedValues.adjustedBearingNADD;
-          } else if (values.adjustedValues.lat < 0) {
+          if (values.BearingConversions.qb3DDRound.charAt(0) === "S" ||
+            values.adjustedValues.lat < 0) {
             initBearing = values.adjustedValues.adjustedBearingNADD;
           }
           distance = values.adjustedValues.adjustedLength;
@@ -2262,19 +2262,6 @@ define([
       },
 
       /**
-      * This function is used to sort feature accordingly to sequence ID of feature
-      * @memberOf widgets/ParcelDrafter/NewTraverse
-      **/
-      _sortFeatureAccToSequenceID: function (features) {
-        var sequenceID;
-        sequenceID = this.config.polylineLayer.sequenceId.name;
-        features.sort(function (a, b) {
-          return a.attributes[sequenceID] - b.attributes[sequenceID];
-        });
-        return features;
-      },
-
-      /**
       * This function is used to create object that is needed while displaying bearing in grid.
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
@@ -2301,7 +2288,6 @@ define([
         planSettingsNADD = lang.clone(this._planSettings);
         planSettingsNADD.directionOrAngleType = "northAzimuth";
         planSettingsNADD.directionOrAngleUnits = "decimalDegree";
-        featureSet.features = this._sortFeatureAccToSequenceID(featureSet.features);
         for (i = 0; i < featureSet.features.length; i++) {
           obj = {};
           obj.Bearing = featureSet.features[i].attributes[this.config.polylineLayer.bearing.name];

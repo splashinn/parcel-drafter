@@ -329,7 +329,7 @@
                 this.documentTypeControl.item.hasOwnProperty("id")) {
                 selectedDocumentType = this.documentTypeControl.item.id;
               }
-            } else {
+            } else if (this.documentTypeControl.get('value') !== "") {
               selectedDocumentType = this.documentTypeControl.get('value');
             }
           }
