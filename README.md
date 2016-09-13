@@ -82,6 +82,6 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 A copy of the license is available in the repository's [LICENSE.txt][] file.
 
-[](Esri Tags: ArcGISSolutions State-Government Local-Government State Local Government 
+[](Esri Tags: ArcGISSolutions Local-Government Local Government Parcel Drafter Deed Drafter)
 [](Esri Language: JavaScript)
 
