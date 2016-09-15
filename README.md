@@ -17,7 +17,7 @@ Parcel Drafter is a Web AppBuilder (Developer Edition) custom widget designed to
 
 You can start using the Parcel Drafter widget now by adding the "Parcel Drafter" folder to 2D widget folder (\WebAppBuilderForArcGIS\client\stemapp\widgets) in Web AppBuilder (Developer Edition) then restarting Web AppBuilder. For additional information use the following steps to deploy a custom widget [Web AppBuilder (Developer Edition) depoly a custom widget](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm)
 
-**Start now using your own services, you'll want to use the Parcel Drafter service to help when developing**
+**Start now using your own services, you'll want to publish a Parcel Drafter service when developing. The help below will walk you through this process**
 
 For more information on requirements and publication steps, see [Parcel Drafter ](http://links.esri.com/localgovernment/help/ParcelDrafter/) help.
 
@@ -30,14 +30,6 @@ For more information on requirements and publication steps, see [Parcel Drafter 
 * ArcGIS Online subscription
 * Web AppBuilder (Developer Edition) 
 
-
-### Browser Compatibility
-* The application is optimized for display on desktops and tablet devices using the following browsers:
-Microsoft Internet Explorer 10, 11
-Mozilla Firefox
-Google Chrome
-Apple Safari
-Microsoft Edge
 
 ## Instructions
 
@@ -55,6 +47,14 @@ Microsoft Edge
 5. Copy a group ID from Portal/ArcGIS Online and replace the default group ID in the application’s default.js file. You can now run the application on your web server or configure the application further.
 
 > **Note:** If your application edits features in a feature service, contains secure services or web maps that aren't shared publicly, or generate requests that exceed 200 characters, you may need to set up and use a proxy page. Common situations where you may exceed the URL length are using complex polygons as input to a task or specifying a spatial reference using well-known text (WKT). For details on installing and configuring a proxy page see [Using the proxy](https://developers.arcgis.com/javascript/jshelp/ags_proxy.html). If you do not have an Internet connection, you will need to access and deploy the ArcGIS API for JavaScript documentation from [developers.arcgis.com](https://developers.arcgis.com/).
+
+### Browser Compatibility
+* The application is optimized for display on desktops and tablet devices using the following browsers:
+Microsoft Internet Explorer 10, 11
+Mozilla Firefox
+Google Chrome
+Apple Safari
+Microsoft Edge
 
 ## Resources
 
