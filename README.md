@@ -31,12 +31,12 @@ For more information on requirements and publication steps, see [Parcel Drafter 
 * Web AppBuilder (Developer Edition) 
 
 ### Browser Compatibility for the Parcel Drafter widget
-* The application is optimized for display on desktops and tablet devices using the following browsers:
--Microsoft Internet Explorer 10, 11
--Mozilla Firefox
--Google Chrome
--Apple Safari
--Microsoft Edge
+The application is optimized for display on desktops and tablet devices using the following browsers:
+*Microsoft Internet Explorer 10, 11
+*Mozilla Firefox
+*Google Chrome
+*Apple Safari
+*Microsoft Edge
 
 ## Resources
 
