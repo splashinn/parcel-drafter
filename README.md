@@ -27,7 +27,7 @@ Parcel Drafter is a Web AppBuilder (Developer Edition) custom widget designed to
 
 **Start now by downloading and installing [Web AppBuilder (Developer Edition)](https://developers.arcgis.com/web-appbuilder/)**
 
-You can start using the Parcel Drafter widget now by adding it to 2D widget folder (\WebAppBuilderForArcGIS\client\stemapp\widgets) in Web AppBuilder (Developer Edition) then restarting Web AppBuilder. For additional information use the following steps to deploy a custom widget [Web AppBuilder (Developer Edition) depoly a custom widget](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm)
+You can start using the Parcel Drafter widget now by adding the "Parcel Drafter" folder to 2D widget folder (\WebAppBuilderForArcGIS\client\stemapp\widgets) in Web AppBuilder (Developer Edition) then restarting Web AppBuilder. For additional information use the following steps to deploy a custom widget [Web AppBuilder (Developer Edition) depoly a custom widget](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm)
 
 **Start now using your own services**
 
