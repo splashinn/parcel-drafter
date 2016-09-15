@@ -1,15 +1,3 @@
-﻿[Thumbnail]: adopta.png "Parcel Drafter"
-
-[supported browsers]: http://doc.arcgis.com/en/arcgis-online/reference/browsers.htm
-[New to Github? Get started here.]: http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html
-[Want more info on this app? Check out the documentation.]: http://links.esri.com/localgovernment/help/ParcelDrafter/
-[ArcGIS for Local Government maps and apps]: http://solutions.arcgis.com/local-government
-[Local Government GitHub repositories]: http://esri.github.io/#Local-Government
-[Esri's ArcGIS API for JavaScript]: http://help.arcgis.com/en/webapi/javascript/arcgis/
-[Esri's ArcGIS Online Help]: http://doc.arcgis.com/en/arcgis-online/
-[guidelines for contributing]: https://github.com/esri/contributing
-[LICENSE.txt]: ParcelDrafter/LICENSE.txt
-
 # Parcel-Drafter
 
 Parcel Drafter is a Web AppBuilder (Developer Edition) custom widget designed to create and edit parcels.  This widget can be used create an application to supplement your on-premise parcel data management workflow, or used as a lightweight, standalone application.
@@ -25,30 +13,35 @@ Parcel Drafter is a Web AppBuilder (Developer Edition) custom widget designed to
 
 ## Requirements
 
-**Start now by downloading and installing [Web AppBuilder (Developer Edition)](https://developers.arcgis.com/web-appbuilder/)**
+**Start now by downloading and installing [Web AppBuilder (Developer Edition)](https://developers.arcgis.com/web-appbuilder/) and adding the custom widget**
 
 You can start using the Parcel Drafter widget now by adding the "Parcel Drafter" folder to 2D widget folder (\WebAppBuilderForArcGIS\client\stemapp\widgets) in Web AppBuilder (Developer Edition) then restarting Web AppBuilder. For additional information use the following steps to deploy a custom widget [Web AppBuilder (Developer Edition) depoly a custom widget](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm)
 
-**Start now using your own services**
+**Start now using your own services, you'll want to use the Parcel Drafter service to help when developing**
 
-For more information on requirements and publication steps, see [Public Notification](http://links.esri.com/localgovernment/help/PublicNotification) help.
+For more information on requirements and publication steps, see [Parcel Drafter ](http://links.esri.com/localgovernment/help/ParcelDrafter/) help.
 
 ### Experience
 
-* Authoring maps
-* Configuring ArcGIS Online/Portal web app templates
+* Using Web AppBuilder (Developer Edition)
+* Publishing aervices and authoring maps using ArcGIS Online
 
 ### Software
-* ArcGIS Online subscription or ArcGIS Portal
+* ArcGIS Online subscription
+* Web AppBuilder (Developer Edition) 
+
 
 ### Browser Compatibility
-* The application is optimized for display on desktops and tablet devices using [all browsers supported by ArcGIS Online][supported browsers].
+* The application is optimized for display on desktops and tablet devices using the following browsers:
+Microsoft Internet Explorer 10, 11
+Mozilla Firefox
+Google Chrome
+Apple Safari
+Microsoft Edge
 
 ## Instructions
 
-### General Help
-* [New to Github? Get started here.][]
-* [Want more info on this app? Check out the documentation.][]
+
 
 ### Deploying
 
@@ -65,13 +58,13 @@ For more information on requirements and publication steps, see [Public Notifica
 
 ## Resources
 
-Learn more about Esri's [ArcGIS for Local Government maps and apps][].
+Additional [information and sample data](http://links.esri.com/localgovernment/download/ParcelDrafter/) are available for the application.
 
-Show me a list of other [Local Government GitHub repositories][].
+Learn more about Esri's [ArcGIS for Local Government maps and apps](http://solutions.arcgis.com/local-government/).
 
-This application uses the 3.16 version of [Esri's ArcGIS API for JavaScript][]; see the site for concepts, samples, and a reference for using the API to create mapping web sites.
+Show me a list of other [Local Government GitHub repositories](http://esri.github.io/#Local-Government).
 
-[Esri's ArcGIS Online Help][] site describes how to create web maps and web map applications in the ArcGIS Online ecosystem.
+[Esri's ArcGIS Online Help](http://doc.arcgis.com/en/arcgis-online/) site describes how to create web maps and web map applications in the ArcGIS Online ecosystem.
 
 ## Issues
 
@@ -79,7 +72,8 @@ Find a bug or want to request a new feature?  Please let us know by submitting a
 
 ## Contributing
 
-Esri welcomes contributions from anyone and everyone. Please see our [guidelines for contributing][].
+Esri welcomes contributions from anyone and everyone. 
+Please see our [guidelines for contributing](https://github.com/esri/contributing).
 
 ## Licensing
 
@@ -91,7 +85,8 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-A copy of the license is available in the repository's [LICENSE.txt][] file.
+A copy of the license is available in the repository's
+[LICENSE.txt](LICENSE.txt) file.
 
 [](Esri Tags: ArcGISSolutions Local-Government Local Government Parcel Drafter Deed Drafter)
 [](Esri Language: JavaScript)
