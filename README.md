@@ -2,11 +2,11 @@
 
 [supported browsers]: http://doc.arcgis.com/en/arcgis-online/reference/browsers.htm
 [New to Github? Get started here.]: http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html
-[Want more info on this app? Check out the documentation.]: http://solutions.arcgis.com/local-government/help/crowdsource-manager/
+[Want more info on this app? Check out the documentation.]: http://links.esri.com/localgovernment/help/ParcelDrafter/
 [ArcGIS for Local Government maps and apps]: http://solutions.arcgis.com/local-government
 [Local Government GitHub repositories]: http://esri.github.io/#Local-Government
 [Esri's ArcGIS API for JavaScript]: http://help.arcgis.com/en/webapi/javascript/arcgis/
-[Esri's ArcGIS Online Help]: http://resources.arcgis.com/en/help/arcgisonline/
+[Esri's ArcGIS Online Help]: http://doc.arcgis.com/en/arcgis-online/
 [guidelines for contributing]: https://github.com/esri/contributing
 [LICENSE.txt]: ParcelDrafter/LICENSE.txt
 
@@ -24,6 +24,14 @@ Parcel Drafter is a Web AppBuilder (Developer Edition) custom widget designed to
 * Focused editing workflow
 
 ## Requirements
+
+**Start now by downloading and installing [Web AppBuilder (Developer Edition)](https://developers.arcgis.com/web-appbuilder/)**
+
+You can start using the Parcel Drafter widget now by adding it to 2D widget folder (\WebAppBuilderForArcGIS\client\stemapp\widgets) in Web AppBuilder (Developer Edition) then restarting Web AppBuilder. For additional information use the following steps to deploy a custom widget [Web AppBuilder (Developer Edition) depoly a custom widget](https://developers.arcgis.com/web-appbuilder/guide/deploy-custom-widget-and-theme.htm)
+
+**Start now using your own services**
+
+For more information on requirements and publication steps, see [Public Notification](http://links.esri.com/localgovernment/help/PublicNotification) help.
 
 ### Experience
 
