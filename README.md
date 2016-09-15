@@ -12,8 +12,11 @@
 
 # Parcel-Drafter
 
-Parcel Drafter is a web-app builder template designed to create and edit parcels.  This applicaiton can be used to supplement your on-premise parcel data management workflow, or used as a lightweight, standalone application.
+Parcel Drafter is a Web AppBuilder (Developer Edition) custom widget designed to create and edit parcels.  This widget can be used create an application to supplement your on-premise parcel data management workflow, or used as a lightweight, standalone application.
 
+[Try the Parcel Drafter application](http://links.esri.com/localgovernment/tryit/ParcelDrafter/)
+
+[![Image of Parcel Drafter application](ParcelDrafter.png "Parcel Drafter application")](http://links.esri.com/localgovernment/tryit/ParcelDrafter/)
 
 ## Features
 * Coordinate Geometry (COGO)
