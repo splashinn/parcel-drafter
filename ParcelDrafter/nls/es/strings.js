@@ -93,6 +93,5 @@ define({
       "enterValidDocumentTyeMessage": "Tipo de documento valido.", // Shown as error message when document type is invalid
       "enterValidStatedAreaNameMessage": "Por favor introduzca un area reportada valida." // Shown as error message when stated area is invalid
     }
-  }),
-  "fr": 1
+  })
 });
