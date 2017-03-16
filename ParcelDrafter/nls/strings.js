@@ -31,8 +31,6 @@ define({
     "newTraverseTitle": "New Traverse", // Shown as title for new traverse page
     "editTraverseTitle": "Edit Traverse", // Shown as title for new traverse page
     "clearingDataConfirmationMessage": "Changes will be discarded, do you want to proceed?", // Shown as warning message when user wants to clear all the parcel data
-    "confirmationBoxYESButtonLabel": "Yes", // Shown as label for yes button of confirmation box
-    "confirmationBoxNOButtonLabel": "No", // Shown as label for no button of confirmation box
     "unableToFetchParcelMessage": "Unable to fetch parcel.", // Shown when error occurs while  fetching parcel polyline for editing it
     "unableToFetchParcelLinesMessage": "Unable to fetch parcel lines.", // Shown when error occurs while  fetching parcel polyline for editing it
     "planSettings": {
@@ -97,8 +95,6 @@ define({
       "cancelButtonLabel": "Cancel", // Shown as label of cancel button
       "saveButtonLabel": "Save", // Shown as label of Save button
       "saveNonClosedParcelConfirmationMessage": "The entered parcel is not closed, do you still want to proceed and save only parcel lines?", // Shown when user tries to save unclosed polygon
-      "confirmationBoxYESButtonLabel": "Yes", // Confirmation box YES button label
-      "confirmationBoxNOButtonLabel": "No", // Confirmation box NO button label
       "unableToCreatePolygonParcel": "Unable to create parcel polygon.", // Shown when error occurs while creating data of polygon for saving it
       "unableToSavePolygonParcel": "Unable to save parcel polygon.", // Shown when error occurs while saving parcel polygon
       "unableToSaveParcelLines": "Unable to save parcel lines.", // Shown when error occurs while saving parcel lines
@@ -106,9 +102,42 @@ define({
       "parcelSavedSuccessMessage": "Parcel saved successfully.", // Shown when parcel is saved successfully
       "enterValidParcelNameMessage": "Please enter valid parcel name.", // Shown as error message when parcel name is invalid
       "enterValidPlanNameMessage": "Please enter valid plan name.", // Shown as error message when parcel name is invalid
-      "enterValidDocumentTyeMessage": "Invalid document type.", // Shown as error message when document type is invalid
+      "enterValidDocumentTypeMessage": "Invalid document type.", // Shown as error message when document type is invalid
       "enterValidStatedAreaNameMessage": "Please enter valid stated area." // Shown as error message when stated area is invalid
     }
   }),
-  "fr": 1
+  "ar": 0,
+  "bs": 0,
+  "cs": 0,
+  "da": 0,
+  "de": 0,
+  "el": 0,
+  "es": 1,
+  "et": 0,
+  "fi": 0,
+  "fr": 0,
+  "he": 0,
+  "hi": 0,
+  "hr": 0,
+  "it": 0,
+  "id": 0,
+  "ja": 0,
+  "ko": 0,
+  "lt": 0,
+  "lv": 0,
+  "nb": 0,
+  "nl": 0,
+  "pl": 0,
+  "pt-br": 0,
+  "pt-pt": 0,
+  "ro": 0,
+  "ru": 0,
+  "sr": 0,
+  "sv": 0,
+  "th": 0,
+  "tr": 0,
+  "vi": 0,
+  "zh-cn": 0,
+  "zh-hk": 0,
+  "zh-tw": 0
 });

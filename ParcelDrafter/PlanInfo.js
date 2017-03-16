@@ -159,7 +159,7 @@ define([
                 });
                 if (!foundValue) {
                   this.documentTypeControl.set("item", null);
-                  this._showMessage(this.nls.planInfo.enterValidDocumentTyeMessage);
+                  this._showMessage(this.nls.planInfo.enterValidDocumentTypeMessage);
                 }
               }
             })));
@@ -669,7 +669,7 @@ define([
         }
         if (this.documentTypeControl && !this.documentTypeControl.isValid()) {
           dataObj.status = false;
-          dataObj.message = this.nls.planInfo.enterValidDocumentTyeMessage;
+          dataObj.message = this.nls.planInfo.enterValidDocumentTypeMessage;
           return dataObj;
         }
         //if stated area field is configured
