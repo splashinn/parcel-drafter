@@ -15,8 +15,6 @@ define({
     "newTraverseTitle": "Nuevo Trazado", // Shown as title for new traverse page
     "editTraverseTitle": "Editar Trazado", // Shown as title for new traverse page
     "clearingDataConfirmationMessage": "Los Cambios seran descartados, ¿quiere usted proceder?", // Shown as warning message when user wants to clear all the parcel data
-    "confirmationBoxYESButtonLabel": "Si", // Shown as label for yes button of confirmation box
-    "confirmationBoxNOButtonLabel": "No", // Shown as label for no button of confirmation box
     "unableToFetchParcelMessage": "Parcela no encontrada.", // Shown when error occurs while  fetching parcel polyline for editing it
     "unableToFetchParcelLinesMessage": "Parcela-linea No encontrada", // Shown when error occurs while  fetching parcel polyline for editing it
     "planSettings": {
@@ -81,8 +79,6 @@ define({
       "cancelButtonLabel": "Cancelar", // Shown as label of cancel button
       "saveButtonLabel": "Guardar", // Shown as label of Save button
       "saveNonClosedParcelConfirmationMessage": "La parcela introducida no esta cerrada, ¿todavia desea continuar y guardar solo las lineas de parcela?", // Shown when user tries to save unclosed polygon
-      "confirmationBoxYESButtonLabel": "Si", // Confirmation box YES button label
-      "confirmationBoxNOButtonLabel": "No", // Confirmation box NO button label
       "unableToCreatePolygonParcel": "imposible crear poligono de parcela.", // Shown when error occurs while creating data of polygon for saving it
       "unableToSavePolygonParcel": "Imposible guardar poligono de parcela.", // Shown when error occurs while saving parcel polygon
       "unableToSaveParcelLines": "Imposible guardar Lineas parcela.", // Shown when error occurs while saving parcel lines
