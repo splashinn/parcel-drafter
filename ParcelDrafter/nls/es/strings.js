@@ -86,7 +86,7 @@ define({
       "parcelSavedSuccessMessage": "¡Parcela Guardada!.", // Shown when parcel is saved successfully
       "enterValidParcelNameMessage": "Por favor introduzca un nombre de parcela valido.", // Shown as error message when parcel name is invalid
       "enterValidPlanNameMessage": "Por favor introduzca un nombre de plan valido.", // Shown as error message when parcel name is invalid
-      "enterValidDocumentTyeMessage": "Tipo de documento valido.", // Shown as error message when document type is invalid
+      "enterValidDocumentTypeMessage": "Tipo de documento valido.", // Shown as error message when document type is invalid
       "enterValidStatedAreaNameMessage": "Por favor introduzca un area reportada valida." // Shown as error message when stated area is invalid
     }
   })

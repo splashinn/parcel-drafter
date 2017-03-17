@@ -338,7 +338,7 @@ define([
               selectedDeferred.resolve();
             }));
           }));
-          //after getting all the infos get it's details from map and add in selector
+          //after getting all the infos get its details from map and add in selector
           all(deferredLayerInfoArray).then(lang.hitch(this, function (
             result) {
             var relatedLayerInfo, updatedRelatedLayerInfo, relatedLayerType, i, j,

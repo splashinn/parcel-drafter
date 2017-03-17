@@ -648,7 +648,7 @@ define([
           values.BearingConversions =
             utils.categorizeBearingFormat(values.Bearing, planSettingsNADD);
         } else {
-          //if previous is arc then draw it's tangent else directly use previous chord angle
+          //if previous is arc then draw its tangent else directly use previous chord angle
           if (previousValues.RadiusConversions && previousValues.RadiusConversions.meters !== 0) {
             values.Bearing = bearingValue;
             //get data according to north Azimuth DD
@@ -1226,7 +1226,7 @@ define([
         this._itemList = updateItemList;
         this._updateRowIndexes();
         //update the bearing for each tb
-        //also if some tb applied row is moved to first position disable it's TB
+        //also if some tb applied row is moved to first position disable its TB
         for (var j = 0; j < this._itemList.length; j++) {
           if (j === 0 && this._itemList[j].isTB) {
             this._itemList[j].isTB = false;
@@ -2004,7 +2004,7 @@ define([
           returnVal.miscloseBearing =
             this._getBearingAccordingToPlanSettings(miscloseDetails.BearingConversions);
         }
-        //get the distance according to current plan settings and add it's abbreviation to it.
+        //get the distance according to current plan settings and add its abbreviation to it.
         miscloseDistance = this._getRoundedValue(miscloseDetails.LengthConversions,
           "MiscloseDistance");
         returnVal.miscloseDistance = miscloseDistance + " " +
@@ -2234,7 +2234,7 @@ define([
         miscloseValue = 0;
         // calculate misclose ratio and accuracy
         if (this._arrayOfAllBoundaryLines && this._arrayOfAllBoundaryLines.length > 0) {
-          //Create polyline for all boundary lines to get it's complete length.
+          //Create polyline for all boundary lines to get its complete length.
           boundaryPolyLine = geometryUtils.getPolyLineFromPaths(this._arrayOfAllBoundaryLines);
           //get length of boundary line in meters
           compassCompleteLength = geometryUtils.getLengthOfGeometry(boundaryPolyLine);

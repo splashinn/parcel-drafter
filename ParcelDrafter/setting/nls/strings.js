@@ -19,9 +19,9 @@ define({
     "setBtnLabel": "Set", //Shown as select layer button title
     "selectLabel": "Select", // Shown as a label for default dropBox when field is not required.
     "selectLayerLabel": "Select parcel layers", // Shown as a label in config UI for parcel layers.
-    "selectLayerHintText": "Hint: Use set button to select the parcel polygon and it's related line   layer", // Shown as hint text in config UI for layer hint text.
+    "selectLayerHintText": "Hint: Use set button to select the parcel polygon and its related line layer", // Shown as hint text in config UI for layer hint text.
     "layerSelector": {
-      "selectedLayerNotHavingRelatedLayer": "Selected polygon layer don't have any valid related layer."// Shown as error if selected parcel polygon layer don't have valid related line layer.
+      "selectedLayerNotHavingRelatedLayer": "Selected polygon layer doesn't have a valid related layer."// Shown as error if selected parcel polygon layer doesn't have a valid related line layer.
     },
     "parcelLineLayer": {
       "selectLayerLabel": "Select related line layer", // shown as a label in config for select layer.
@@ -71,9 +71,9 @@ define({
     "closureSetting": {
       "snappingLayerLabel": "Snapping Layers", // shown as a label in config for snapping layer.
       "snappingBtnLabel": "Set",// shown as a button label in closure setting.
-      "snappingLayerHintText": "Hint: Select layers  to which the parcel lines will snap.", // Shown as a hint text in config for snapping layer.
+      "snappingLayerHintText": "Hint: Select layers to which the parcel lines will snap.", // Shown as a hint text in config for snapping layer.
       "miscloseDistanceLabel": "Misclose Distance", // shown as a label in config for misclose distance.
-      "miscloseDistanceHintText": "Hint: Specify misclose distance and it's units.", // Shown as a hint text in config for misclose distance.
+      "miscloseDistanceHintText": "Hint: Specify misclose distance and its units.", // Shown as a hint text in config for misclose distance.
       "miscloseRatioLabel": "Misclose Ratio", // shown as a label in config for misclose ratio.
       "miscloseRatioHintText": "Hint: Specify misclose ratio.", // Shown as a hint text in config for misclose ratio.
       "snappingToleranceLabel": "Snapping Tolerance", // shown as a label in config for snapping tolerance.
