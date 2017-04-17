@@ -28,7 +28,7 @@ For more information on requirements and publication steps, see [Parcel Drafter 
 
 ### Software
 * ArcGIS Online subscription
-* Web AppBuilder (Developer Edition) 
+* Web AppBuilder (Developer Edition)
 
 ### Browser Compatibility for the Parcel Drafter widget
 The application is optimized for display on desktops and tablet devices using the following browsers:
@@ -54,7 +54,7 @@ Find a bug or want to request a new feature?  Please let us know by submitting a
 
 ## Contributing
 
-Esri welcomes contributions from anyone and everyone. 
+Esri welcomes contributions from anyone and everyone.
 Please see our [guidelines for contributing](https://github.com/esri/contributing).
 
 ## Licensing
@@ -69,7 +69,3 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 A copy of the license is available in the repository's
 [LICENSE.txt](LICENSE.txt) file.
-
-[](Esri Tags: ArcGISSolutions Local-Government Local Government Parcel Drafter Deed Drafter)
-[](Esri Language: JavaScript)
-
