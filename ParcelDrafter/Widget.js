@@ -24,6 +24,7 @@ define([
   'dojo/dom-style',
   'dojo/on',
   './PlanSettings',
+  './XYInput',
   './NewTraverse',
   './MapTooltipHandler',
   './layerUtils',
@@ -43,6 +44,7 @@ define([
     domStyle,
     on,
     PlanSettings,
+    XYInput,
     NewTraverse,
     MapTooltipHandler,
     layerUtils,
@@ -134,6 +136,8 @@ define([
           domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
             "esriCTEditTraverseActive");
           this.newTraverseSelectMessageNode.innerHTML = "";
+          domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
+
           this._newTraverseInstance.deActivateDigitizationTool();
           this._newTraverseInstance.deactivateParcelTools();
           //hide popup to edit values
@@ -154,6 +158,8 @@ define([
         this._createNewTraverse();
         //Create Plan settings instance
         this._createPlanSettings();
+        //Create XYInput widget:
+        this._createXYInput();
       },
 
       /**
@@ -236,6 +242,7 @@ define([
             domClass.replace(this.newTraverseButton, "esriCTNewTraverseButton",
               "esriCTNewTraverseActive");
             this.newTraverseSelectMessageNode.innerHTML = "";
+            domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
           } else {
             domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
               "esriCTEditTraverseActive");
@@ -245,6 +252,7 @@ define([
             this._isUpdateStartPoint = true;
             this._toggleSnapping(true);
             this.newTraverseSelectMessageNode.innerHTML = this.nls.mapTooltipForStartNewTraverse;
+            domClass.remove(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
           }
         })));
         //handle edit traverse button click
@@ -256,6 +264,7 @@ define([
             domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
               "esriCTEditTraverseActive");
             this.newTraverseSelectMessageNode.innerHTML = "";
+            domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
           } else {
             domClass.replace(this.newTraverseButton, "esriCTNewTraverseButton",
               "esriCTNewTraverseActive");
@@ -357,6 +366,7 @@ define([
         domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
           "esriCTEditTraverseActive");
         this.newTraverseSelectMessageNode.innerHTML = "";
+        domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
         this._toggleSnapping(false);
         //disconnect the map handlers
         this._mapTooltipHandler.disconnectEventHandler();
@@ -677,6 +687,25 @@ define([
       },
 
       /**
+      * Creates x/y input form
+      * @memberOf widgets/ParcelDrafter/Widget
+      **/
+      _createXYInput: function () {
+        //Create PlanSettings Instance
+        this._xyInputInstance = new XYInput({
+          nls: this.nls,
+          config: this.config,
+          appConfig: this.appConfig,
+          map: this.map
+        }).placeAt(this.newTraverseSelectMessageNodeWrapper, "last");
+        this.own(this._xyInputInstance.on("newPoint",
+          lang.hitch(this, function (point) {
+            this._onMapPointSelected(point);
+          })));
+        this._xyInputInstance.startup();
+      },
+
+      /**
       * Displays selected panel
       * @param {string} panel name
       * @memberOf widgets/ParcelDrafter/Widget
@@ -729,15 +758,15 @@ define([
       _getNodeByName: function (panelName) {
         var node;
         switch (panelName) {
-          case "mainPage":
-            node = this.mainPageNode;
-            break;
-          case "traversePage":
-            node = this.traversePageNode;
-            break;
-          case "planSettingsPage":
-            node = this.planSettingsPageNode;
-            break;
+        case "mainPage":
+          node = this.mainPageNode;
+          break;
+        case "traversePage":
+          node = this.traversePageNode;
+          break;
+        case "planSettingsPage":
+          node = this.planSettingsPageNode;
+          break;
         }
         return node;
       }

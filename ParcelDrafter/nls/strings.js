@@ -21,7 +21,7 @@ define({
     "invalidConfigMsg": "Invalid Configuration", // Shown as error msg in widget panel if configuration is not valid
     "geometryServiceURLNotFoundMSG": "Unable to get Geometry Service URL", // Shown as error msg in widget panel if geometry service url is not found in WAB app config
     "editTraverseButtonLabel": "Edit Traverse", // Shown as label to Edit Traverse button onLoad
-    "mapTooltipForStartNewTraverse": "Please select a point on map to begin", // Shown as tooltip when mouse move over the map once start new traverse is selected
+    "mapTooltipForStartNewTraverse": "Please select a point on map, or type below, to begin", // Shown as tooltip when mouse move over the map once start new traverse is selected
     "mapTooltipForEditNewTraverse": "Please select a parcel to edit", // Shown as tooltip when mouse move over the map once edit new traverse is selected
     "mapTooltipForUpdateStartPoint": "Click to update start point", // Shown as tooltip when mouse move over the map once traverse grid page is shown
     "mapTooltipForScreenDigitization": "Click to add parcel point",// Shown as tooltip when mouse move over the map once screen digitization tool is activated
@@ -104,6 +104,9 @@ define({
       "enterValidPlanNameMessage": "Please enter valid plan name.", // Shown as error message when parcel name is invalid
       "enterValidDocumentTypeMessage": "Invalid document type.", // Shown as error message when document type is invalid
       "enterValidStatedAreaNameMessage": "Please enter valid stated area." // Shown as error message when stated area is invalid
+    },
+    "xyInput": {
+      "explaination": "In the spatial reference of your parcels layer"
     }
   }),
   "ar": 0,
