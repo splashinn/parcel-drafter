@@ -17,14 +17,14 @@
 define([],
   function () {
     var mo = {};
-    mo.bearingFieldPlaces = 4;
+    mo.bearingFieldPlaces = 2;
 
     //Object that holds all the options and their keys for plan settings
     mo.planSettingsOptions = {
       "directionOrAngleType": ["northAzimuth", "southAzimuth", "quadrantBearing"],
       "directionOrAngleUnits": ["decimalDegree", "degreeMinuteSeconds"],
       "distanceAndLengthUnits": ["uSSurveyFeet", "meters"],
-      "areaUnits": ["squareUsFeet", "acres", "squareMeters"],
+      "areaUnits": ["squareUSSurveyFeet", "acres", "squareMeters"],
       "circularCurveParameters": ["radiusAndChordLength", "radiusAndArcLength"]
     };
 

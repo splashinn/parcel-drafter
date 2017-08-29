@@ -20,9 +20,11 @@ define({
     "selectLabel": "Select", // Shown as a label for default dropBox when field is not required.
     "selectLayerLabel": "Select parcel layers", // Shown as a label in config UI for parcel layers.
     "selectLayerHintText": "Hint: Use set button to select the parcel polygon and its related line layer", // Shown as hint text in config UI for layer hint text.
+
     "layerSelector": {
-      "selectedLayerNotHavingRelatedLayer": "Selected polygon layer doesn't have a valid related layer."// Shown as error if selected parcel polygon layer doesn't have a valid related line layer.
+      "selectedLayerNotHavingRelatedLayer": "Selected polygon layer doesn't have a valid related layer." // Shown as error if selected parcel polygon layer doesn't have a valid related line layer.
     },
+
     "parcelLineLayer": {
       "selectLayerLabel": "Select related line layer", // shown as a label in config for select layer.
       "layerSettingTabLabel": "Parcel layers", // shown as label in config UI for first tab.
@@ -57,7 +59,7 @@ define({
       "miscloseRatioLabel": "Misclose Ratio", // shown as a label in config for misclose ratio.
       "statedAreaLabel": "Stated Area", // shown as a label in config for stated area.
       "miscloseDistanceLabel": "Misclose Distance", // shown as a label in config for misclose distance.
-      "selectPolygonLayerLabelPopUp": "Select a polygon layer", // shown as a label in config for line layer pop up
+      "selectPolygonLayerLabelPopUp": "Select a polygon layer" // shown as a label in config for line layer pop up
     },
 
     "lineTypesTable": {
@@ -70,7 +72,7 @@ define({
 
     "closureSetting": {
       "snappingLayerLabel": "Snapping Layers", // shown as a label in config for snapping layer.
-      "snappingBtnLabel": "Set",// shown as a button label in closure setting.
+      "snappingBtnLabel": "Set", // shown as a button label in closure setting.
       "snappingLayerHintText": "Hint: Select layers to which the parcel lines will snap.", // Shown as a hint text in config for snapping layer.
       "miscloseDistanceLabel": "Misclose Distance", // shown as a label in config for misclose distance.
       "miscloseDistanceHintText": "Hint: Specify misclose distance and its units.", // Shown as a hint text in config for misclose distance.
@@ -79,9 +81,7 @@ define({
       "snappingToleranceLabel": "Snapping Tolerance", // shown as a label in config for snapping tolerance.
       "pixelLabel": "Pixels", // shown as a label in config for pixel of tolerance.
       "snappingToleranceHintText": "Hint: Specify snapping tolerance.", // Shown as a hint text in config for snapping tolerance.
-      "selectLayerLabel": "Select layer", // shown as a label in config for line layer pop up
-      "uSSurveyFeet": { "label": "US Survey Feet", "abbreviation": "ftUS" }, // Shown as label for US Survey Feet in misclose unit dropdown
-      "meters": { "label": "Meters", "abbreviation": "m" }, // Shown as label for Meters in misclose unit dropdown
+      "selectLayerLabel": "Select layer" // shown as a label in config for line layer pop up
     },
 
     "errorMsg": {
@@ -114,38 +114,38 @@ define({
     }
 
   }),
-  "ar": 0,
-  "bs": 0,
-  "cs": 0,
-  "da": 0,
-  "de": 0,
-  "el": 0,
-  "es": 0,
-  "et": 0,
-  "fi": 0,
-  "fr": 0,
-  "he": 0,
-  "hi": 0,
-  "hr": 0,
-  "it": 0,
-  "id": 0,
-  "ja": 0,
-  "ko": 0,
-  "lt": 0,
-  "lv": 0,
-  "nb": 0,
-  "nl": 0,
-  "pl": 0,
-  "pt-br": 0,
-  "pt-pt": 0,
-  "ro": 0,
-  "ru": 0,
-  "sr": 0,
-  "sv": 0,
-  "th": 0,
-  "tr": 0,
-  "vi": 0,
-  "zh-cn": 0,
-  "zh-hk": 0,
-  "zh-tw": 0
+  "ar": 1,
+  "bs": 1,
+  "cs": 1,
+  "da": 1,
+  "de": 1,
+  "el": 1,
+  "es": 1,
+  "et": 1,
+  "fi": 1,
+  "fr": 1,
+  "he": 1,
+  "hi": 1,
+  "hr": 1,
+  "it": 1,
+  "id": 1,
+  "ja": 1,
+  "ko": 1,
+  "lt": 1,
+  "lv": 1,
+  "nb": 1,
+  "nl": 1,
+  "pl": 1,
+  "pt-br": 1,
+  "pt-pt": 1,
+  "ro": 1,
+  "ru": 1,
+  "sr": 1,
+  "sv": 1,
+  "th": 1,
+  "tr": 1,
+  "vi": 1,
+  "zh-cn": 1,
+  "zh-hk": 1,
+  "zh-tw": 1
 });
