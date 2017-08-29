@@ -103,8 +103,9 @@ define({
       "enterValidDocumentTypeMessage": "Invalid document type.", // Shown as error message when document type is invalid
       "enterValidStatedAreaNameMessage": "Please enter valid stated area." // Shown as error message when stated area is invalid
     },
+
     "xyInput": {
-      "explaination": "In the spatial reference of your parcels layer"
+      "explanation": "In the spatial reference of your parcels layer"  // Shown as tooltip over type-in boxes for X and Y coordinates
     }
   }),
   "ar": 1,
