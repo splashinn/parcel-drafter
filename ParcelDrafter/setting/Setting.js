@@ -159,7 +159,7 @@ define([
         dropDownOptions = this.distanceAndLengthUnits;
         //Add options for miscloseDistanceUnitNode
         array.forEach(dropDownOptions, lang.hitch(this, function (type) {
-          option = { value: type, label: this.nls.closureSetting[type].label };
+          option = { value: type, label: window.jimuNls.units[type] };
           options.push(option);
         }));
         this.miscloseDistanceUnitNode.addOption(options);

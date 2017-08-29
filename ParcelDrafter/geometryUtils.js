@@ -276,12 +276,12 @@ define([
         areaConversions.acres = geometryEngine.geodesicArea(simplifiedGeometry, 109402);
         areaConversions.squareMeters = geometryEngine.geodesicArea(simplifiedGeometry, 109404);
         areaConversions.squareFeet = geometryEngine.geodesicArea(simplifiedGeometry, 109405);
-        areaConversions.squareUsFeet = geometryEngine.geodesicArea(simplifiedGeometry, 109406);
+        areaConversions.squareUSSurveyFeet = geometryEngine.geodesicArea(simplifiedGeometry, 109406);
       } else {
         areaConversions.acres = 0;
         areaConversions.squareMeters = 0;
         areaConversions.squareFeet = 0;
-        areaConversions.squareUsFeet = 0;
+        areaConversions.squareUSSurveyFeet = 0;
       }
       return areaConversions;
     };
