@@ -53,8 +53,8 @@ define([
         this.inherited(arguments);
         this.spatialReference =  this.map.getLayer(this.config.polygonLayer.id).spatialReference;
 
-        this.xRowWrapper.title = this.nls.xyInput.explaination + " (" + this.spatialReference.latestWkid + ")";
-        this.yRowWrapper.title = this.nls.xyInput.explaination + " (" + this.spatialReference.latestWkid + ")";
+        this.xRowWrapper.title = this.nls.xyInput.explanation + " (" + this.spatialReference.latestWkid + ")";
+        this.yRowWrapper.title = this.nls.xyInput.explanation + " (" + this.spatialReference.latestWkid + ")";
 
         this.own(on(this.xyStartButton, "click", lang.hitch(this, function() {
           var x = this.newTraverseX.value;
@@ -63,7 +63,7 @@ define([
         })));
       },
 
-      // takes input x and y and creates a point object in the target Sptail Reference
+      // takes input x and y and creates a point object in the target Spatial Reference
       project: function(x, y) {
         return new Point(x, y, this.spatialReference);
       }

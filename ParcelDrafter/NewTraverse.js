@@ -110,9 +110,9 @@ define([
         'esriFieldTypeSingle',
         'esriFieldTypeDouble'
       ],
-      lengthFieldPlaces: 4, //Number of places to be shown in length field
-      radiusFieldPlaces: 4, //Number of places to be shown in radius field
-      miscloseDistanceFieldPlaces: 4, //Number of places to be shown in miscloseDistance field
+      lengthFieldPlaces: 2, //Number of places to be shown in length field
+      radiusFieldPlaces: 2, //Number of places to be shown in radius field
+      miscloseDistanceFieldPlaces: 2, //Number of places to be shown in miscloseDistance field
 
       postCreate: function () {
         //initialize widget array & object variables
@@ -158,13 +158,13 @@ define([
           this.config.polylineLayer.popupInfo.fieldInfos) {
           array.forEach(this.config.polylineLayer.popupInfo.fieldInfos, lang.hitch(this,
             function (field) {
-              if (field.fieldName === this.config.polylineLayer.bearing.name) {
+              if (field.fieldName === this.config.polylineLayer.bearing.name && field.format) {
                 utils.bearingFieldPlaces = field.format.places;
               }
-              if (field.fieldName === this.config.polylineLayer.distance.name) {
+              if (field.fieldName === this.config.polylineLayer.distance.name && field.format) {
                 this.lengthFieldPlaces = field.format.places;
               }
-              if (field.fieldName === this.config.polylineLayer.radius.name) {
+              if (field.fieldName === this.config.polylineLayer.radius.name && field.format) {
                 this.radiusFieldPlaces = field.format.places;
               }
             }));
@@ -174,7 +174,7 @@ define([
           this.config.polygonLayer.popupInfo.fieldInfos) {
           array.forEach(this.config.polygonLayer.popupInfo.fieldInfos, lang.hitch(this,
             function (field) {
-              if (field.fieldName === this.config.polygonLayer.miscloseDistance.name) {
+              if (field.fieldName === this.config.polygonLayer.miscloseDistance.name && field.format) {
                 this.miscloseDistanceFieldPlaces = field.format.places;
               }
             }));
@@ -1848,12 +1848,13 @@ define([
       updateAccordingToPlanSettings: function (updatedSettings) {
         var miscloseDetails, miscloseDetailsInfo;
         this._planSettings = updatedSettings;
-        this.bearingNode.set("placeHolder", this.nls.planSettings
-        [updatedSettings.directionOrAngleUnits].abbreviation);
-        this.lengthNode.set("placeHolder", this.nls.planSettings
-        [updatedSettings.distanceAndLengthUnits].abbreviation);
-        this.radiusNode.set("placeHolder", this.nls.planSettings
-        [updatedSettings.distanceAndLengthUnits].abbreviation);
+        this.bearingNode.set("placeHolder",
+          this._getAbbreviatedUnits(updatedSettings.directionOrAngleUnits));
+        this.lengthNode.set("placeHolder",
+          this._getAbbreviatedUnits(updatedSettings.distanceAndLengthUnits));
+        this.radiusNode.set("placeHolder",
+          this._getAbbreviatedUnits(updatedSettings.distanceAndLengthUnits));
+
         //regenerate traverse grid, it will honour the updated plan settings.
         this._reGenerateTraverseGrid();
         //update misclose info if available
@@ -2008,7 +2009,7 @@ define([
         miscloseDistance = this._getRoundedValue(miscloseDetails.LengthConversions,
           "MiscloseDistance");
         returnVal.miscloseDistance = miscloseDistance + " " +
-          this.nls.planSettings[this._planSettings.distanceAndLengthUnits].abbreviation;
+          this._getAbbreviatedUnits(this._planSettings.distanceAndLengthUnits);
         //get calculated area according to planSettings
         if (miscloseDetails.AreaConversions) {
           calculatedArea = miscloseDetails.AreaConversions[this._planSettings.areaUnits];
@@ -2020,7 +2021,7 @@ define([
           calculatedArea = 0;
         }
         calculatedArea = calculatedArea + " " +
-          this.nls.planSettings[this._planSettings.areaUnits].abbreviation;
+          this._getAbbreviatedUnits(this._planSettings.areaUnits);
         returnVal.calculatedArea = calculatedArea;
         return returnVal;
       },
@@ -2491,6 +2492,17 @@ define([
           defer.resolve(false);
         }
         return defer;
+      },
+
+      /**
+       * Gets the abbreviated variant of a unit.
+       * @parameter {string} unit Unit to look up; must be one of the
+       *       units in jimu.units
+       * @return {string} window.jimuNls.units[units + "Abbr"]
+       * @memberOf widgets/ParcelDrafter/NewTraverse
+       */
+      _getAbbreviatedUnits: function (units) {
+        return window.jimuNls.units[units + "Abbr"];
       },
 
       /**

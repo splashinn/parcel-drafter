@@ -24,7 +24,7 @@ define({
     "mapTooltipForStartNewTraverse": "Please select a point on map, or type below, to begin", // Shown as tooltip when mouse move over the map once start new traverse is selected
     "mapTooltipForEditNewTraverse": "Please select a parcel to edit", // Shown as tooltip when mouse move over the map once edit new traverse is selected
     "mapTooltipForUpdateStartPoint": "Click to update start point", // Shown as tooltip when mouse move over the map once traverse grid page is shown
-    "mapTooltipForScreenDigitization": "Click to add parcel point",// Shown as tooltip when mouse move over the map once screen digitization tool is activated
+    "mapTooltipForScreenDigitization": "Click to add parcel point", // Shown as tooltip when mouse move over the map once screen digitization tool is activated
     "mapTooltipForRotate": "Drag to rotate", // Shown as tooltip when mouse drag over the map once rotation tool is activated
     "mapTooltipForScale": "Drag to scale", // Shown as tooltip when mouse drag over the map once scaling tool is activated
     "backButtonTooltip": "Back", // Shown as tooltip on back buttons
@@ -33,6 +33,7 @@ define({
     "clearingDataConfirmationMessage": "Changes will be discarded, do you want to proceed?", // Shown as warning message when user wants to clear all the parcel data
     "unableToFetchParcelMessage": "Unable to fetch parcel.", // Shown when error occurs while  fetching parcel polyline for editing it
     "unableToFetchParcelLinesMessage": "Unable to fetch parcel lines.", // Shown when error occurs while  fetching parcel polyline for editing it
+
     "planSettings": {
       "planSettingsTitle": "Settings", // Shown as Title for Plan Settings page
       "directionOrAngleTypeLabel": "Direction or Angle Type", // Shown as label to set Direction or Angle Type
@@ -43,13 +44,6 @@ define({
       "northAzimuth": "North Azimuth", // Shown as label for north azimuth in direction or angle type dropdown
       "southAzimuth": "South Azimuth", // Shown as label for south azimuth in direction or angle type dropdown
       "quadrantBearing": "Quadrant Bearing", // Shown as label for Quadrant Bearing in direction or angle type dropdown
-      "decimalDegree": { "label": "Decimal Degree", "abbreviation": "dd" }, // Shown as label for Decimal Degree in direction or angle unit dropdown
-      "degreeMinuteSeconds": { "label": "Degree Minute Seconds", "abbreviation": "dms" }, // Shown as label for Degree Minute Seconds in direction or angle unit dropdown
-      "uSSurveyFeet": { "label": "US Survey Feet", "abbreviation": "ftUS" }, // Shown as label for US Survey Feet in direction or angle unit dropdown
-      "meters": { "label": "Meters", "abbreviation": "m" }, // Shown as label for Meters in direction or angle unit dropdown
-      "squareUsFeet": { "label": "Square Feet US", "abbreviation": "sqftUS" }, // Shown as label for Square Feet in distance and length units dropdown
-      "acres": { "label": "Acres", "abbreviation": "ac" }, // Shown as label for Acres in distance and length units  dropdown
-      "squareMeters": { "label": "Square Meters", "abbreviation": "sqm" }, // Shown as label for Square Meters in distance and length units  dropdown
       "radiusAndChordLength": "Radius and Chord Length", // Shown as label for Radius And Chord Length in circular curve parameters dropdown
       "radiusAndArcLength": "Radius and Arc Length", // Shown as label for Radius And Arc Length in circular curve parameters dropdown
       "expandGridTooltipText": "Expand grid", // Show on hover of the expand grid button
@@ -57,6 +51,7 @@ define({
       "zoomToLocationTooltipText": "Zoom to location", // Show on hover of the zoomToLocation button
       "onScreenDigitizationTooltipText": "Digitize" // Show on hover of the Digitization button
     },
+
     "traverseSettings": {
       "bearingLabel": "Bearing", // Shown as label for bearing column in traverse grid
       "lengthLabel": "Length", // Shown as label for length column in traverse grid
@@ -72,10 +67,12 @@ define({
       "addButtonTitle": "Add", // Shown as title on add button
       "deleteButtonTitle": "Remove" // Shown as title on delete button
     },
+
     "parcelTools": {
       "rotationToolLabel": "Angle", // Shown as label to Rotate of selected parcel
       "scaleToolLabel": "Scale" // Shown as label to scale of selected parcel
     },
+
     "newTraverse": {
       "invalidBearingMessage": "Invalid Bearing.", // Shown when invalid bearing is entered
       "invalidLengthMessage": "Invalid Length.", // Shown when invalid length is entered
@@ -86,6 +83,7 @@ define({
       "unableToDrawLineMessage": "Unable to draw line.", // Shown when parcel lines unable to render
       "invalidEndPointMessage": "Invalid End-Point, unable to draw line." // Shown when user tries to draw line at invalid end point
     },
+
     "planInfo": {
       "requiredText": "(required)",
       "optionalText": "(optional)",
@@ -105,42 +103,43 @@ define({
       "enterValidDocumentTypeMessage": "Invalid document type.", // Shown as error message when document type is invalid
       "enterValidStatedAreaNameMessage": "Please enter valid stated area." // Shown as error message when stated area is invalid
     },
+
     "xyInput": {
-      "explaination": "In the spatial reference of your parcels layer"
+      "explanation": "In the spatial reference of your parcels layer"  // Shown as tooltip over type-in boxes for X and Y coordinates
     }
   }),
-  "ar": 0,
-  "bs": 0,
-  "cs": 0,
-  "da": 0,
-  "de": 0,
-  "el": 0,
+  "ar": 1,
+  "bs": 1,
+  "cs": 1,
+  "da": 1,
+  "de": 1,
+  "el": 1,
   "es": 1,
-  "et": 0,
-  "fi": 0,
-  "fr": 0,
-  "he": 0,
-  "hi": 0,
-  "hr": 0,
-  "it": 0,
-  "id": 0,
-  "ja": 0,
-  "ko": 0,
-  "lt": 0,
-  "lv": 0,
-  "nb": 0,
-  "nl": 0,
-  "pl": 0,
-  "pt-br": 0,
-  "pt-pt": 0,
-  "ro": 0,
-  "ru": 0,
-  "sr": 0,
-  "sv": 0,
-  "th": 0,
-  "tr": 0,
-  "vi": 0,
-  "zh-cn": 0,
-  "zh-hk": 0,
-  "zh-tw": 0
+  "et": 1,
+  "fi": 1,
+  "fr": 1,
+  "he": 1,
+  "hi": 1,
+  "hr": 1,
+  "it": 1,
+  "id": 1,
+  "ja": 1,
+  "ko": 1,
+  "lt": 1,
+  "lv": 1,
+  "nb": 1,
+  "nl": 1,
+  "pl": 1,
+  "pt-br": 1,
+  "pt-pt": 1,
+  "ro": 1,
+  "ru": 1,
+  "sr": 1,
+  "sv": 1,
+  "th": 1,
+  "tr": 1,
+  "vi": 1,
+  "zh-cn": 1,
+  "zh-hk": 1,
+  "zh-tw": 1
 });
