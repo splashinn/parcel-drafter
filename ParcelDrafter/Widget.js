@@ -17,6 +17,7 @@
 define([
   'dojo/_base/declare',
   'jimu/BaseWidget',
+  'dojo/_base/array',
   'dojo/_base/lang',
   'dojo/dom-class',
   'dojo/dom-attr',
@@ -37,6 +38,7 @@ define([
   function (
     declare,
     BaseWidget,
+    array,
     lang,
     domClass,
     domAttr,
@@ -65,6 +67,7 @@ define([
       _lineLayerSpatialReference: null, //Store spatial reference of line layer
       _polygonLayerSpatialReference: null, //Store spatial reference of polygon layer
       _isUpdateStartPoint: null, //Flag to indicate if updated startPoint feature is on
+      _featureReductionEnabledLayers: [],
 
       postMixInProperties: function () {
         //mixin default nls with widget nls
@@ -86,7 +89,7 @@ define([
           this._showErrorInWidgetPanel(this.nls.invalidConfigMsg);
           return false;
         }
-        //initialize the layerUtils object which will help in getting layer details form map
+        //initialize the layerUtils object which will help in getting layer details from map
         this._layerUtils = new layerUtils({
           "map": this.map, getPopupInfo: true, getRenderer: false
         });
@@ -107,6 +110,15 @@ define([
         this.inherited(arguments);
         //override the panel styles
         domClass.add(this.domNode.parentElement, "esriCTOverridePanelStyle");
+
+        // Disable feature reduction for layers
+        this._featureReductionEnabledLayers = [];
+        array.forEach(this.config.snappingLayers, function (layerSummary) {
+          var layer = this.map.getLayer(layerSummary.id);
+          if (layer.isFeatureReductionEnabled && layer.isFeatureReductionEnabled()) {
+            this._featureReductionEnabledLayers.push(layer);
+          }
+        }, this);
       },
 
       /**
@@ -120,6 +132,20 @@ define([
           this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForUpdateStartPoint);
           this._toggleSnapping(true);
         }
+      },
+
+      onActive: function () {
+        // Disable feature reduction for layers
+        array.forEach(this._featureReductionEnabledLayers, function (layer) {
+          layer.disableFeatureReduction();
+        });
+      },
+
+      onDeActive: function () {
+        // Re-enable feature reduction for layers
+        array.forEach(this._featureReductionEnabledLayers, function (layer) {
+          layer.enableFeatureReduction();
+        });
       },
 
       /**
@@ -143,6 +169,15 @@ define([
           //hide popup to edit values
           this._newTraverseInstance.closePopup();
         }
+      },
+
+      destroy: function () {
+        // Re-enable feature reduction for layers that were disabled at startup.
+        array.forEach(this._featureReductionEnabledLayers, function (layer) {
+          layer.enableFeatureReduction();
+        });
+
+        this.inherited(arguments);
       },
 
       /**
