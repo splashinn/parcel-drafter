@@ -1948,6 +1948,10 @@ define([
         //If entered data has more than 1 Boundary line and,
         //boundary line is not followed by any other category of line then it is valid
         if (boundaryLinesCount > 1 && isValid) {
+          compassStartPoint.x = utils.showFixedPlacesAfterDecimal(compassStartPoint.x, 6);
+          compassStartPoint.y = utils.showFixedPlacesAfterDecimal(compassStartPoint.y, 6);
+          compassEndPoint.x = utils.showFixedPlacesAfterDecimal(compassEndPoint.x, 6);
+          compassEndPoint.y = utils.showFixedPlacesAfterDecimal(compassEndPoint.y, 6);
           parcelCloseDetails.isClosed = true;
           parcelCloseDetails.compassStartPoint = compassStartPoint;
           parcelCloseDetails.compassEndPoint = compassEndPoint;
