@@ -156,7 +156,7 @@ define([
           (cosU1 * sinU2 - sinU1 * cosU2 * cosλ) * (cosU1 * sinU2 - sinU1 * cosU2 * cosλ);
         sinσ = Math.sqrt(sinSqσ);
         if (sinσ == 0) { // jshint ignore:line
-          return 0;  // co-incident points
+          return { distance: 0, initialBearing: 0, finalBearing: 0 };  // co-incident points
         }
         cosσ = sinU1 * sinU2 + cosU1 * cosU2 * cosλ;
         σ = Math.atan2(sinσ, cosσ);
