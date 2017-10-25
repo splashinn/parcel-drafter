@@ -21,10 +21,7 @@ define([
   "dojo/text!./XYInput.html",
   "dojo/on",
   "dojo/_base/lang",
-  "dojo/Deferred",
   "dojo/Evented",
-  "dojo/dom-class",
-  "dojo/dom-attr",
   "esri/geometry/Point",
   "dijit/form/ValidationTextBox"
 ],
@@ -35,10 +32,7 @@ define([
     XYInputTemplate,
     on,
     lang,
-    Deferred,
     Evented,
-    domClass,
-    domAttr,
     Point
   ) {
     return declare([BaseWidget, _WidgetsInTemplateMixin, Evented], {
