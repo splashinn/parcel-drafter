@@ -374,9 +374,14 @@ define([],
     };
 
     /**
-    * This function is used consider only spcified number of numbers after decimal point
-    * @memberOf widgets/ParcelDrafter/utils
-    */
+     * Cuts off digits beyond the specified number of places after
+     * decimal point without rounding.
+     * @param {number} num Number to trim
+     * @param {number} places Number of places to keep after the
+     *        decimal point; places > 0
+     * @return {number} Trimmed number
+     * @memberOf widgets/ParcelDrafter/utils
+     */
     mo.showFixedPlacesAfterDecimal = function (num, places) {
       var decimalPointIndex = 0, sliceIndex;
       // return num.toString().match(/^-?\d+(?:\.\d{0,6})?/)[0];
