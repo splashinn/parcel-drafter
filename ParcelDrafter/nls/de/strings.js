@@ -72,7 +72,7 @@ define({
     "invalidLengthMessage": "Ungültige Länge.",
     "invalidRadiusMessage": "Ungültiger Radius.",
     "negativeLengthMessage": "Nur für Kurven gültig",
-    "enterValidValuesMessage": "Geben Sie gültige Wert ein.",
+    "enterValidValuesMessage": "Geben Sie gültige Werte ein.",
     "enterValidParcelInfoMessage": "Geben Sie zum Speichern gültige Informationen zum Flurstück ein.",
     "unableToDrawLineMessage": "Linie kann nicht gezogen werden.",
     "invalidEndPointMessage": "Ungültiger Endpunkt, Linie kann nicht gezogen werden."
