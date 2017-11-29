@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "設定無效",
   "geometryServiceURLNotFoundMSG": "無法取得幾何服務 URL",
   "editTraverseButtonLabel": "編輯行程",
-  "mapTooltipForStartNewTraverse": "請選擇地圖上的點開始執行",
+  "mapTooltipForStartNewTraverse": "試_Please select a point on map, or type below, to begin_________________驗",
   "mapTooltipForEditNewTraverse": "請選擇要編輯的宗地",
   "mapTooltipForUpdateStartPoint": "按一下以更新起點",
   "mapTooltipForScreenDigitization": "按一下以新增宗地點",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "請輸入有效的計畫名稱。",
     "enterValidDocumentTypeMessage": "文件類型無效。",
     "enterValidStatedAreaNameMessage": "請輸入有效的規定面積。"
+  },
+  "xyInput": {
+    "explanation": "試_In the spatial reference of your parcels layer_______________驗"
   }
 });

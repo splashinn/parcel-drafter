@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "تكوين غير صحيح",
   "geometryServiceURLNotFoundMSG": "يتعذر الحصول على عنوان URL لخدمة الشكل الهندسي",
   "editTraverseButtonLabel": "تحرير العبور (الانتقال)",
-  "mapTooltipForStartNewTraverse": "الرجاء تحديد نقطة على الخريطة للبدء",
+  "mapTooltipForStartNewTraverse": "بيت_Please select a point on map, or type below, to begin_________________لاحقة",
   "mapTooltipForEditNewTraverse": "الرجاء تحديد قطعة أرض لتحريرها",
   "mapTooltipForUpdateStartPoint": "انقر لتحديث نقطة البداية",
   "mapTooltipForScreenDigitization": "انقر لإضافة نقطة قطعة الأرض",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "الرجاء إدخال اسم خطة صحيح.",
     "enterValidDocumentTypeMessage": "نوع مستند غير صحيح.",
     "enterValidStatedAreaNameMessage": "الرجاء إدخال المنطقة المحددة الصحيحة."
+  },
+  "xyInput": {
+    "explanation": "بيت_In the spatial reference of your parcels layer_______________لاحقة"
   }
 });

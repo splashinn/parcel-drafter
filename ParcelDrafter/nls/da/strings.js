@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Ugyldig konfiguration",
   "geometryServiceURLNotFoundMSG": "Kan ikke hente geometritjeneste-URL",
   "editTraverseButtonLabel": "Redigér travers",
-  "mapTooltipForStartNewTraverse": "Vælg et punkt på kortet for at starte",
+  "mapTooltipForStartNewTraverse": "ø_Please select a point on map, or type below, to begin_________________å",
   "mapTooltipForEditNewTraverse": "Vælg en parcel, der skal redigeres",
   "mapTooltipForUpdateStartPoint": "Klik for at opdatere startpunkt",
   "mapTooltipForScreenDigitization": "Klik for at tilføje parcelpunkt",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Angiv et gyldigt plannavn.",
     "enterValidDocumentTypeMessage": "Ugyldig dokumenttype.",
     "enterValidStatedAreaNameMessage": "Angiv et gyldigt angivet område."
+  },
+  "xyInput": {
+    "explanation": "ø_In the spatial reference of your parcels layer_______________å"
   }
 });

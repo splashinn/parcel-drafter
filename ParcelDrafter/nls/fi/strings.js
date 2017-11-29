@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Virheellinen määritys",
   "geometryServiceURLNotFoundMSG": "Geometriapalvelun URL-osoitetta ei voi noutaa",
   "editTraverseButtonLabel": "Muokkaa läpikäyntiä",
-  "mapTooltipForStartNewTraverse": "Aloita valitsemalla kartalta piste",
+  "mapTooltipForStartNewTraverse": "Å_Please select a point on map, or type below, to begin_________________ö",
   "mapTooltipForEditNewTraverse": "Valitse muokattava kiinteistö",
   "mapTooltipForUpdateStartPoint": "Päivitä aloituspiste napsauttamalla",
   "mapTooltipForScreenDigitization": "Lisää kiinteistön piste napsauttamalla",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Kirjoita kelvollinen suunnitelman nimi.",
     "enterValidDocumentTypeMessage": "Virheellinen dokumenttityyppi.",
     "enterValidStatedAreaNameMessage": "Anna kelvollinen sovittu alue."
+  },
+  "xyInput": {
+    "explanation": "Å_In the spatial reference of your parcels layer_______________ö"
   }
 });

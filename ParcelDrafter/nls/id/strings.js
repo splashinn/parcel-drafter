@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Konfigurasi Tidak Valid",
   "geometryServiceURLNotFoundMSG": "Tidak dapat memperoleh URL Service Geometri",
   "editTraverseButtonLabel": "Edit Lintasan",
-  "mapTooltipForStartNewTraverse": "Pilih satu titik di peta untuk memulai",
+  "mapTooltipForStartNewTraverse": "ng_Please select a point on map, or type below, to begin_________________ny",
   "mapTooltipForEditNewTraverse": "Harap pilih persil untuk diedit",
   "mapTooltipForUpdateStartPoint": "Klik untuk memperbarui titik awal",
   "mapTooltipForScreenDigitization": "Klik untuk menambahkan titik persil",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Harap masukkan nama rencana yang valid.",
     "enterValidDocumentTypeMessage": "Jenis dokumen tidak valid.",
     "enterValidStatedAreaNameMessage": "Harap masukkan area yang dinyatakan valid."
+  },
+  "xyInput": {
+    "explanation": "ng_In the spatial reference of your parcels layer_______________ny"
   }
 });

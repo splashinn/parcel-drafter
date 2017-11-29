@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "잘못된 구성",
   "geometryServiceURLNotFoundMSG": "지오메트리 서비스 URL을 가져올 수 없음",
   "editTraverseButtonLabel": "트래버스 편집",
-  "mapTooltipForStartNewTraverse": "시작하려면 맵의 포인트를 선택하세요.",
+  "mapTooltipForStartNewTraverse": "한_Please select a point on map, or type below, to begin_________________빠",
   "mapTooltipForEditNewTraverse": "편집할 필지를 선택하세요.",
   "mapTooltipForUpdateStartPoint": "시작 포인트를 업데이트하려면 클릭",
   "mapTooltipForScreenDigitization": "필지 포인트를 추가하려면 클릭",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "유효한 계획 이름을 입력하세요.",
     "enterValidDocumentTypeMessage": "문서 유형이 잘못되었습니다.",
     "enterValidStatedAreaNameMessage": "유효한 지정 면적을 입력하세요."
+  },
+  "xyInput": {
+    "explanation": "한_In the spatial reference of your parcels layer_______________빠"
   }
 });

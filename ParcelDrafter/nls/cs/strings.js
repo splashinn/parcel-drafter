@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Neplatná konfigurace",
   "geometryServiceURLNotFoundMSG": "Nelze načíst adresu URL služby geometrie",
   "editTraverseButtonLabel": "Upravit polygonový pořad",
-  "mapTooltipForStartNewTraverse": "Nejprve vyberte bod na mapě",
+  "mapTooltipForStartNewTraverse": "Ř_Please select a point on map, or type below, to begin_________________ů",
   "mapTooltipForEditNewTraverse": "Vyberte parcelu, kterou chcete upravit",
   "mapTooltipForUpdateStartPoint": "Kliknutím aktualizujete počáteční bod",
   "mapTooltipForScreenDigitization": "Kliknutím přidáte bod parcely",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Zadejte platný název plánu.",
     "enterValidDocumentTypeMessage": "Neplatný typ dokumentu",
     "enterValidStatedAreaNameMessage": "Zadejte platný název uvedené oblasti."
+  },
+  "xyInput": {
+    "explanation": "Ř_In the spatial reference of your parcels layer_______________ů"
   }
 });

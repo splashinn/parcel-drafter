@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "अमान्य कॉन्फ़िगरेशन",
   "geometryServiceURLNotFoundMSG": "ज्यामितीय सेवा URL पाने में सक्षम नहीं",
   "editTraverseButtonLabel": "ट्रावर्स संपादित करें",
-  "mapTooltipForStartNewTraverse": "शुरू करने के लिए कृपया मानचित्र पर किसी पॉइंट का चयन करें",
+  "mapTooltipForStartNewTraverse": "आ_Please select a point on map, or type below, to begin_________________ज",
   "mapTooltipForEditNewTraverse": "संपादित करने के लिए कृपया किसी पार्सल का चयन करें",
   "mapTooltipForUpdateStartPoint": "शुरुआती पॉइंट को अपडेट करने के लिए क्लिक करें",
   "mapTooltipForScreenDigitization": "पार्सल पॉइंट जोड़ने के लिए क्लिक करें",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "कृपया वैध योजना नाम दर्ज करें।",
     "enterValidDocumentTypeMessage": "दस्तावेजों का प्रकार अवैध है।",
     "enterValidStatedAreaNameMessage": "कृपया घोषित क्षेत्र का दर्ज करें।"
+  },
+  "xyInput": {
+    "explanation": "आ_In the spatial reference of your parcels layer_______________ज"
   }
 });

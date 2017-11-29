@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Configurare incorectă",
   "geometryServiceURLNotFoundMSG": "Imposibil de obţinut URL-ul serviciului de geometrie",
   "editTraverseButtonLabel": "Editare transversală",
-  "mapTooltipForStartNewTraverse": "Selectaţi un punct pe hartă pentru a începe",
+  "mapTooltipForStartNewTraverse": "Ă_Please select a point on map, or type below, to begin_________________ș",
   "mapTooltipForEditNewTraverse": "Selectaţi o parcelă pentru a o edita",
   "mapTooltipForUpdateStartPoint": "Faceţi clic pentru a actualiza punctul de început",
   "mapTooltipForScreenDigitization": "Faceţi clic pentru a adăuga un punct la parcelă",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Introduceţi un nume de plan valid.",
     "enterValidDocumentTypeMessage": "Tip document nevalid.",
     "enterValidStatedAreaNameMessage": "Introduceţi o suprafaţă declarată validă."
+  },
+  "xyInput": {
+    "explanation": "Ă_In the spatial reference of your parcels layer_______________ș"
   }
 });

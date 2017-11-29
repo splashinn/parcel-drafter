@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Ogiltig konfiguration",
   "geometryServiceURLNotFoundMSG": "Det gick inte att hämta webbadress till geometritjänst",
   "editTraverseButtonLabel": "Redigera polygontåg",
-  "mapTooltipForStartNewTraverse": "Välj en punkt på kartan för att börja",
+  "mapTooltipForStartNewTraverse": "Å_Please select a point on map, or type below, to begin_________________ö",
   "mapTooltipForEditNewTraverse": "Välj en byggnad att redigera",
   "mapTooltipForUpdateStartPoint": "Klicka för att uppdatera startpunkten",
   "mapTooltipForScreenDigitization": "Klicka för att lägga till en byggnadspunkt",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Ange ett giltigt plannamn.",
     "enterValidDocumentTypeMessage": "Ogiltig dokumenttyp.",
     "enterValidStatedAreaNameMessage": "Ange ett giltigt angivet område."
+  },
+  "xyInput": {
+    "explanation": "Å_In the spatial reference of your parcels layer_______________ö"
   }
 });

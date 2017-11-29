@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Vigane konfiguratsioon",
   "geometryServiceURLNotFoundMSG": "Ei saa hankida geomeetriateenuse URL-i",
   "editTraverseButtonLabel": "Redigeeri läbimist",
-  "mapTooltipForStartNewTraverse": "Alustamiseks valige kaardil koht",
+  "mapTooltipForStartNewTraverse": "Š_Please select a point on map, or type below, to begin_________________ä",
   "mapTooltipForEditNewTraverse": "Valige maaüksus, mida redigeerida",
   "mapTooltipForUpdateStartPoint": "Klõpsake alguspunkti värskendamiseks",
   "mapTooltipForScreenDigitization": "Klõpsake maaüksuse punkti lisamiseks",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Sisestage kehtiv plaani nimi.",
     "enterValidDocumentTypeMessage": "Vigane dokumenditüüp.",
     "enterValidStatedAreaNameMessage": "Sisestage kehtiv esitatud pindala."
+  },
+  "xyInput": {
+    "explanation": "Š_In the spatial reference of your parcels layer_______________ä"
   }
 });

@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Configuração Inválida",
   "geometryServiceURLNotFoundMSG": "Não é possível obter o URL do Serviço de Geometria",
   "editTraverseButtonLabel": "Editar Travessia",
-  "mapTooltipForStartNewTraverse": "Por favor, selecione um ponto no mapa para iniciar",
+  "mapTooltipForStartNewTraverse": "ã_Please select a point on map, or type below, to begin_________________Ç",
   "mapTooltipForEditNewTraverse": "Por favor, selecione uma parcela para editar",
   "mapTooltipForUpdateStartPoint": "Clique para atualizar o ponto de partida",
   "mapTooltipForScreenDigitization": "Clique para adicionar ponto de parcela",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Por favor, introduza um nome de plano válido.",
     "enterValidDocumentTypeMessage": "Tipo de documento inválido.",
     "enterValidStatedAreaNameMessage": "Por favor, introduza uma área estabelecida válida."
+  },
+  "xyInput": {
+    "explanation": "ã_In the spatial reference of your parcels layer_______________Ç"
   }
 });

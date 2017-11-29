@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "Nederīga konfigurācija",
   "geometryServiceURLNotFoundMSG": "Nevar iegūt ģeometrijas servisa URL",
   "editTraverseButtonLabel": "Rediģēt traversu",
-  "mapTooltipForStartNewTraverse": "Izvēlieties kartē vietu, kur sākt",
+  "mapTooltipForStartNewTraverse": "ķ_Please select a point on map, or type below, to begin_________________ū",
   "mapTooltipForEditNewTraverse": "Izvēlieties zemes gabalu, ko rediģēt",
   "mapTooltipForUpdateStartPoint": "Noklikšķiniet, lai atjauninātu sākuma punktu",
   "mapTooltipForScreenDigitization": "Noklikšķiniet, lai pievienotu zemes gabala punktu",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "Ievadiet derīgu plāna nosaukumu.",
     "enterValidDocumentTypeMessage": "Nederīgs dokumenta veids.",
     "enterValidStatedAreaNameMessage": "Ievadiet derīgu norādīto platību."
+  },
+  "xyInput": {
+    "explanation": "ķ_In the spatial reference of your parcels layer_______________ū"
   }
 });

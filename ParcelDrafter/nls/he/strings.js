@@ -19,7 +19,7 @@ define({
   "invalidConfigMsg": "תצורה לא חוקית",
   "geometryServiceURLNotFoundMSG": "לא ניתן לקבל כתובת URL של שירות גיאומטריה",
   "editTraverseButtonLabel": "ערוך צלעון",
-  "mapTooltipForStartNewTraverse": "בחר נקודה במפה כדי להתחיל",
+  "mapTooltipForStartNewTraverse": "כן_Please select a point on map, or type below, to begin_________________ש",
   "mapTooltipForEditNewTraverse": "בחר חלקות כדי לערוך",
   "mapTooltipForUpdateStartPoint": "לחץ כדי לעדכן נקודת התחלה",
   "mapTooltipForScreenDigitization": "לחץ כדי להוסיף נקודת חלקות",
@@ -95,5 +95,8 @@ define({
     "enterValidPlanNameMessage": "הזן שם תוכנית חוקי.",
     "enterValidDocumentTypeMessage": "סוג מסמך לא חוקי.",
     "enterValidStatedAreaNameMessage": "הזן אזור מצוין חוקי."
+  },
+  "xyInput": {
+    "explanation": "כן_In the spatial reference of your parcels layer_______________ש"
   }
 });
