@@ -1,4 +1,4 @@
-# Parcel-Drafter
+# parcel-drafter
 
 Parcel Drafter is a Web AppBuilder (Developer Edition) custom widget designed to create and edit parcels.  This widget can be used create an application to supplement your on-premise parcel data management workflow, or used as a lightweight, standalone application.
 
