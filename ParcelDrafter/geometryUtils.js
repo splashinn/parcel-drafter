@@ -156,7 +156,7 @@ define([
           (cosU1 * sinU2 - sinU1 * cosU2 * cosλ) * (cosU1 * sinU2 - sinU1 * cosU2 * cosλ);
         sinσ = Math.sqrt(sinSqσ);
         if (sinσ == 0) { // jshint ignore:line
-          return 0;  // co-incident points
+          return { distance: 0, initialBearing: 0, finalBearing: 0 };  // co-incident points
         }
         cosσ = sinU1 * sinU2 + cosU1 * cosU2 * cosλ;
         σ = Math.atan2(sinσ, cosσ);
@@ -276,12 +276,12 @@ define([
         areaConversions.acres = geometryEngine.geodesicArea(simplifiedGeometry, 109402);
         areaConversions.squareMeters = geometryEngine.geodesicArea(simplifiedGeometry, 109404);
         areaConversions.squareFeet = geometryEngine.geodesicArea(simplifiedGeometry, 109405);
-        areaConversions.squareUsFeet = geometryEngine.geodesicArea(simplifiedGeometry, 109406);
+        areaConversions.squareUSSurveyFeet = geometryEngine.geodesicArea(simplifiedGeometry, 109406);
       } else {
         areaConversions.acres = 0;
         areaConversions.squareMeters = 0;
         areaConversions.squareFeet = 0;
-        areaConversions.squareUsFeet = 0;
+        areaConversions.squareUSSurveyFeet = 0;
       }
       return areaConversions;
     };

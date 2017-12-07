@@ -104,11 +104,10 @@ define([
         var options = [], option;
         //Add options for selected dropdown
         array.forEach(dropDownOptions, lang.hitch(this, function (type) {
-          if (this.nls.planSettings[type].hasOwnProperty("label")) {
-            option = { value: type, label: this.nls.planSettings[type].label };
-          } else {
-            option = { value: type, label: this.nls.planSettings[type] };
-          }
+          option = {
+            value: type,
+            label: this.nls.planSettings[type] || window.jimuNls.units[type]
+          };
           options.push(option);
         }));
         dropDown.addOption(options);

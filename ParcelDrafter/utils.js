@@ -17,14 +17,14 @@
 define([],
   function () {
     var mo = {};
-    mo.bearingFieldPlaces = 4;
+    mo.bearingFieldPlaces = 2;
 
     //Object that holds all the options and their keys for plan settings
     mo.planSettingsOptions = {
       "directionOrAngleType": ["northAzimuth", "southAzimuth", "quadrantBearing"],
       "directionOrAngleUnits": ["decimalDegree", "degreeMinuteSeconds"],
       "distanceAndLengthUnits": ["uSSurveyFeet", "meters"],
-      "areaUnits": ["squareUsFeet", "acres", "squareMeters"],
+      "areaUnits": ["squareUSSurveyFeet", "acres", "squareMeters"],
       "circularCurveParameters": ["radiusAndChordLength", "radiusAndArcLength"]
     };
 
@@ -371,6 +371,32 @@ define([],
       seconds = Number(seconds);
       seconds = seconds < 10 ? "0" + seconds : seconds;
       return seconds;
+    };
+
+    /**
+     * Cuts off digits beyond the specified number of places after
+     * decimal point without rounding.
+     * @param {number} num Number to trim
+     * @param {number} places Number of places to keep after the
+     *        decimal point; places > 0
+     * @return {number} Trimmed number
+     * @memberOf widgets/ParcelDrafter/utils
+     */
+    mo.showFixedPlacesAfterDecimal = function (num, places) {
+      var decimalPointIndex = 0, sliceIndex;
+      // return num.toString().match(/^-?\d+(?:\.\d{0,6})?/)[0];
+      //by default show only two numbers after decimal point
+      if (!places) {
+        places = 2;
+      }
+      num = num.toString(); //num to String
+      decimalPointIndex = num.indexOf("."); //get the index of decimal point in string
+      sliceIndex = decimalPointIndex + places + 1; //add number of places plus 1 as a slice index
+      //if decimal point exist slice the string to have number of places after decimal
+      if (decimalPointIndex > 0) {
+        num = num.slice(0, sliceIndex);
+      }
+      return Number(num);
     };
 
     /**

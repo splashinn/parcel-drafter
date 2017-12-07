@@ -17,6 +17,7 @@
 define([
   'dojo/_base/declare',
   'jimu/BaseWidget',
+  'dojo/_base/array',
   'dojo/_base/lang',
   'dojo/dom-class',
   'dojo/dom-attr',
@@ -24,6 +25,7 @@ define([
   'dojo/dom-style',
   'dojo/on',
   './PlanSettings',
+  './XYInput',
   './NewTraverse',
   './MapTooltipHandler',
   './layerUtils',
@@ -36,6 +38,7 @@ define([
   function (
     declare,
     BaseWidget,
+    array,
     lang,
     domClass,
     domAttr,
@@ -43,6 +46,7 @@ define([
     domStyle,
     on,
     PlanSettings,
+    XYInput,
     NewTraverse,
     MapTooltipHandler,
     layerUtils,
@@ -63,6 +67,7 @@ define([
       _lineLayerSpatialReference: null, //Store spatial reference of line layer
       _polygonLayerSpatialReference: null, //Store spatial reference of polygon layer
       _isUpdateStartPoint: null, //Flag to indicate if updated startPoint feature is on
+      _featureReductionEnabledLayers: [],
 
       postMixInProperties: function () {
         //mixin default nls with widget nls
@@ -84,7 +89,7 @@ define([
           this._showErrorInWidgetPanel(this.nls.invalidConfigMsg);
           return false;
         }
-        //initialize the layerUtils object which will help in getting layer details form map
+        //initialize the layerUtils object which will help in getting layer details from map
         this._layerUtils = new layerUtils({
           "map": this.map, getPopupInfo: true, getRenderer: false
         });
@@ -105,6 +110,15 @@ define([
         this.inherited(arguments);
         //override the panel styles
         domClass.add(this.domNode.parentElement, "esriCTOverridePanelStyle");
+
+        // Disable feature reduction for layers
+        this._featureReductionEnabledLayers = [];
+        array.forEach(this.config.snappingLayers, function (layerSummary) {
+          var layer = this.map.getLayer(layerSummary.id);
+          if (layer.isFeatureReductionEnabled && layer.isFeatureReductionEnabled()) {
+            this._featureReductionEnabledLayers.push(layer);
+          }
+        }, this);
       },
 
       /**
@@ -118,6 +132,20 @@ define([
           this._mapTooltipHandler.connectEventHandler(this.nls.mapTooltipForUpdateStartPoint);
           this._toggleSnapping(true);
         }
+      },
+
+      onActive: function () {
+        // Disable feature reduction for layers
+        array.forEach(this._featureReductionEnabledLayers, function (layer) {
+          layer.disableFeatureReduction();
+        });
+      },
+
+      onDeActive: function () {
+        // Re-enable feature reduction for layers
+        array.forEach(this._featureReductionEnabledLayers, function (layer) {
+          layer.enableFeatureReduction();
+        });
       },
 
       /**
@@ -134,11 +162,22 @@ define([
           domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
             "esriCTEditTraverseActive");
           this.newTraverseSelectMessageNode.innerHTML = "";
+          domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
+
           this._newTraverseInstance.deActivateDigitizationTool();
           this._newTraverseInstance.deactivateParcelTools();
           //hide popup to edit values
           this._newTraverseInstance.closePopup();
         }
+      },
+
+      destroy: function () {
+        // Re-enable feature reduction for layers that were disabled at startup.
+        array.forEach(this._featureReductionEnabledLayers, function (layer) {
+          layer.enableFeatureReduction();
+        });
+
+        this.inherited(arguments);
       },
 
       /**
@@ -154,6 +193,8 @@ define([
         this._createNewTraverse();
         //Create Plan settings instance
         this._createPlanSettings();
+        //Create XYInput widget:
+        this._createXYInput();
       },
 
       /**
@@ -236,6 +277,7 @@ define([
             domClass.replace(this.newTraverseButton, "esriCTNewTraverseButton",
               "esriCTNewTraverseActive");
             this.newTraverseSelectMessageNode.innerHTML = "";
+            domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
           } else {
             domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
               "esriCTEditTraverseActive");
@@ -245,6 +287,7 @@ define([
             this._isUpdateStartPoint = true;
             this._toggleSnapping(true);
             this.newTraverseSelectMessageNode.innerHTML = this.nls.mapTooltipForStartNewTraverse;
+            domClass.remove(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
           }
         })));
         //handle edit traverse button click
@@ -256,6 +299,7 @@ define([
             domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
               "esriCTEditTraverseActive");
             this.newTraverseSelectMessageNode.innerHTML = "";
+            domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
           } else {
             domClass.replace(this.newTraverseButton, "esriCTNewTraverseButton",
               "esriCTNewTraverseActive");
@@ -357,6 +401,7 @@ define([
         domClass.replace(this.editTraverseButton, "esriCTEditTraverseButton",
           "esriCTEditTraverseActive");
         this.newTraverseSelectMessageNode.innerHTML = "";
+        domClass.add(this.newTraverseSelectMessageNodeWrapper, "esriCTHidden");
         this._toggleSnapping(false);
         //disconnect the map handlers
         this._mapTooltipHandler.disconnectEventHandler();
@@ -677,6 +722,25 @@ define([
       },
 
       /**
+      * Creates x/y input form
+      * @memberOf widgets/ParcelDrafter/Widget
+      **/
+      _createXYInput: function () {
+        //Create PlanSettings Instance
+        this._xyInputInstance = new XYInput({
+          nls: this.nls,
+          config: this.config,
+          appConfig: this.appConfig,
+          map: this.map
+        }).placeAt(this.newTraverseSelectMessageNodeWrapper, "last");
+        this.own(this._xyInputInstance.on("newPoint",
+          lang.hitch(this, function (point) {
+            this._onMapPointSelected(point);
+          })));
+        this._xyInputInstance.startup();
+      },
+
+      /**
       * Displays selected panel
       * @param {string} panel name
       * @memberOf widgets/ParcelDrafter/Widget
@@ -729,15 +793,15 @@ define([
       _getNodeByName: function (panelName) {
         var node;
         switch (panelName) {
-          case "mainPage":
-            node = this.mainPageNode;
-            break;
-          case "traversePage":
-            node = this.traversePageNode;
-            break;
-          case "planSettingsPage":
-            node = this.planSettingsPageNode;
-            break;
+        case "mainPage":
+          node = this.mainPageNode;
+          break;
+        case "traversePage":
+          node = this.traversePageNode;
+          break;
+        case "planSettingsPage":
+          node = this.planSettingsPageNode;
+          break;
         }
         return node;
       }

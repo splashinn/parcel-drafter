@@ -110,9 +110,9 @@ define([
         'esriFieldTypeSingle',
         'esriFieldTypeDouble'
       ],
-      lengthFieldPlaces: 4, //Number of places to be shown in length field
-      radiusFieldPlaces: 4, //Number of places to be shown in radius field
-      miscloseDistanceFieldPlaces: 4, //Number of places to be shown in miscloseDistance field
+      lengthFieldPlaces: 2, //Number of places to be shown in length field
+      radiusFieldPlaces: 2, //Number of places to be shown in radius field
+      miscloseDistanceFieldPlaces: 2, //Number of places to be shown in miscloseDistance field
 
       postCreate: function () {
         //initialize widget array & object variables
@@ -158,13 +158,13 @@ define([
           this.config.polylineLayer.popupInfo.fieldInfos) {
           array.forEach(this.config.polylineLayer.popupInfo.fieldInfos, lang.hitch(this,
             function (field) {
-              if (field.fieldName === this.config.polylineLayer.bearing.name) {
+              if (field.fieldName === this.config.polylineLayer.bearing.name && field.format) {
                 utils.bearingFieldPlaces = field.format.places;
               }
-              if (field.fieldName === this.config.polylineLayer.distance.name) {
+              if (field.fieldName === this.config.polylineLayer.distance.name && field.format) {
                 this.lengthFieldPlaces = field.format.places;
               }
-              if (field.fieldName === this.config.polylineLayer.radius.name) {
+              if (field.fieldName === this.config.polylineLayer.radius.name && field.format) {
                 this.radiusFieldPlaces = field.format.places;
               }
             }));
@@ -174,7 +174,7 @@ define([
           this.config.polygonLayer.popupInfo.fieldInfos) {
           array.forEach(this.config.polygonLayer.popupInfo.fieldInfos, lang.hitch(this,
             function (field) {
-              if (field.fieldName === this.config.polygonLayer.miscloseDistance.name) {
+              if (field.fieldName === this.config.polygonLayer.miscloseDistance.name && field.format) {
                 this.miscloseDistanceFieldPlaces = field.format.places;
               }
             }));
@@ -953,7 +953,7 @@ define([
               parcelValidationDetails =
                 this._planInfoInstance.validateParcelDetails(statedAreaValue);
               if (parcelValidationDetails.status) {
-                if(this._misCloseDetailsInstance.traverseStatedArea.get("value") === ""){
+                if (this._misCloseDetailsInstance.traverseStatedArea.get("value") === "") {
                   statedAreaValue = null;
                 }
                 dataObj = {};
@@ -1848,12 +1848,13 @@ define([
       updateAccordingToPlanSettings: function (updatedSettings) {
         var miscloseDetails, miscloseDetailsInfo;
         this._planSettings = updatedSettings;
-        this.bearingNode.set("placeHolder", this.nls.planSettings
-        [updatedSettings.directionOrAngleUnits].abbreviation);
-        this.lengthNode.set("placeHolder", this.nls.planSettings
-        [updatedSettings.distanceAndLengthUnits].abbreviation);
-        this.radiusNode.set("placeHolder", this.nls.planSettings
-        [updatedSettings.distanceAndLengthUnits].abbreviation);
+        this.bearingNode.set("placeHolder",
+          this._getAbbreviatedUnits(updatedSettings.directionOrAngleUnits));
+        this.lengthNode.set("placeHolder",
+          this._getAbbreviatedUnits(updatedSettings.distanceAndLengthUnits));
+        this.radiusNode.set("placeHolder",
+          this._getAbbreviatedUnits(updatedSettings.distanceAndLengthUnits));
+
         //regenerate traverse grid, it will honour the updated plan settings.
         this._reGenerateTraverseGrid();
         //update misclose info if available
@@ -1914,13 +1915,18 @@ define([
       },
 
       /**
-      * This function will return an object with details containing if parcel isClosed or not and
+      * This function calculates misclose distance based on relative coordinate system
+      * where start point is origin.
+      * Also this will return an object with details containing if parcel is closed or not
       * compassStartPoint - start point from where boundary lines started
       * compassEndPoint - point where boundary lines ended
+      * miscloseDistance - distance between start and end point
+      * miscloseBearing - angle between start and end point
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
       getParcelCloseDetails: function () {
-        var boundaryLinesCount, parcelCloseDetails, isValid, compassStartPoint, compassEndPoint;
+        var boundaryLinesCount, parcelCloseDetails, isValid, compassStartPoint, compassEndPoint,
+        miscloseDistance, miscloseBearing, pt;
         //set default return object
         parcelCloseDetails = {
           isClosed: false,
@@ -1930,6 +1936,7 @@ define([
         //set default values in vars
         isValid = true;
         boundaryLinesCount = 0;
+        pt = { x: 0, y: 0 };
         //loop through all the entered items
         array.forEach(this._itemList, lang.hitch(this, function (item, index) {
           //update count of boundary lines and set the compass start & end point
@@ -1940,6 +1947,10 @@ define([
               compassEndPoint = item.endpoint;
             }
             boundaryLinesCount++;
+            pt.x += Math.cos((item.BearingConversions.naDD / 180 * Math.PI)) *
+              item.LengthConversions.meters;
+            pt.y += Math.sin((item.BearingConversions.naDD / 180 * Math.PI)) *
+              item.LengthConversions.meters;
           } else if (index > 0 && boundaryLinesCount !== 0) {
             isValid = false;
           }
@@ -1947,9 +1958,26 @@ define([
         //If entered data has more than 1 Boundary line and,
         //boundary line is not followed by any other category of line then it is valid
         if (boundaryLinesCount > 1 && isValid) {
+          //calculate misclose distance between end point and origin
+          miscloseDistance = Math.sqrt((pt.x * pt.x) + (pt.y * pt.y));
+          //if distance is very small we get value with negative exponent consider such values as 0
+          miscloseDistance = geometryUtils.removeNegativeExponents(miscloseDistance);
+          //consider only 6 decimal places after point
+          compassStartPoint.x = utils.showFixedPlacesAfterDecimal(compassStartPoint.x, 6);
+          compassStartPoint.y = utils.showFixedPlacesAfterDecimal(compassStartPoint.y, 6);
+          compassEndPoint.x = utils.showFixedPlacesAfterDecimal(compassEndPoint.x, 6);
+          compassEndPoint.y = utils.showFixedPlacesAfterDecimal(compassEndPoint.y, 6);
+          //using start and end point calculate misclose angle
+          miscloseBearing = geometryUtils.getAngleBetweenPoints(
+            compassEndPoint,
+            compassStartPoint
+          );
+          //set values in return object
           parcelCloseDetails.isClosed = true;
           parcelCloseDetails.compassStartPoint = compassStartPoint;
           parcelCloseDetails.compassEndPoint = compassEndPoint;
+          parcelCloseDetails.miscloseDistance = miscloseDistance;
+          parcelCloseDetails.miscloseBearing = miscloseBearing;
         }
         return parcelCloseDetails;
       },
@@ -1963,10 +1991,7 @@ define([
         parcelCloseDetails = this.getParcelCloseDetails();
         if (parcelCloseDetails.isClosed) {
           //calculate misclose details on parcel close details
-          miscloseDetails = this.getCalculatedMiscloseDetails(
-            parcelCloseDetails.compassStartPoint,
-            parcelCloseDetails.compassEndPoint
-          );
+          miscloseDetails = this.getCalculatedMiscloseDetails(parcelCloseDetails);
           //set misclose info
           this._misCloseDetailsInstance.setMiscloseDetails(miscloseDetails);
           //apply compass rule corrections and again redraw if it is saying to adjust the points
@@ -2008,7 +2033,7 @@ define([
         miscloseDistance = this._getRoundedValue(miscloseDetails.LengthConversions,
           "MiscloseDistance");
         returnVal.miscloseDistance = miscloseDistance + " " +
-          this.nls.planSettings[this._planSettings.distanceAndLengthUnits].abbreviation;
+          this._getAbbreviatedUnits(this._planSettings.distanceAndLengthUnits);
         //get calculated area according to planSettings
         if (miscloseDetails.AreaConversions) {
           calculatedArea = miscloseDetails.AreaConversions[this._planSettings.areaUnits];
@@ -2020,7 +2045,7 @@ define([
           calculatedArea = 0;
         }
         calculatedArea = calculatedArea + " " +
-          this.nls.planSettings[this._planSettings.areaUnits].abbreviation;
+          this._getAbbreviatedUnits(this._planSettings.areaUnits);
         returnVal.calculatedArea = calculatedArea;
         return returnVal;
       },
@@ -2030,22 +2055,19 @@ define([
       * miscloseDistance, miscloseBearing, miscloseRatio, accuracy & calculatedArea
       * @memberOf widgets/ParcelDrafter/NewTraverse
       **/
-      getCalculatedMiscloseDetails: function (compassStartPoint, compassEndPoint) {
+      getCalculatedMiscloseDetails: function (parcelCloseDetails) {
         var bearingData, lengthData, miscloseDetails = {}, miscloseDistance = 0,
           miscloseBearing = 0, miscloseRatio = 0, accuracy = false, highRatio,
-          miscloseRatioInfo;
+          miscloseRatioInfo, compassStartPoint, compassEndPoint;
+        //set compass start and end point
+        compassStartPoint = parcelCloseDetails.compassStartPoint;
+        compassEndPoint = parcelCloseDetails.compassEndPoint;
         highRatio = 100000;
         if (compassEndPoint && compassStartPoint) {
-          //get bearing between  End and Start of the boundary lines
-          miscloseBearing = geometryUtils.getAngleBetweenPoints(
-            compassEndPoint,
-            compassStartPoint
-          );
           //get length between End and Start of the boundary lines
-          miscloseDistance = geometryUtils.getDistanceBetweenPoints(
-            compassEndPoint,
-            compassStartPoint
-          );
+          miscloseDistance = parcelCloseDetails.miscloseDistance;
+          //get bearing between  End and Start of the boundary lines
+          miscloseBearing = parcelCloseDetails.miscloseBearing;
           //if misclose distance in 0 show misclose bearing also 0
           if (miscloseDistance === 0) {
             miscloseBearing = 0;
@@ -2491,6 +2513,17 @@ define([
           defer.resolve(false);
         }
         return defer;
+      },
+
+      /**
+       * Gets the abbreviated variant of a unit.
+       * @parameter {string} unit Unit to look up; must be one of the
+       *       units in jimu.units
+       * @return {string} window.jimuNls.units[units + "Abbr"]
+       * @memberOf widgets/ParcelDrafter/NewTraverse
+       */
+      _getAbbreviatedUnits: function (units) {
+        return window.jimuNls.units[units + "Abbr"];
       },
 
       /**

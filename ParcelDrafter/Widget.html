@@ -14,7 +14,10 @@
                 <div class="esriCTEditTraverseButton esriCTButtonIcon esriCTCursorPointer" title="${nls.editTraverseButtonLabel}" data-dojo-attach-point="editTraverseButton">
                 </div>
             </div>
-            <div class="esriCTMainPageRow esriCTAlignCenter" data-dojo-attach-point="newTraverseSelectMessageNode">
+            <div data-dojo-attach-point="newTraverseSelectMessageNodeWrapper" class="esriCTHidden">
+              <div class="esriCTMainPageRow esriCTAlignCenter" data-dojo-attach-point="newTraverseSelectMessageNode">
+              </div>
+              <!-- XYInput Widget get inserted here -->
             </div>
         </div>
         <!--Traverse Page Node-->
